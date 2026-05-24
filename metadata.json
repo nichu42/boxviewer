@@ -1,0 +1,8 @@
+{
+  "name": "BoxViewer",
+  "description": "Visualize and monitor data from openSenseMap senseBoxes via home widgets and a discovery mode.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
