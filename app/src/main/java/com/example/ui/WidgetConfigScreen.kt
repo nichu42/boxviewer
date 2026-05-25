@@ -728,15 +728,19 @@ fun WidgetConfigScreen(
                                                                             dragOffsetY += dragAmount.y
                                                                             
                                                                             draggedIndex?.let { currentIdx ->
-                                                                                val targetIdx = (currentIdx + (dragOffsetY / currentItemHeightPxState.value).roundToInt())
-                                                                                    .coerceIn(0, selectedSensorIds.size - 1)
-                                                                                if (targetIdx != currentIdx) {
-                                                                                    val newList = selectedSensorIds.toMutableList()
-                                                                                    val movedItem = newList.removeAt(currentIdx)
-                                                                                    newList.add(targetIdx, movedItem)
-                                                                                    selectedSensorIds = newList
-                                                                                    dragOffsetY -= (targetIdx - currentIdx) * currentItemHeightPxState.value
-                                                                                    draggedIndex = targetIdx
+                                                                                if (selectedSensorIds.isNotEmpty()) {
+                                                                                    val targetIdx = (currentIdx + (dragOffsetY / currentItemHeightPxState.value).roundToInt())
+                                                                                        .coerceIn(0, selectedSensorIds.size - 1)
+                                                                                    if (targetIdx != currentIdx) {
+                                                                                        val newList = selectedSensorIds.toMutableList()
+                                                                                        if (currentIdx in newList.indices && targetIdx in newList.indices) {
+                                                                                            val movedItem = newList.removeAt(currentIdx)
+                                                                                            newList.add(targetIdx, movedItem)
+                                                                                            selectedSensorIds = newList
+                                                                                            dragOffsetY -= (targetIdx - currentIdx) * currentItemHeightPxState.value
+                                                                                            draggedIndex = targetIdx
+                                                                                        }
+                                                                                    }
                                                                                 }
                                                                             }
                                                                         }

@@ -246,14 +246,6 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                     for (selectedId in selectedIdsList) {
                         sensors.find { it.sensorId == selectedId }?.let { matched.add(it) }
                     }
-                    if (matched.size < 6) {
-                        for (s in sensors) {
-                            if (!matched.contains(s)) {
-                                matched.add(s)
-                            }
-                            if (matched.size >= 6) break
-                        }
-                    }
                     matched.take(6)
                 } else {
                     sensors.take(6)

@@ -49,7 +49,7 @@ fun DashboardScreen(
     var reorderList by remember { mutableStateOf<List<SavedBoxEntity>>(emptyList()) }
 
     LaunchedEffect(isReorderMode, savedBoxes) {
-        if (savedBoxes.size <= 1) {
+        if (savedBoxes.isEmpty()) {
             isReorderMode = false
         }
         if (isReorderMode) {
@@ -273,15 +273,19 @@ fun DashboardScreen(
                                                     dragY += dragAmount.y
 
                                                     draggedIdx?.let { currentIdx ->
-                                                        val targetIdx = (currentIdx + (dragY / currentItemHeightPxState.value).roundToInt())
-                                                            .coerceIn(0, reorderList.size - 1)
-                                                        if (targetIdx != currentIdx) {
-                                                            val newList = reorderList.toMutableList()
-                                                            val movedItem = newList.removeAt(currentIdx)
-                                                            newList.add(targetIdx, movedItem)
-                                                            reorderList = newList
-                                                            dragY -= (targetIdx - currentIdx) * currentItemHeightPxState.value
-                                                            draggedIdx = targetIdx
+                                                        if (reorderList.isNotEmpty()) {
+                                                            val targetIdx = (currentIdx + (dragY / currentItemHeightPxState.value).roundToInt())
+                                                                .coerceIn(0, reorderList.size - 1)
+                                                            if (targetIdx != currentIdx) {
+                                                                val newList = reorderList.toMutableList()
+                                                                if (currentIdx in newList.indices && targetIdx in newList.indices) {
+                                                                    val movedItem = newList.removeAt(currentIdx)
+                                                                    newList.add(targetIdx, movedItem)
+                                                                    reorderList = newList
+                                                                    dragY -= (targetIdx - currentIdx) * currentItemHeightPxState.value
+                                                                    draggedIdx = targetIdx
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -610,15 +614,19 @@ fun SavedBoxCard(
                                                                 dragOffsetY += dragAmount.y
 
                                                                 draggedIndex?.let { currentIdx ->
-                                                                    val targetIdx = (currentIdx + (dragOffsetY / currentItemHeightPxState.value).roundToInt())
-                                                                        .coerceIn(0, selectedSensorIdsState.size - 1)
-                                                                    if (targetIdx != currentIdx) {
-                                                                        val newList = selectedSensorIdsState.toMutableList()
-                                                                        val movedItem = newList.removeAt(currentIdx)
-                                                                        newList.add(targetIdx, movedItem)
-                                                                        selectedSensorIdsState = newList
-                                                                        dragOffsetY -= (targetIdx - currentIdx) * currentItemHeightPxState.value
-                                                                        draggedIndex = targetIdx
+                                                                    if (selectedSensorIdsState.isNotEmpty()) {
+                                                                        val targetIdx = (currentIdx + (dragOffsetY / currentItemHeightPxState.value).roundToInt())
+                                                                            .coerceIn(0, selectedSensorIdsState.size - 1)
+                                                                        if (targetIdx != currentIdx) {
+                                                                            val newList = selectedSensorIdsState.toMutableList()
+                                                                            if (currentIdx in newList.indices && targetIdx in newList.indices) {
+                                                                                val movedItem = newList.removeAt(currentIdx)
+                                                                                newList.add(targetIdx, movedItem)
+                                                                                selectedSensorIdsState = newList
+                                                                                dragOffsetY -= (targetIdx - currentIdx) * currentItemHeightPxState.value
+                                                                                draggedIndex = targetIdx
+                                                                            }
+                                                                        }
                                                                     }
                                                                 }
                                                             }

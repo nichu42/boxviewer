@@ -1,0 +1,17 @@
+pipeline:
+  build:
+    image: runmymind/docker-android-sdk:latest
+    commands:
+      - chmod +x gradlew
+      - ./gradlew assembleRelease
+
+  release:
+    image: codeberg.org/woodpecker-plugins/forgejo-release:latest
+    settings:
+      base_url: https://codeberg.org
+      files:
+        - app/build/outputs/apk/release/app-release-unsigned.apk
+      api_key:
+        from_secret: codeberg_token
+    when:
+      event: tag

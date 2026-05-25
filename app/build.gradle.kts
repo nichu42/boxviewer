@@ -11,11 +11,11 @@ android {
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.aistudio.boxviewer.wxypzt"
+    applicationId = "de.nichu42.boxviewer"
     minSdk = 24
     targetSdk = 36
-    versionCode = 2
-    versionName = "1.1"
+    versionCode = 4
+    versionName = "1.3"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -58,11 +58,30 @@ android {
   testOptions { unitTests { isIncludeAndroidResources = true } }
 }
 
-// Configure the Secrets Gradle Plugin to use .env and .env.example files
-// to match the convention used in Web projects.
+// Ensure at least one secrets-related properties file exists so that the Secrets Gradle Plugin does not fail configuration.
+val localPropsExist = project.rootProject.file("local.properties").exists()
+val envFileExist = project.rootProject.file(".env").exists()
+val envExampleFileExist = project.rootProject.file(".env.example").exists()
+
+if (!localPropsExist && !envFileExist && !envExampleFileExist) {
+  try {
+    project.rootProject.file("local.properties").createNewFile()
+  } catch (e: Exception) {
+    // Ignore any exceptions
+  }
+}
+
+// Configure the Secrets Gradle Plugin to use the .env and .env.example files
+// if they exist, otherwise fallback automatically to default properties.
 secrets {
-  propertiesFileName = ".env"
-  defaultPropertiesFileName = ".env.example"
+  val envFile = project.rootProject.file(".env")
+  val envExampleFile = project.rootProject.file(".env.example")
+  if (envFile.exists()) {
+    propertiesFileName = ".env"
+  }
+  if (envExampleFile.exists()) {
+    defaultPropertiesFileName = ".env.example"
+  }
 }
 
 // Some unused dependencies are commented out below instead of being removed.
