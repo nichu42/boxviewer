@@ -26,6 +26,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.ui.AboutScreen
 import com.example.ui.LicenseScreen
+import com.example.ui.ThirdPartyLicensesScreen
 import com.example.ui.BoxDetailScreen
 import com.example.ui.DashboardScreen
 import com.example.ui.DiscoveryScreen
@@ -172,11 +173,21 @@ class MainActivity : ComponentActivity() {
                             AboutScreen(
                                 onViewLicense = {
                                     navController.navigate("license")
+                                },
+                                onViewThirdPartyLicenses = {
+                                    navController.navigate("third_party_licenses")
                                 }
                             )
                         }
                         composable("license") {
                             LicenseScreen(
+                                onBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+                        composable("third_party_licenses") {
+                            ThirdPartyLicensesScreen(
                                 onBack = {
                                     navController.popBackStack()
                                 }

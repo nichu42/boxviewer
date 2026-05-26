@@ -44,12 +44,40 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import android.widget.Toast
+import com.example.util.CrashHandler
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutScreen(onViewLicense: () -> Unit = {}) {
+fun AboutScreen(
+    onViewLicense: () -> Unit = {},
+    onViewThirdPartyLicenses: () -> Unit = {}
+) {
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
+    var crashLog by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        crashLog = CrashHandler.getCrashLog(context)
+    }
+
+    val versionName = remember(context) {
+        try {
+            val packageInfo = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(context.packageName, android.content.pm.PackageManager.PackageInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(context.packageName, 0)
+            }
+            packageInfo.versionName ?: "0.10"
+        } catch (e: Exception) {
+            "0.10"
+        }
+    }
 
     Scaffold { innerPadding ->
         Column(
@@ -74,7 +102,7 @@ fun AboutScreen(onViewLicense: () -> Unit = {}) {
             )
 
             Text(
-                text = "Version 0.10 Beta (May 24, 2026)",
+                text = "Version $versionName",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center
@@ -296,6 +324,28 @@ fun AboutScreen(onViewLicense: () -> Unit = {}) {
                             fontWeight = FontWeight.SemiBold
                         )
                     }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Button(
+                        onClick = onViewThirdPartyLicenses,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().testTag("view_third_party_licenses_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Third-Party Licenses",
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Third-Party Licenses",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
 
@@ -508,6 +558,120 @@ fun AboutScreen(onViewLicense: () -> Unit = {}) {
                 }
             }
             
+            // 5. Diagnostics & Bug Reporting Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("about_diagnostics_card"),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "DIAGNOSTICS & BUG REPORTING",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    
+                    if (crashLog != null) {
+                        Text(
+                            text = "⚠️ Detection: A crash was captured from a recent session. Please copy the log below and include it in your issue on Codeberg.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.error,
+                            lineHeight = 20.sp
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 200.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                                .verticalScroll(rememberScrollState())
+                                .padding(12.dp)
+                        ) {
+                            Text(
+                                text = crashLog ?: "",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontFamily = FontFamily.Monospace,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Button(
+                                onClick = {
+                                    crashLog?.let {
+                                        clipboardManager.setText(AnnotatedString(it))
+                                        Toast.makeText(context, "Crash report copied to clipboard!", Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+                            ) {
+                                Text("Copy Crash Log", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                            Button(
+                                onClick = {
+                                    CrashHandler.clearCrashLog(context)
+                                    crashLog = null
+                                    Toast.makeText(context, "Crash log cleared", Toast.LENGTH_SHORT).show()
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                ),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+                            ) {
+                                Text("Clear Log", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                    } else {
+                        Text(
+                            text = "No crashes detected. The app is running smoothly! If you encounter any bugs, you can copy standard system info to help us diagnose the issue.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = 20.sp
+                        )
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Button(
+                            onClick = {
+                                val systemInfo = CrashHandler.generateSystemDiagnostics(context)
+                                clipboardManager.setText(AnnotatedString(systemInfo))
+                                Toast.makeText(context, "Diagnostics copied to clipboard!", Toast.LENGTH_SHORT).show()
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.Info, contentDescription = "Copy diagnostics", modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Copy System Diagnostics Info", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+            }
+            
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -703,6 +867,257 @@ fun VerticalScrollbar(
                         }
                     }
             )
+        }
+    }
+}
+
+// Custom Third Party Licenses Screen (Option B) - 100% stable, custom styled, robust
+data class ThirdPartyLib(
+    val name: String,
+    val author: String,
+    val description: String,
+    val licenseName: String,
+    val licenseText: String,
+    val url: String
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ThirdPartyLicensesScreen(
+    onBack: () -> Unit
+) {
+    val uriHandler = LocalUriHandler.current
+    val scrollState = rememberScrollState()
+
+    val apache2 = """
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    """.trimIndent()
+
+    val libraries = remember {
+        listOf(
+            ThirdPartyLib(
+                name = "Jetpack Compose & AndroidX",
+                author = "Google LLC",
+                description = "Modern and declarative UI toolkit, components, life cycle systems, and core tools used to build high-end Android products.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://developer.android.com/jetpack/compose"
+            ),
+            ThirdPartyLib(
+                name = "Retrofit",
+                author = "Square, Inc.",
+                description = "A type-safe HTTP client for Android and JVM, used to translate openSenseMap REST APIs into clean Kotlin interfaces.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://github.com/square/retrofit"
+            ),
+            ThirdPartyLib(
+                name = "OkHttp Engine & Interceptor",
+                author = "Square, Inc.",
+                description = "Efficient modern connection multiplexing HTTP logging HTTP client infrastructure.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://github.com/square/okhttp"
+            ),
+            ThirdPartyLib(
+                name = "Moshi Core & Codegen",
+                author = "Square, Inc.",
+                description = "Modern JSON library for Android, Kotlin, and Java, facilitating rapid type-safe JSON serialization/deserialization.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://github.com/square/moshi"
+            ),
+            ThirdPartyLib(
+                name = "Coil Image Loader",
+                author = "Coil Contributors",
+                description = "An image loading library for Android backed by Kotlin Coroutines, used to load remote assets and SVG vectors.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://github.com/coil-kt/coil"
+            ),
+            ThirdPartyLib(
+                name = "Kotlinx Coroutines & Flow",
+                author = "JetBrains s.r.o.",
+                description = "Library support for Kotlin coroutines, facilitating clean asynchronous reactive data programming and state flow bindings.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://github.com/Kotlin/kotlinx.coroutines"
+            ),
+            ThirdPartyLib(
+                name = "Room Persistence Database",
+                author = "Google LLC",
+                description = "Abstraction layer over SQLite, enabling robust, offline-capable structured query caching of user-added environmental sensor boxes.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://developer.android.com/training/data-storage/room"
+            )
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Third-Party Licenses", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBack,
+                        modifier = Modifier.testTag("third_party_back_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(scrollState)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "We are deeply grateful for the talented creators and communities behind these open-source dependencies. They help make BoxViewer lightweight, robust, and beautiful.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 20.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            libraries.forEach { lib ->
+                var expanded by remember { mutableStateOf(false) }
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("lib_card_${lib.name.replace(" ", "_").lowercase()}"),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    onClick = { expanded = !expanded }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = lib.name,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "by ${lib.author}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                            IconButton(
+                                onClick = {
+                                    try {
+                                        uriHandler.openUri(lib.url)
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                },
+                                modifier = Modifier.size(36.dp).testTag("lib_link_${lib.name.replace(" ", "_").lowercase()}")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Language,
+                                    contentDescription = "Open Homepage",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = lib.description,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = 18.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            SuggestionChip(
+                                onClick = { expanded = !expanded },
+                                label = {
+                                    Text(
+                                        text = lib.licenseName,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            )
+
+                            Text(
+                                text = if (expanded) "Hide details" else "Show license",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+
+                        if (expanded) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                        shape = RoundedCornerShape(6.dp)
+                                    )
+                                    .padding(12.dp)
+                            ) {
+                                Text(
+                                    text = lib.licenseText,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontFamily = FontFamily.Monospace,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    lineHeight = 16.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

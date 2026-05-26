@@ -48,12 +48,34 @@ fun DashboardScreen(
     var isReorderMode by remember { mutableStateOf(false) }
     var reorderList by remember { mutableStateOf<List<SavedBoxEntity>>(emptyList()) }
 
+    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshAll(force = false)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     LaunchedEffect(isReorderMode, savedBoxes) {
         if (savedBoxes.isEmpty()) {
             isReorderMode = false
         }
         if (isReorderMode) {
             reorderList = savedBoxes
+        }
+    }
+
+    LaunchedEffect(isReorderMode) {
+        if (!isReorderMode) {
+            while (true) {
+                kotlinx.coroutines.delay(60000)
+                viewModel.refreshAll()
+            }
         }
     }
 
@@ -79,7 +101,7 @@ fun DashboardScreen(
                         }
                     }
                     IconButton(
-                        onClick = { viewModel.refreshAll() },
+                        onClick = { viewModel.refreshAll(force = true) },
                         modifier = Modifier.testTag("refresh_all_button")
                     ) {
                         Icon(imageVector = Icons.Default.Refresh, contentDescription = "Refresh all")
@@ -309,17 +331,6 @@ fun DashboardScreen(
                     contentPadding = PaddingValues(16.dp, 8.dp, 16.dp, 80.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Section Heading
-                    item {
-                        Text(
-                            text = "FAVORITE SENSEBOXES",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
-                        )
-                    }
-
                     // List of saved boxes
                     items(savedBoxes, key = { it.boxId }) { box ->
                         SavedBoxCard(
@@ -343,6 +354,13 @@ fun SavedBoxCard(
     val cachedSensors by viewModel.getCachedSensorsFlow(box.boxId).collectAsStateWithLifecycle(initialValue = emptyList())
     val autoConfigureBoxId by viewModel.autoConfigureBoxId.collectAsStateWithLifecycle()
     var isConfiguring by remember { mutableStateOf(false) }
+
+    var resolvedLocation by remember { mutableStateOf(String.format(Locale.getDefault(), "Lat: %.3f, Lon: %.3f", box.latitude, box.longitude)) }
+    LaunchedEffect(box.boxId, box.latitude, box.longitude) {
+        viewModel.getCityStateCountryFromLocation(box.boxId, box.latitude, box.longitude) { loc ->
+            resolvedLocation = loc
+        }
+    }
 
     LaunchedEffect(autoConfigureBoxId) {
         if (autoConfigureBoxId == box.boxId) {
@@ -783,19 +801,23 @@ fun SavedBoxCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f, fill = false)
+                ) {
                     Icon(
                         imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Coordinates",
+                        contentDescription = "Location",
                         tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = String.format(Locale.getDefault(), "Lat: %.3f, Lon: %.3f", box.latitude, box.longitude),
+                        text = resolvedLocation,
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
                     )
                 }
 

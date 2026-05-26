@@ -48,9 +48,12 @@ fun BoxDetailScreen(
     onBack: () -> Unit,
     onNavigateToDashboardWithConfig: (String) -> Unit = {}
 ) {
-    // Select the box in viewModel on launch
+    // Select the box in viewModel on launch, and refresh periodically while on screen
     LaunchedEffect(boxId) {
-        viewModel.selectBox(boxId)
+        while (true) {
+            viewModel.selectBox(boxId)
+            kotlinx.coroutines.delay(60000)
+        }
     }
 
     val selectedBox by viewModel.selectedBox.collectAsStateWithLifecycle()
@@ -58,6 +61,17 @@ fun BoxDetailScreen(
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
     val context = androidx.compose.ui.platform.LocalContext.current
+
+    var resolvedLocation by remember { mutableStateOf("") }
+    val latitude = selectedBox?.currentLocation?.latitude
+    val longitude = selectedBox?.currentLocation?.longitude
+    LaunchedEffect(boxId, latitude, longitude) {
+        if (latitude != null && longitude != null) {
+            viewModel.getCityStateCountryFullFromLocation(boxId, latitude, longitude) { loc ->
+                resolvedLocation = loc
+            }
+        }
+    }
 
     val savedBox = remember(savedBoxes, selectedBox) {
         val box = selectedBox
@@ -118,7 +132,7 @@ fun BoxDetailScreen(
         PullToRefreshBox(
             isRefreshing = isLoading && selectedBox != null,
             onRefresh = {
-                viewModel.selectBox(boxId)
+                viewModel.selectBox(boxId, force = true)
             },
             modifier = Modifier
                 .fillMaxSize()
@@ -247,6 +261,15 @@ fun BoxDetailScreen(
                                             "DEVICE LOCATION & LINK",
                                             style = titleLabelStyle()
                                         )
+                                        if (resolvedLocation.isNotBlank()) {
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                            Text(
+                                                text = resolvedLocation,
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
                                         Spacer(modifier = Modifier.height(8.dp))
                                         
                                         Row(

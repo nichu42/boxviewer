@@ -55,7 +55,39 @@ class SenseBoxRepository(private val db: SenseBoxDatabase) {
      * Fetches a box from openSenseMap. If it is already in SavedBox table,
      * updates the database metadata and sensor caches.
      */
-    suspend fun fetchAndSyncBox(boxId: String): SenseBox = withContext(Dispatchers.IO) {
+    suspend fun fetchAndSyncBox(boxId: String, force: Boolean = false): SenseBox = withContext(Dispatchers.IO) {
+        val cached = sensorCacheDao.getCachedSensors(boxId)
+        val now = System.currentTimeMillis()
+        val isFresh = cached.isNotEmpty() && cached.any { (now - it.localFetchedAt) < 60000 }
+
+        if (!force && isFresh) {
+            val saved = savedBoxDao.getSavedBox(boxId)
+            return@withContext SenseBox(
+                id = boxId,
+                name = saved?.name ?: "senseBox",
+                description = saved?.description,
+                exposure = saved?.exposure,
+                model = "Cached",
+                grouptagRaw = null,
+                currentLocation = com.example.data.api.CurrentLocation(
+                    type = "Point",
+                    coordinates = listOf(saved?.longitude ?: 0.0, saved?.latitude ?: 0.0)
+                ),
+                sensors = cached.map {
+                    com.example.data.api.Sensor(
+                        id = it.sensorId,
+                        title = it.sensorTitle,
+                        unit = it.sensorUnit,
+                        sensorType = it.sensorType,
+                        lastMeasurement = com.example.data.api.Measurement(
+                            value = it.value,
+                            createdAt = it.updatedAt
+                        )
+                    )
+                }
+            )
+        }
+
         val box = api.getBox(boxId)
         
         // Cache sensors
@@ -67,7 +99,8 @@ class SenseBoxRepository(private val db: SenseBoxDatabase) {
                 sensorUnit = sensor.unit,
                 sensorType = sensor.sensorType,
                 value = sensor.lastMeasurement?.value,
-                updatedAt = sensor.lastMeasurement?.createdAt
+                updatedAt = sensor.lastMeasurement?.createdAt,
+                localFetchedAt = System.currentTimeMillis()
             )
         } ?: emptyList()
         
@@ -115,7 +148,8 @@ class SenseBoxRepository(private val db: SenseBoxDatabase) {
                 sensorUnit = sensor.unit,
                 sensorType = sensor.sensorType,
                 value = sensor.lastMeasurement?.value,
-                updatedAt = sensor.lastMeasurement?.createdAt
+                updatedAt = sensor.lastMeasurement?.createdAt,
+                localFetchedAt = System.currentTimeMillis()
             )
         } ?: emptyList()
 
@@ -138,11 +172,11 @@ class SenseBoxRepository(private val db: SenseBoxDatabase) {
         api.getBoxesNear("$longitude,$latitude", maxDistanceMeters)
     }
 
-    suspend fun refreshAllSavedBoxes() = withContext(Dispatchers.IO) {
+    suspend fun refreshAllSavedBoxes(force: Boolean = false) = withContext(Dispatchers.IO) {
         val saved = savedBoxDao.getAllSavedBoxes()
         for (box in saved) {
             try {
-                fetchAndSyncBox(box.boxId)
+                fetchAndSyncBox(box.boxId, force)
             } catch (e: Exception) {
                 // Ignore single box failure during batch sync
                 e.printStackTrace()

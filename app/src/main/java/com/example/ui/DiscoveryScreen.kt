@@ -38,9 +38,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import com.example.data.api.SenseBox
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.CurrentLocationRequest
-import com.google.android.gms.location.Priority
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,8 +78,6 @@ fun DiscoveryScreen(
                 getCurrentGPSLocation(context, viewModel) { label ->
                     searchQuery = label
                 }
-            } else {
-                viewModel.findBoxesNear(7.628, 51.960, 25000)
             }
         }
     )
@@ -526,53 +521,48 @@ fun DiscoveryScreen(
 
                                 // Search Radius Slider Row (Shown for any search with coordinates to search around)
                                 val lastSearchedCoords by viewModel.lastSearchedCoords.collectAsStateWithLifecycle()
-                                val coordsToUse = lastSearchedCoords ?: Pair(7.628, 51.960)
                                 
-                                LaunchedEffect(coordsToUse) {
-                                    if (viewModel.lastSearchedCoords.value == null) {
-                                        viewModel.lastSearchedCoords.value = coordsToUse
+                                if (lastSearchedCoords != null) {
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    val searchRadiusKm by viewModel.searchRadiusKm.collectAsStateWithLifecycle()
+                                    
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "Search Radius",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = "$searchRadiusKm km",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
                                     }
-                                }
-                                
-                                Spacer(modifier = Modifier.height(10.dp))
-                                val searchRadiusKm by viewModel.searchRadiusKm.collectAsStateWithLifecycle()
-                                
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "Search Radius",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Text(
-                                        text = "$searchRadiusKm km",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
 
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text("1 km", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    Slider(
-                                        value = searchRadiusKm.toFloat(),
-                                        onValueChange = { viewModel.setSearchRadiusKm(it.toInt()) },
-                                        valueRange = 1f..1000f,
-                                        onValueChangeFinished = {
-                                            viewModel.updateRadiusAndQuery(searchRadiusKm, isLocationSearch)
-                                        },
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .padding(horizontal = 8.dp)
-                                    )
-                                    Text("1000 km", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text("1 km", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Slider(
+                                            value = searchRadiusKm.toFloat(),
+                                            onValueChange = { viewModel.setSearchRadiusKm(it.toInt()) },
+                                            valueRange = 1f..1000f,
+                                            onValueChangeFinished = {
+                                                viewModel.updateRadiusAndQuery(searchRadiusKm, isLocationSearch)
+                                            },
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(horizontal = 8.dp)
+                                        )
+                                        Text("1000 km", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
                                 }
                             }
                         }
@@ -881,76 +871,116 @@ private fun getCurrentGPSLocation(
     onResult: (String) -> Unit
 ) {
     try {
-        val fLocationClient = LocationServices.getFusedLocationProviderClient(context)
-        val request = CurrentLocationRequest.Builder()
-            .setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
-            .setMaxUpdateAgeMillis(10000)
-            .build()
-        
-        fLocationClient.getCurrentLocation(request, null)
-            .addOnSuccessListener { loc ->
-                try {
-                    if (loc != null) {
-                        viewModel.findBoxesNear(loc.longitude, loc.latitude)
-                        viewModel.getAddressFromLocation(loc.latitude, loc.longitude) { label ->
-                            onResult(label)
-                        }
-                    } else {
-                        // Fallback to lastLocation query
-                        fLocationClient.lastLocation.addOnSuccessListener { locFallback ->
-                            if (locFallback != null) {
-                                viewModel.findBoxesNear(locFallback.longitude, locFallback.latitude)
-                                viewModel.getAddressFromLocation(locFallback.latitude, locFallback.longitude) { label ->
-                                    onResult(label)
-                                }
-                            } else {
-                                // Fallback to Munster Center
-                                viewModel.findBoxesNear(7.628, 51.960, 25000)
-                                viewModel.getAddressFromLocation(51.960, 7.628) { label ->
-                                    onResult(label)
-                                }
-                            }
-                        }.addOnFailureListener {
-                            viewModel.findBoxesNear(7.628, 51.960, 25000)
-                            viewModel.getAddressFromLocation(51.960, 7.628) { label ->
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
+        if (locationManager == null) {
+            handleLocationFailure(viewModel, onResult)
+            return
+        }
+
+        // Try GPS provider last known location
+        val gpsLoc = try {
+            if (locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
+                locationManager.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER)
+            } else null
+        } catch (e: SecurityException) {
+            null
+        }
+
+        // Try Network provider last known location
+        val netLoc = try {
+            if (locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)) {
+                locationManager.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER)
+            } else null
+        } catch (e: SecurityException) {
+            null
+        }
+
+        // Try Passive provider last known location
+        val passiveLoc = try {
+            locationManager.getLastKnownLocation(android.location.LocationManager.PASSIVE_PROVIDER)
+        } catch (e: SecurityException) {
+            null
+        }
+
+        // Select the best/most recent/highest accuracy location
+        val bestLocation = listOfNotNull(gpsLoc, netLoc, passiveLoc)
+            .maxByOrNull { it.time }
+
+        if (bestLocation != null) {
+            viewModel.findBoxesNear(bestLocation.longitude, bestLocation.latitude)
+            viewModel.getAddressFromLocation(bestLocation.latitude, bestLocation.longitude) { label ->
+                onResult(label)
+            }
+        } else {
+            // No last known location found, try starting a single update from the available provider
+            val provider = when {
+                locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) -> android.location.LocationManager.GPS_PROVIDER
+                locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER) -> android.location.LocationManager.NETWORK_PROVIDER
+                else -> null
+            }
+
+            if (provider != null) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                    locationManager.getCurrentLocation(
+                        provider,
+                        null,
+                        context.mainExecutor
+                    ) { loc ->
+                        if (loc != null) {
+                            viewModel.findBoxesNear(loc.longitude, loc.latitude)
+                            viewModel.getAddressFromLocation(loc.latitude, loc.longitude) { label ->
                                 onResult(label)
                             }
+                        } else {
+                            handleLocationFailure(viewModel, onResult)
                         }
                     }
-                } catch (inner: Throwable) {
-                    inner.printStackTrace()
-                    viewModel.findBoxesNear(7.628, 51.960, 25000)
-                    viewModel.getAddressFromLocation(51.960, 7.628) { label ->
-                        onResult(label)
+                } else {
+                    var triggered = false
+                    val listener = object : android.location.LocationListener {
+                        override fun onLocationChanged(loc: android.location.Location) {
+                            if (!triggered) {
+                                triggered = true
+                                locationManager.removeUpdates(this)
+                                viewModel.findBoxesNear(loc.longitude, loc.latitude)
+                                viewModel.getAddressFromLocation(loc.latitude, loc.longitude) { label ->
+                                    onResult(label)
+                                }
+                            }
+                        }
+                        @Deprecated("Deprecated in Java")
+                        override fun onStatusChanged(p: String?, s: Int, e: android.os.Bundle?) {}
+                        override fun onProviderEnabled(p: String) {}
+                        override fun onProviderDisabled(p: String) {}
                     }
+                    locationManager.requestLocationUpdates(provider, 0L, 0f, listener, context.mainLooper)
+                    // Safety timeout
+                    android.os.Handler(context.mainLooper).postDelayed({
+                        try {
+                            if (!triggered) {
+                                triggered = true
+                                locationManager.removeUpdates(listener)
+                                handleLocationFailure(viewModel, onResult)
+                            }
+                        } catch (e: Exception) {
+                            // ignore
+                        }
+                    }, 5000)
                 }
+            } else {
+                handleLocationFailure(viewModel, onResult)
             }
-            .addOnFailureListener {
-                // Primary query failed, fallback to lastLocation
-                fLocationClient.lastLocation.addOnSuccessListener { locFallback ->
-                    if (locFallback != null) {
-                        viewModel.findBoxesNear(locFallback.longitude, locFallback.latitude)
-                        viewModel.getAddressFromLocation(locFallback.latitude, locFallback.longitude) { label ->
-                            onResult(label)
-                        }
-                    } else {
-                        viewModel.findBoxesNear(7.628, 51.960, 25000)
-                        viewModel.getAddressFromLocation(51.960, 7.628) { label ->
-                            onResult(label)
-                        }
-                    }
-                }.addOnFailureListener {
-                    viewModel.findBoxesNear(7.628, 51.960, 25000)
-                    viewModel.getAddressFromLocation(51.960, 7.628) { label ->
-                        onResult(label)
-                    }
-                }
-            }
+        }
     } catch (e: Throwable) {
         e.printStackTrace()
-        viewModel.findBoxesNear(7.628, 51.960, 25000)
-        viewModel.getAddressFromLocation(51.960, 7.628) { label ->
-            onResult(label)
-        }
+        handleLocationFailure(viewModel, onResult)
     }
+}
+
+private fun handleLocationFailure(
+    viewModel: SenseBoxViewModel,
+    onResult: (String) -> Unit
+) {
+    onResult("")
+    viewModel.setErrorMessage("Unable to determine current location. Please search manually using the search bar.")
 }

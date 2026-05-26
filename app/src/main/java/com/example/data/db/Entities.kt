@@ -36,5 +36,6 @@ data class SensorCacheEntity(
     val sensorUnit: String?,
     val sensorType: String?,
     val value: String?,
-    val updatedAt: String?
+    val updatedAt: String?,
+    val localFetchedAt: Long = 0
 )

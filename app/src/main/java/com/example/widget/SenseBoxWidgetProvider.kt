@@ -51,7 +51,7 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                 }
             }
             Intent.ACTION_USER_PRESENT, Intent.ACTION_SCREEN_ON -> {
-                updateAllWidgets(context, force = false)
+                updateAllWidgets(context, force = true)
             }
         }
     }
@@ -108,6 +108,9 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
 
                 val views = buildRemoteViews(context, config, cachedSensors, box?.exposure)
                 appWidgetManager.updateAppWidget(appWidgetId, views)
+                
+                // Ensure repeating auto-update alarm is scheduled matching config
+                scheduleAlarm(context, appWidgetId, config.refreshIntervalMinutes)
             }
         }
 

@@ -70,6 +70,8 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     // Cache for box last updated timestamps and text to avoid repeating expensive formatting/parsing
     private val boxLastUpdatedCache = java.util.concurrent.ConcurrentHashMap<String, Long>()
     private val boxLastUpdatedTextCache = java.util.concurrent.ConcurrentHashMap<String, String>()
+    private val boxAddressCache = java.util.concurrent.ConcurrentHashMap<String, String>()
+    private val boxFullAddressCache = java.util.concurrent.ConcurrentHashMap<String, String>()
 
     private val _isLocationSearch = MutableStateFlow(true)
     val isLocationSearch: StateFlow<Boolean> = _isLocationSearch.asStateFlow()
@@ -335,6 +337,10 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     private val _autoConfigureBoxId = MutableStateFlow<String?>(null)
     val autoConfigureBoxId: StateFlow<String?> = _autoConfigureBoxId.asStateFlow()
 
+    fun setErrorMessage(msg: String?) {
+        _errorMessage.value = msg
+    }
+
     fun setAutoConfigureBox(boxId: String?) {
         _autoConfigureBoxId.value = boxId
     }
@@ -506,6 +512,243 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun abbreviateState(state: String?): String {
+        if (state.isNullOrBlank()) return ""
+        val s = state.trim()
+        if (s.length <= 3) return s.uppercase(java.util.Locale.US)
+        
+        val lower = s.lowercase(java.util.Locale.US)
+        val map = mapOf(
+            "nordrhein-westfalen" to "NRW",
+            "bayern" to "BY",
+            "baden-württemberg" to "BW",
+            "berlin" to "BE",
+            "brandenburg" to "BB",
+            "bremen" to "HB",
+            "hamburg" to "HH",
+            "hessen" to "HE",
+            "mecklenburg-vorpommern" to "MV",
+            "niedersachsen" to "NI",
+            "rheinland-pfalz" to "RP",
+            "saarland" to "SL",
+            "sachsen" to "SN",
+            "sachsen-anhalt" to "ST",
+            "schleswig-holstein" to "SH",
+            "thüringen" to "TH",
+            "alabama" to "AL", "alaska" to "AK", "arizona" to "AZ", "arkansas" to "AR",
+            "california" to "CA", "colorado" to "CO", "connecticut" to "CT", "delaware" to "DE",
+            "florida" to "FL", "georgia" to "GA", "hawaii" to "HI", "idaho" to "ID",
+            "illinois" to "IL", "indiana" to "IN", "iowa" to "IA", "kansas" to "KS",
+            "kentucky" to "KY", "louisiana" to "LA", "maine" to "ME", "maryland" to "MD",
+            "massachusetts" to "MA", "michigan" to "MI", "minnesota" to "MN", "mississippi" to "MS",
+            "missouri" to "MO", "montana" to "MT", "nebraska" to "NE", "nevada" to "NV",
+            "new hampshire" to "NH", "new jersey" to "NJ", "new mexico" to "NM", "new york" to "NY",
+            "north carolina" to "NC", "north dakota" to "ND", "ohio" to "OH", "oklahoma" to "OK",
+            "oregon" to "OR", "pennsylvania" to "PA", "rhode island" to "RI", "south carolina" to "SC",
+            "south dakota" to "SD", "tennessee" to "TN", "texas" to "TX", "utah" to "UT",
+            "vermont" to "VT", "virginia" to "VA", "washington" to "WA", "west virginia" to "WV",
+            "wisconsin" to "WI", "wyoming" to "WY"
+        )
+        val matched = map[lower]
+        if (matched != null) return matched
+        
+        val words = s.split(Regex("[\\s\\x2d]+"))
+        if (words.size > 1) {
+            val initials = words.map { it.firstOrNull()?.uppercaseChar()?.toString() ?: "" }.joinToString("")
+            if (initials.length in 2..3) {
+                return initials
+            }
+        }
+        
+        return s.take(3).uppercase(java.util.Locale.US)
+    }
+
+    fun getCityStateCountryFromLocation(boxId: String, lat: Double, lng: Double, onResult: (String) -> Unit) {
+        val cached = boxAddressCache[boxId]
+        if (cached != null) {
+            onResult(cached)
+            return
+        }
+        
+        viewModelScope.launch {
+            var label = ""
+            try {
+                // 1. Try native Geocoder
+                val nativeAddress = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    try {
+                        val geocoder = android.location.Geocoder(getApplication(), java.util.Locale.getDefault())
+                        @Suppress("DEPRECATION")
+                        geocoder.getFromLocation(lat, lng, 1)?.firstOrNull()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                }
+                
+                if (nativeAddress != null) {
+                    val city = (nativeAddress.locality ?: nativeAddress.subAdminArea ?: nativeAddress.subLocality ?: "").trim()
+                    val state = (nativeAddress.adminArea ?: "").trim()
+                    val countryCode = (nativeAddress.countryCode ?: "").trim().uppercase(java.util.Locale.US)
+                    
+                    val abbrevState = abbreviateState(state)
+                    val parts = listOf(city, abbrevState, countryCode).filter { it.isNotBlank() }
+                    if (parts.isNotEmpty()) {
+                        label = parts.joinToString(", ")
+                    }
+                }
+                
+                // 2. Try Nominatim fallback if native geocoder failed or returned empty
+                if (label.isBlank()) {
+                    val nominatimLabel = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        try {
+                            val url = "https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=json&accept-language=en"
+                            val client = okhttp3.OkHttpClient()
+                            val request = okhttp3.Request.Builder()
+                                .url(url)
+                                .header("User-Agent", "SenseBoxFinderApp/1.0 (contact: nicolai.roediger@gmail.com)")
+                                .build()
+                            client.newCall(request).execute().use { response ->
+                                if (response.isSuccessful) {
+                                    val body = response.body?.string()
+                                    if (!body.isNullOrBlank()) {
+                                        val json = org.json.JSONObject(body)
+                                        val addressObj = json.optJSONObject("address")
+                                        if (addressObj != null) {
+                                            val city = addressObj.optString("city", "").ifBlank {
+                                                addressObj.optString("town", "").ifBlank {
+                                                    addressObj.optString("village", "").ifBlank {
+                                                        addressObj.optString("suburb", "").ifBlank {
+                                                            addressObj.optString("county", "").ifBlank {
+                                                                addressObj.optString("municipality", "")
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }.trim()
+                                            val state = addressObj.optString("state", "").trim()
+                                            val countryCode = addressObj.optString("country_code", "").trim().uppercase(java.util.Locale.US)
+                                            val abbrevState = abbreviateState(state)
+                                            val parts = listOf(city, abbrevState, countryCode).filter { it.isNotBlank() }
+                                            if (parts.isNotEmpty()) {
+                                                parts.joinToString(", ")
+                                            } else ""
+                                        } else ""
+                                    } else ""
+                                } else ""
+                             }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            ""
+                        }
+                    }
+                    if (nominatimLabel.isNotBlank()) {
+                        label = nominatimLabel
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            
+            if (label.isBlank()) {
+                label = "Lat: ${String.format(java.util.Locale.US, "%.3f", lat)}, Lon: ${String.format(java.util.Locale.US, "%.3f", lng)}"
+            }
+            boxAddressCache[boxId] = label
+            onResult(label)
+        }
+    }
+
+    fun getCityStateCountryFullFromLocation(boxId: String, lat: Double, lng: Double, onResult: (String) -> Unit) {
+        val cached = boxFullAddressCache[boxId]
+        if (cached != null) {
+            onResult(cached)
+            return
+        }
+        
+        viewModelScope.launch {
+            var label = ""
+            try {
+                // 1. Try native Geocoder
+                val nativeAddress = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    try {
+                        val geocoder = android.location.Geocoder(getApplication(), java.util.Locale.getDefault())
+                        @Suppress("DEPRECATION")
+                        geocoder.getFromLocation(lat, lng, 1)?.firstOrNull()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                }
+                
+                if (nativeAddress != null) {
+                    val city = (nativeAddress.locality ?: nativeAddress.subAdminArea ?: nativeAddress.subLocality ?: "").trim()
+                    val state = (nativeAddress.adminArea ?: "").trim()
+                    val countryName = (nativeAddress.countryName ?: "").trim()
+                    
+                    val parts = listOf(city, state, countryName).filter { it.isNotBlank() }
+                    if (parts.isNotEmpty()) {
+                        label = parts.joinToString(", ")
+                    }
+                }
+                
+                // 2. Try Nominatim fallback if native geocoder failed or returned empty
+                if (label.isBlank()) {
+                    val nominatimLabel = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        try {
+                            val url = "https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=json&accept-language=en"
+                            val client = okhttp3.OkHttpClient()
+                            val request = okhttp3.Request.Builder()
+                                .url(url)
+                                .header("User-Agent", "SenseBoxFinderApp/1.0 (contact: nicolai.roediger@gmail.com)")
+                                .build()
+                            client.newCall(request).execute().use { response ->
+                                if (response.isSuccessful) {
+                                    val body = response.body?.string()
+                                    if (!body.isNullOrBlank()) {
+                                        val json = org.json.JSONObject(body)
+                                        val addressObj = json.optJSONObject("address")
+                                        if (addressObj != null) {
+                                            val city = addressObj.optString("city", "").ifBlank {
+                                                addressObj.optString("town", "").ifBlank {
+                                                    addressObj.optString("village", "").ifBlank {
+                                                        addressObj.optString("suburb", "").ifBlank {
+                                                            addressObj.optString("county", "").ifBlank {
+                                                                addressObj.optString("municipality", "")
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }.trim()
+                                            val state = addressObj.optString("state", "").trim()
+                                            val country = addressObj.optString("country", "").trim()
+                                            val parts = listOf(city, state, country).filter { it.isNotBlank() }
+                                            if (parts.isNotEmpty()) {
+                                                parts.joinToString(", ")
+                                            } else ""
+                                        } else ""
+                                    } else ""
+                                } else ""
+                             }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            ""
+                        }
+                    }
+                    if (nominatimLabel.isNotBlank()) {
+                        label = nominatimLabel
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            
+            if (label.isBlank()) {
+                label = "Lat: ${String.format(java.util.Locale.US, "%.3f", lat)}, Lon: ${String.format(java.util.Locale.US, "%.3f", lng)}"
+            }
+            boxFullAddressCache[boxId] = label
+            onResult(label)
+        }
+    }
+
     private fun filterBoxes(
         rawList: List<SenseBox>,
         exposure: ExposureFilter,
@@ -513,7 +756,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         radiusKm: Int
     ): List<SenseBox> {
         val now = java.util.Date()
-        val refCoords = lastSearchedCoords.value ?: Pair(7.628, 51.960) // Fallback Munster
+        val refCoords = lastSearchedCoords.value
 
         return rawList.filter { box ->
             // 1. Exposure filter
@@ -525,13 +768,15 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             if (!matchesExposure) return@filter false
 
             // 2. Local distance filter
-            val boxCoords = box.currentLocation?.coordinates
-            if (boxCoords != null && boxCoords.size >= 2) {
-                val boxLon = boxCoords[0]
-                val boxLat = boxCoords[1]
-                val distance = calculateDistanceKm(refCoords.second, refCoords.first, boxLat, boxLon)
-                if (distance > radiusKm) {
-                    return@filter false
+            if (refCoords != null) {
+                val boxCoords = box.currentLocation?.coordinates
+                if (boxCoords != null && boxCoords.size >= 2) {
+                    val boxLon = boxCoords[0]
+                    val boxLat = boxCoords[1]
+                    val distance = calculateDistanceKm(refCoords.second, refCoords.first, boxLat, boxLon)
+                    if (distance > radiusKm) {
+                        return@filter false
+                    }
                 }
             }
 
@@ -587,7 +832,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun selectBox(boxId: String) {
+    fun selectBox(boxId: String, force: Boolean = false) {
         viewModelScope.launch {
             _errorMessage.value = null
 
@@ -639,7 +884,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             _isLoading.value = true
 
             try {
-                val box = repository.fetchAndSyncBox(boxId)
+                val box = repository.fetchAndSyncBox(boxId, force)
                 _selectedBox.value = box
                 _cachedSensors.value = repository.getCachedSensors(boxId)
             } catch (e: Exception) {
@@ -662,7 +907,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 } else {
                     repository.favoriteBox(box)
                     try {
-                        repository.fetchAndSyncBox(box.id)
+                        repository.fetchAndSyncBox(box.id, true)
                     } catch (fetchEx: Exception) {
                         fetchEx.printStackTrace()
                     }
@@ -698,7 +943,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 val isId = trimmed.length == 24 && trimmed.all { it.isDigit() || it.lowercaseChar() in 'a'..'f' }
                 if (isId) {
                     try {
-                        val directBox = repository.fetchAndSyncBox(trimmed)
+                        val directBox = repository.fetchAndSyncBox(trimmed, true)
                         _rawDiscoveredBoxes.value = listOf(directBox)
                         resolveLocationsFor(listOf(directBox))
                         return@launch
@@ -845,12 +1090,12 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun refreshAll() {
+    fun refreshAll(force: Boolean = false) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                repository.refreshAllSavedBoxes()
-                _selectedBox.value?.id?.let { selectBox(it) }
+                repository.refreshAllSavedBoxes(force)
+                _selectedBox.value?.id?.let { selectBox(it, force) }
             } catch (e: Exception) {
                 e.printStackTrace()
                 _errorMessage.value = "Failed to refresh: ${e.message}"

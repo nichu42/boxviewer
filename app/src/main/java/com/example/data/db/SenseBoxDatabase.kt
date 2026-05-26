@@ -11,7 +11,7 @@ import androidx.room.RoomDatabase
         WidgetConfigEntity::class,
         SensorCacheEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class SenseBoxDatabase : RoomDatabase() {
@@ -30,7 +30,7 @@ abstract class SenseBoxDatabase : RoomDatabase() {
                     SenseBoxDatabase::class.java,
                     "sensebox_database"
                 )
-                .fallbackToDestructiveMigration(true)
+                .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
                 instance
