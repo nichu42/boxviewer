@@ -1,8 +1,13 @@
 pipeline:
   build:
     image: runmymind/docker-android-sdk:latest
+    secrets: [keystore_b64, store_password, key_password]
     commands:
-      - chmod +x gradlew
+      # Generate Gradle wrapper (not committed to the repo)
+      - gradle wrapper --gradle-version 9.3.1
+      # Decode keystore for release signing (requires CI secret 'keystore_b64')
+      - echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks 2>/dev/null || echo "No keystore secret set"
+      # Build signed release APK
       - ./gradlew assembleRelease
 
   release:
@@ -10,7 +15,7 @@ pipeline:
     settings:
       base_url: https://codeberg.org
       files:
-        - app/build/outputs/apk/release/app-release-unsigned.apk
+        - app/build/outputs/apk/release/app-release.apk
       api_key:
         from_secret: codeberg_token
     when:
