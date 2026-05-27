@@ -53,6 +53,10 @@ steps:
             -H "Authorization: token $CODEBERG_TOKEN" \
             "$API/releases/tags/$TAG" || true
         fi
+        # Delete the git tag so it's recreated at the latest commit
+        curl -s -X DELETE \
+          -H "Authorization: token $CODEBERG_TOKEN" \
+          "$API/tags/$TAG" || true
         # Create fresh release and capture the top-level id
         RESP=$(curl -s -X POST \
           -H "Authorization: token $CODEBERG_TOKEN" \
