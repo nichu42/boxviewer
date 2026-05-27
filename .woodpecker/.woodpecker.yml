@@ -15,21 +15,6 @@ steps:
     when:
       - event: push
         branch: main
-        path:
-          include:
-            - 'app/**'
-            - 'gradle/**'
-            - '*.gradle.kts'
-            - '*.toml'
-            - '*.properties'
-            - '.woodpecker/**'
-          exclude:
-            - 'README.md'
-            - 'LICENSE'
-            - '.gitignore'
-            - 'metadata.json'
-            - '.env.example'
-            - 'AGENTS.md'
 
   - name: dev-release
     image: alpine:latest
@@ -83,21 +68,6 @@ steps:
     when:
       - event: push
         branch: main
-        path:
-          include:
-            - 'app/**'
-            - 'gradle/**'
-            - '*.gradle.kts'
-            - '*.toml'
-            - '*.properties'
-            - '.woodpecker/**'
-          exclude:
-            - 'README.md'
-            - 'LICENSE'
-            - '.gitignore'
-            - 'metadata.json'
-            - '.env.example'
-            - 'AGENTS.md'
 
   - name: release-build
     image: runmymind/docker-android-sdk:latest
