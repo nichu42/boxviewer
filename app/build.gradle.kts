@@ -6,12 +6,8 @@ plugins {
   alias(libs.plugins.secrets)
 }
 
-// Dynamic version for dev builds — set via CI with -PdevVersionCode and -PdevSha.
-// When these properties are not set (local builds), sensible defaults are used.
-fun getDevBuildVersionCode(): Int {
-  return project.findProperty("devVersionCode")?.toString()?.toInt() ?: 1
-}
-
+// Dynamic version for dev builds — set via CI with -PdevSha.
+// When this property is not set (local builds), sensible defaults are used.
 fun getDevBuildSha(): String {
   return project.findProperty("devSha")?.toString() ?: "dev"
 }
@@ -59,15 +55,7 @@ android {
     }
   }
 
-  androidComponents {
-    onVariants { variant ->
-      if (variant.buildType == "debug") {
-        variant.outputs.forEach { output ->
-          output.versionCode.set(getDevBuildVersionCode())
-        }
-      }
-    }
-  }
+
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11

@@ -12,8 +12,7 @@ steps:
       - echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks
       - chmod +x gradlew
       - SHORT_SHA=$(echo "$CI_COMMIT_SHA" | cut -c1-7)
-      - DEV_VERSION_CODE=$((1000 + CI_PIPELINE_NUMBER))
-      - ./gradlew assembleDebug -PdevVersionCode=$DEV_VERSION_CODE -PdevSha=$SHORT_SHA
+      - ./gradlew assembleDebug -PdevSha=$SHORT_SHA
     when:
       - event: push
         branch: main
