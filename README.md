@@ -58,34 +58,44 @@ BoxViewer adheres to the strict guidelines of modern Android architecture (MVVM 
 
 ---
 
-## ⚙️ Development & Build Setup
+## ⬇️ Download
 
-### Prerequisites
-- JDK 11 or higher
-- Android Studio Ladybug or later
-- Gradle 8.x +
+You can download BoxViewer APKs directly from Codeberg — no account needed.
 
-### Quick Compilation & Build
+### Dev builds (latest)
+Every push to `main` is automatically built and uploaded to a rolling release:
 
-To compile a debug variant of BoxViewer with Gradle:
+[**codeberg.org/nichu42/BoxViewer/releases/tag/dev**](https://codeberg.org/nichu42/BoxViewer/releases/tag/dev)
+
+Use this with **[Obtainium](https://obtainium.imranr.dev/)** for automatic updates — point it at the Codeberg repo and it'll pick up new dev builds.
+
+### Official releases
+Stable versions are tagged and published as permanent releases:
+
+[**codeberg.org/nichu42/BoxViewer/releases**](https://codeberg.org/nichu42/BoxViewer/releases)
+
+---
+
+## 🔧 Building from Source
+
+For developers who want to compile locally:
+
 ```bash
-gradle assembleDebug
+# Clone the repo
+git clone https://codeberg.org/nichu42/BoxViewer.git
+cd BoxViewer
+
+# Build a debug APK
+./gradlew assembleDebug
+
+# Run tests
+./gradlew test
+
+# Visual regression tests (Roborazzi)
+./gradlew verifyRoborazziDebug
 ```
 
-To run standard unit tests and Robolectric instrumentation checks:
-```bash
-gradle test
-```
-
-To perform snapshot checks or visual regression validation using **Roborazzi**:
-```bash
-gradle verifyRoborazziDebug
-```
-
-To update current reference snapshots after making purposeful layout revisions:
-```bash
-gradle recordRoborazziDebug
-```
+Requires JDK 11+ and Android SDK 36.
 
 ---
 
