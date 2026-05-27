@@ -11,7 +11,7 @@ steps:
     commands:
       - echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks
       - chmod +x gradlew
-      - ./gradlew assembleRelease
+      - ./gradlew assembleDebug -PdevVersionCode=$(git rev-list --count HEAD) -PdevSha=$(git rev-parse --short HEAD)
     when:
       - event: push
         branch: main
@@ -81,7 +81,7 @@ steps:
         curl -s -X POST \
           -H "Authorization: token $CODEBERG_TOKEN" \
           -H "Content-Type: application/octet-stream" \
-          --data-binary @app/build/outputs/apk/release/app-release.apk \
+          --data-binary @app/build/outputs/apk/debug/app-debug.apk \
           "$API/releases/$RELEASE_ID/assets?name=BoxViewer-dev.apk" > /dev/null
     when:
       - event: push
