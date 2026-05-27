@@ -15,6 +15,21 @@ steps:
     when:
       - event: push
         branch: main
+        path:
+          include:
+            - 'app/**'
+            - 'gradle/**'
+            - '*.gradle.kts'
+            - '*.toml'
+            - '*.properties'
+            - '.woodpecker/**'
+          exclude:
+            - 'README.md'
+            - 'LICENSE'
+            - '.gitignore'
+            - 'metadata.json'
+            - '.env.example'
+            - 'AGENTS.md'
 
   - name: dev-release
     image: alpine:latest
@@ -22,26 +37,35 @@ steps:
       CODEBERG_TOKEN:
         from_secret: codeberg_token
     commands:
-      - apk add --no-cache curl jq
+      - apk add --no-cache curl
       - TAG="dev"
       - OWNER="nichu42"
       - REPO="BoxViewer"
       - API="https://codeberg.org/api/v1/repos/$OWNER/$REPO"
       - |
-        # Delete existing dev release + tag if present
-        curl -s -X DELETE -H "Authorization: token $CODEBERG_TOKEN" \
-          "$API/releases/tags/$TAG" || true
-        # Create new release
-        curl -s -X POST -H "Authorization: token $CODEBERG_TOKEN" \
+        # Check if release already exists
+        RESP=$(curl -s -o /dev/null -w "%{http_code}" \
+          -H "Authorization: token $CODEBERG_TOKEN" \
+          "$API/releases/tags/$TAG")
+        if [ "$RESP" = "200" ]; then
+          # Delete old dev release (but keep tag for reuse)
+          curl -s -X DELETE \
+            -H "Authorization: token $CODEBERG_TOKEN" \
+            "$API/releases/tags/$TAG" || true
+        fi
+        # Create fresh release
+        RESP=$(curl -s -X POST \
+          -H "Authorization: token $CODEBERG_TOKEN" \
           -H "Content-Type: application/json" \
-          -d "{\"tag_name\":\"$TAG\",\"name\":\"Dev Build\",\"body\":\"Latest automatic dev build.\",\"prerelease\":true,\"draft\":false}" \
-          "$API/releases" | jq -r '.id' > /tmp/release_id
+          -d '{"tag_name":"dev","name":"🔧 Dev Build","body":"Automatic build of the latest commit. Updated on every push to `main`.","prerelease":true,"draft":false}' \
+          "$API/releases")
+        RELEASE_ID=$(echo "$RESP" | sed 's/.*"id":\([0-9]*\).*/\1/')
         # Upload APK
-        RELEASE_ID=$(cat /tmp/release_id)
-        curl -s -X POST -H "Authorization: token $CODEBERG_TOKEN" \
+        curl -s -X POST \
+          -H "Authorization: token $CODEBERG_TOKEN" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @app/build/outputs/apk/debug/app-debug.apk \
-          "$API/releases/$RELEASE_ID/assets?name=BoxViewer-dev.apk"
+          "$API/releases/$RELEASE_ID/assets?name=BoxViewer-dev.apk" > /dev/null
     when:
       - event: push
         branch: main
@@ -68,22 +92,24 @@ steps:
       CODEBERG_TOKEN:
         from_secret: codeberg_token
     commands:
-      - apk add --no-cache curl jq
+      - apk add --no-cache curl
       - OWNER="nichu42"
       - REPO="BoxViewer"
       - TAG="${CI_COMMIT_TAG}"
       - API="https://codeberg.org/api/v1/repos/$OWNER/$REPO"
       - |
-        # Create release
-        curl -s -X POST -H "Authorization: token $CODEBERG_TOKEN" \
+        # Create release for this tag
+        RESP=$(curl -s -X POST \
+          -H "Authorization: token $CODEBERG_TOKEN" \
           -H "Content-Type: application/json" \
           -d "{\"tag_name\":\"$TAG\",\"name\":\"$TAG\",\"body\":\"BoxViewer $TAG\",\"prerelease\":false,\"draft\":false}" \
-          "$API/releases" | jq -r '.id' > /tmp/release_id
+          "$API/releases")
+        RELEASE_ID=$(echo "$RESP" | sed 's/.*"id":\([0-9]*\).*/\1/')
         # Upload APK
-        RELEASE_ID=$(cat /tmp/release_id)
-        curl -s -X POST -H "Authorization: token $CODEBERG_TOKEN" \
+        curl -s -X POST \
+          -H "Authorization: token $CODEBERG_TOKEN" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @app/build/outputs/apk/release/app-release.apk \
-          "$API/releases/$RELEASE_ID/assets?name=BoxViewer-$TAG.apk"
+          "$API/releases/$RELEASE_ID/assets?name=BoxViewer-$TAG.apk" > /dev/null
     when:
       - event: tag
