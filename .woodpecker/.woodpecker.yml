@@ -37,7 +37,7 @@ steps:
       CODEBERG_TOKEN:
         from_secret: codeberg_token
     commands:
-      - apk add --no-cache curl
+      - apk add --no-cache curl jq
       - TAG="dev"
       - OWNER="nichu42"
       - REPO="BoxViewer"
@@ -46,7 +46,7 @@ steps:
         # Get or create the dev release
         RESP=$(curl -s -H "Authorization: token $CODEBERG_TOKEN" \
           "$API/releases/tags/$TAG")
-        RELEASE_ID=$(echo "$RESP" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+        RELEASE_ID=$(echo "$RESP" | jq -r '.id // empty')
         if [ -z "$RELEASE_ID" ]; then
           echo "Creating new release"
           RESP=$(curl -s -X POST \
@@ -54,35 +54,29 @@ steps:
             -H "Content-Type: application/json" \
             -d '{"tag_name":"dev","name":"🔧 Dev Build","body":"Automatic build of the latest commit. Updated on every push to `main`.","prerelease":true,"draft":false}' \
             "$API/releases")
-          RELEASE_ID=$(echo "$RESP" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+          RELEASE_ID=$(echo "$RESP" | jq -r '.id // empty')
+          if [ -z "$RELEASE_ID" ]; then
+            echo "ERROR: Failed to create release: $RESP"
+            exit 1
+          fi
         else
           echo "Using existing release ID=$RELEASE_ID"
         fi
-        # Move the git tag to the current commit
-        curl -s -X DELETE \
-          -H "Authorization: token $CODEBERG_TOKEN" \
-          "$API/tags/$TAG" || true
-        curl -s -X POST \
-          -H "Authorization: token $CODEBERG_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d "{\"ref\":\"refs/tags/$TAG\",\"sha\":\"${CI_COMMIT_SHA}\"}" \
-          "$API/git/refs" || true
         # Delete any existing assets before uploading
-        ASSETS_JSON=$(curl -s \
-          -H "Authorization: token $CODEBERG_TOKEN" \
-          "$API/releases/$RELEASE_ID/assets")
-        echo "$ASSETS_JSON" | grep -o '"id":[0-9]*' | cut -d: -f2 | while read asset_id; do
+        for asset_id in $(curl -s -H "Authorization: token $CODEBERG_TOKEN" \
+          "$API/releases/$RELEASE_ID/assets" | jq -r '.[].id'); do
           echo "Deleting existing asset ID=$asset_id"
           curl -s -X DELETE \
             -H "Authorization: token $CODEBERG_TOKEN" \
-            "$API/releases/assets/$asset_id" || true
+            "$API/releases/assets/$asset_id"
         done
         # Upload APK
+        echo "Uploading APK..."
         curl -s -X POST \
           -H "Authorization: token $CODEBERG_TOKEN" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @app/build/outputs/apk/debug/app-debug.apk \
-          "$API/releases/$RELEASE_ID/assets?name=BoxViewer-dev.apk" > /dev/null
+          "$API/releases/$RELEASE_ID/assets?name=BoxViewer-dev.apk" -w "\nHTTP %{http_code}\n"
     when:
       - event: push
         branch: main
