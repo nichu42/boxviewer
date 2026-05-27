@@ -10,6 +10,7 @@ steps:
         from_secret: key_password
     commands:
       - echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks
+      - chmod +x gradlew
       - ./gradlew assembleDebug
     when:
       - event: push
@@ -40,6 +41,7 @@ steps:
         from_secret: key_password
     commands:
       - echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks
+      - chmod +x gradlew
       - ./gradlew assembleRelease
     when:
       - event: tag
