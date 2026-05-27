@@ -1,17 +1,21 @@
-pipeline:
-  dev-build:
+steps:
+  - name: dev-build
     image: runmymind/docker-android-sdk:latest
-    secrets: [keystore_b64, store_password, key_password]
+    environment:
+      KEYSTORE_B64:
+        from_secret: keystore_b64
+      STORE_PASSWORD:
+        from_secret: store_password
+      KEY_PASSWORD:
+        from_secret: key_password
     commands:
-      # Decode the release keystore from CI secret
       - echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks
-      # Build debug APK (signing config reads STORE_PASSWORD and KEY_PASSWORD from env)
       - ./gradlew assembleDebug
     when:
-      branch: main
-      event: push
+      - event: push
+        branch: main
 
-  dev-release:
+  - name: dev-release
     image: codeberg.org/woodpecker-plugins/forgejo-release:latest
     settings:
       base_url: https://codeberg.org
@@ -22,21 +26,25 @@ pipeline:
       tag: dev
       overwrite: true
     when:
-      branch: main
-      event: push
+      - event: push
+        branch: main
 
-  release-build:
+  - name: release-build
     image: runmymind/docker-android-sdk:latest
-    secrets: [keystore_b64, store_password, key_password]
+    environment:
+      KEYSTORE_B64:
+        from_secret: keystore_b64
+      STORE_PASSWORD:
+        from_secret: store_password
+      KEY_PASSWORD:
+        from_secret: key_password
     commands:
-      # Decode the release keystore from CI secret
       - echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks
-      # Build signed release APK
       - ./gradlew assembleRelease
     when:
-      event: tag
+      - event: tag
 
-  release-upload:
+  - name: release-upload
     image: codeberg.org/woodpecker-plugins/forgejo-release:latest
     settings:
       base_url: https://codeberg.org
@@ -45,4 +53,4 @@ pipeline:
       api_key:
         from_secret: codeberg_token
     when:
-      event: tag
+      - event: tag
