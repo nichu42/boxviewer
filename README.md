@@ -1,100 +1,85 @@
 # BoxViewer
 
 <p align="center">
-  <img src="app/src/main/res/drawable/boxviewer_white_bg.webp" alt="BoxViewer Logo" width="360" />
+  <img src="app/src/main/res/drawable/boxviewer_white_bg.webp" alt="BoxViewer Logo" width="220" style="border-radius: 36px;" />
 </p>
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Platform](https://img.shields.io/badge/Platform-Android-green.svg)](https://developer.android.com)
-[![Kotlin](https://img.shields.io/badge/Kotlin-Compose-orange.svg)](https://kotlinlang.org)
+<p align="center">
+  <b>A beautiful, modern, privacy-first openSenseMap Android client.</b>
+</p>
 
-**BoxViewer** is a modern, fully-featured, open-source Android client for [openSenseMap](https://opensensemap.org), a global open-data platform for environmental sensor networks and DIY weather stations (known as *senseBoxes*). 
+<p align="center">
+  <a href="https://codeberg.org/nichu42/BoxViewer/releases"><img src="https://img.shields.io/badge/Download-Stable%20APK-success?style=for-the-badge&logo=android&logoColor=white" alt="Download Stable APK" /></a>
+  <a href="https://codeberg.org/nichu42/BoxViewer/releases/tag/dev"><img src="https://img.shields.io/badge/Download-Dev%20APK-orange?style=for-the-badge&logo=android&logoColor=white" alt="Download Dev APK" /></a>
+  <a href="https://obtainium.imranr.dev/"><img src="https://img.shields.io/badge/Obtainium-Compatible-purple?style=for-the-badge&logo=android&logoColor=white" alt="Obtainium Compatible" /></a>
+</p>
 
-Crafted entirely with **Kotlin** and **Jetpack Compose** following Material Design 3 styling, BoxViewer enables environmentalists, hobbyists, and researchers to locate nearby sensor stations, monitor micro-climate telemetry streams in real time, and configure sleek home-screen widgets for instant, glanceable observation.
-
----
-
-## 🎨 Visual Preview & Design
-
-BoxViewer's user experience incorporates Material Design 3 guidelines:
-- **Tailored Modern Dark Surface**: Utilizes a highly polished dynamic contrast palette designed for premium aesthetics and prolonged, eye-safe viewing sessions.
-- **Micro-interactions & Edge-to-Edge Core**: Full keyboard and touch event compliance (e.g., keyboard preview intercepts prevent unwanted state changes), combined with fluid page-entering transitions.
-- **Clean Sizing**: Adaptive spacing adhering to the standard 8dp layout grid with clear status tracking.
-
----
-
-## 🚀 Key Features
-
-### 🌟 Interactive Dashboard (My senseBoxes)
-- **Local Collections**: Favorite and save specific environmental stations to local database collections.
-- **Telemetry Indicators**: High-density glanceable view of the latest active measurements (Temperature, Humidity, PM2.5, PM10, UV, Barometric Pressure, etc.) from saved stations.
-
-### 🔍 Discovery Engine
-- **City / Location Search**: Powered by responsive local geocoder services and reverse address autocompletes.
-- **Name & ID Search**: Direct query access to individual senseBoxes using their strict hardware identifier or colloquial name.
-- **GPS Discovery**: On-demand location queries matching active GPS coordinates against public datasets using highly accurate location clients.
-
-### 📊 Deep Telemetry Analysis
-- Detailed telemetry stream visualization including units, last updated timestamps, coordinates, station type, and exposure type (indoor vs. outdoor).
-- Instant data refresh workflows ensuring current environmental parameters.
-
-### 🔔 Configurable Home Screen Widgets
-- Leverage Android's `AppWidgetProvider` architecture to configure widgets tracking specific senseBox metrics.
-- Schedule custom-interval refresh cycles handled via `AlarmManager` routines for optimal battery conservation.
+<p align="center">
+  <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat-square" alt="License: GPL v3" /></a>
+  <a href="https://developer.android.com"><img src="https://img.shields.io/badge/Platform-Android-green.svg?style=flat-square" alt="Platform" /></a>
+  <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-Compose-orange.svg?style=flat-square" alt="Kotlin Compose" /></a>
+</p>
 
 ---
 
-## 🛠️ Technical Architecture & Tech Stack
+**BoxViewer** is a modern, fully-featured, open-source Android app for [openSenseMap](https://opensensemap.org) — a global open-data platform for environmental sensor networks and DIY weather stations (senseBoxes).
+
+Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guidelines, BoxViewer enables environmentalists, hobbyists, and researchers to locate nearby sensor stations, monitor micro-climate telemetry streams in real time, and configure home-screen widgets for instant, glanceable observation.
+
+## ✨ Key Features
+
+*   **🔒 Privacy-First & De-Googled Friendly**: 100% free of Google Play Services (GMS) dependencies. Relies purely on the native Android `LocationManager` and direct openSenseMap APIs. Zero telemetry, analytics, or third-party trackers.
+*   **📊 Live Interactive Dashboard**: Favorite and save specific environmental stations. Customize exactly which sensor metrics (Temperature, Humidity, UV, PM2.5, Barometric Pressure, etc.) you want to track at a glance.
+*   **🔍 Smart Discovery Engine**: Locate public senseBoxes from the openSenseMap community using direct search by name/ID, location address auto-complete, or on-demand GPS discovery.
+*   **📈 Rich Telemetry Analysis**: Deep telemetry streams visualization including units, last updated timestamps, coordinates, station type, and exposure type (indoor vs. outdoor).
+*   **🔋 Battery & API-Friendly**: Seamless local SQLite caching (`SensorCacheEntity`) and awake-on-unlock widget refresh logic ensure you get fresh data without draining your battery or hammering openSenseMap servers.
+*   **📱 Glanceable Home Widgets**: Customize home screen widgets featuring Material Design 3 theme colors to monitor your favorite senseBox metrics at periodic intervals.
+
+---
+
+## ⬇️ Download & Install
+
+BoxViewer is distributed as an independent APK package and is compatible with Android 8.0 (API 26) and above.
+
+### 🚀 Direct Download
+You can download stable APKs or development builds directly from Codeberg — no account required:
+
+*   **[Download Stable APKs](https://codeberg.org/nichu42/BoxViewer/releases)**: Recommended for most users. Contains vetted, officially tagged stable releases.
+*   **[Download Dev APKs (Latest)](https://codeberg.org/nichu42/BoxViewer/releases/tag/dev)**: Rolling release built automatically on every push to the `main` branch.
+
+### 🔄 Automatic Updates with Obtainium
+To receive automatic updates on de-googled systems, we recommend using **[Obtainium](https://github.com/ImranR17/Obtainium)**:
+1. Copy the Codeberg repository link: `https://codeberg.org/nichu42/BoxViewer`
+2. Open Obtainium and select **Add App**.
+3. Paste the URL and click **Add** to start tracking releases.
+
+---
+
+## ☕ Support the Developer
+
+BoxViewer is developed with love as an open-source project. If you are happy with the app and would like to support its ongoing development, please consider donating:
+
+<p align="left">
+  <a href="https://ko-fi.com/nichu42"><img src="https://img.shields.io/badge/Support_on_Ko--fi-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Support on Ko-fi" /></a>
+  <a href="https://liberapay.com/nichu42"><img src="https://img.shields.io/badge/Donate_via_Liberapay-F6C915?style=for-the-badge&logo=liberapay&logoColor=black" alt="Donate via Liberapay" /></a>
+</p>
+
+---
+
+<details>
+<summary>🛠️ <b>Technical Architecture & Tech Stack (For Developers)</b></summary>
+<br>
 
 BoxViewer adheres to the strict guidelines of modern Android architecture (MVVM / Clean Architecture style) enabling clean decoupling between database layers, networking models, and the UI.
 
-- **UI Framework**: [Jetpack Compose](https://developer.android.com/jetcompose) (declarative UI with type-safe compose navigation).
-- **Architecture**: `ViewModel` + `StateFlow` + structured asynchronous coroutine builders (`lifecycleScope`, `collectAsStateWithLifecycle`).
-- **Local Persistence Layer**: [Room Database](https://developer.android.com/training/data-storage/room) using Kotlin Symbol Processing (KSP) compilation to persist configurations, widgets, and offline caches.
-- **Networking Server-Client**: [Retrofit 2](https://square.github.io/retrofit/) coupled with [OkHttp 4](https://square.github.io/okhttp/) and [Moshi](https://github.com/square/moshi) to carry out efficient JSON processing of the openSenseMap API.
-- **Asynchrony Core**: Kotlin [Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) & [Flow](https://kotlinlang.org/docs/flow.html).
-- **Core Security Integration**: Secrets Gradle Plugin configured with safe `.env` runtime configurations to decouple keys and configurations from version-control processes.
-- **Local Testing Ecosystem**: Fully integrated [Robolectric](https://robolectric.org/) testing suites running on high-speed headless JVM surfaces combined with [Roborazzi](https://github.com/takahirom/roborazzi) for visual screenshot regression testing.
-
----
-
-## ⬇️ Download
-
-You can download BoxViewer APKs directly from Codeberg — no account needed.
-
-### Dev builds (latest)
-Every push to `main` is automatically built and uploaded to a rolling release:
-
-[**codeberg.org/nichu42/BoxViewer/releases/tag/dev**](https://codeberg.org/nichu42/BoxViewer/releases/tag/dev)
-
-Use this with **[Obtainium](https://obtainium.imranr.dev/)** for automatic updates — point it at the Codeberg repo and it'll pick up new dev builds.
-
-### Official releases
-Stable versions are tagged and published as permanent releases:
-
-[**codeberg.org/nichu42/BoxViewer/releases**](https://codeberg.org/nichu42/BoxViewer/releases)
----
-
-## 🏠 App Homepage & Developer Support
-
-BoxViewer is open-source and developed with love. Check out the project repository to contribute, report issues, or view the source code:
-
-* **Project Homepage (Codeberg)**: [https://codeberg.org/nichu42/BoxViewer](https://codeberg.org/nichu42/BoxViewer)
-
-### Support the Developer
-If you are happy with the app and would like to support the ongoing development, please consider donating:
-* **Support on Ko-fi**: [https://ko-fi.com/nichu42](https://ko-fi.com/nichu42)
-* **Donate via Liberapay**: [https://liberapay.com/nichu42](https://liberapay.com/nichu42)
-
----
-
-## 📜 Copyright & License Info
-
-**Copyright (C) 2026 nichu42 and contributors**
-
-This program is free software: you can redistribute it and/or modify it under the terms of the **GNU General Public License v3.0** as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+*   **UI Framework**: [Jetpack Compose](https://developer.android.com/jetcompose) (declarative UI with type-safe compose navigation).
+*   **Architecture**: `ViewModel` + `StateFlow` + structured asynchronous coroutine builders (`lifecycleScope`, `collectAsStateWithLifecycle`).
+*   **Local Persistence Layer**: [Room Database](https://developer.android.com/training/data-storage/room) using Kotlin Symbol Processing (KSP) compilation to persist configurations, widgets, and offline caches.
+*   **Networking Server-Client**: [Retrofit 2](https://square.github.io/retrofit/) coupled with [OkHttp 4](https://square.github.io/okhttp/) and [Moshi](https://github.com/square/moshi) to carry out efficient JSON processing of the openSenseMap API.
+*   **Asynchrony Core**: Kotlin [Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) & [Flow](https://kotlinlang.org/docs/flow.html).
+*   **Core Security Integration**: Secrets Gradle Plugin configured with safe `.env` runtime configurations to decouple keys and configurations from version-control processes.
+*   **Local Testing Ecosystem**: Fully integrated [Robolectric](https://robolectric.org/) testing suites running on high-speed headless JVM surfaces combined with [Roborazzi](https://github.com/takahirom/roborazzi) for visual screenshot regression testing.
+</details>
 
 ---
 
@@ -110,9 +95,19 @@ The platform is operated and maintained by **openSenseLab gGmbH**, a non-profit 
 
 ### Support Open Data!
 openSenseMap is completely free to use and relies heavily on community contributions and donations to keep its servers running and its data accessible to all. If you love the environmental insights provided in this app, please consider supporting their project:
-* **Explore**: [opensensemap.org](https://opensensemap.org)
-* **Build**: [sensebox.de](https://sensebox.de)
-* **Donate**: [Donate via Betterplace](https://www.betterplace.org/en/projects/89947-opensensemap-org-the-free-map-for-environmental-data)
+*   **Explore**: [opensensemap.org](https://opensensemap.org)
+*   **Build**: [sensebox.de](https://sensebox.de)
+*   **Donate**: [Donate via Betterplace](https://www.betterplace.org/en/projects/89947-opensensemap-org-the-free-map-for-environmental-data)
+
+---
+
+## 📜 Copyright & License Info
+
+**Copyright (C) 2026 nichu42 and contributors**
+
+This program is free software: you can redistribute it and/or modify it under the terms of the **GNU General Public License v3.0** as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 ---
 

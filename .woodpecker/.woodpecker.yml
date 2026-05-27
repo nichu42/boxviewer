@@ -113,18 +113,39 @@ steps:
       - TAG="${CI_COMMIT_TAG}"
       - API="https://codeberg.org/api/v1/repos/$OWNER/$REPO"
       - |
-        # Create release for this tag
-        RESP=$(curl -s -X POST \
-          -H "Authorization: token $CODEBERG_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d "{\"tag_name\":\"$TAG\",\"name\":\"$TAG\",\"body\":\"BoxViewer $TAG\",\"prerelease\":false,\"draft\":false}" \
-          "$API/releases")
-        RELEASE_ID=$(echo "$RESP" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+        # Check if release already exists for this tag (Codeberg auto-creates one)
+        RESP=$(curl -s -H "Authorization: token $CODEBERG_TOKEN" \
+          "$API/releases/tags/$TAG")
+        HTTP_CODE=$(echo "$RESP" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+        if [ -n "$HTTP_CODE" ] && [ "$HTTP_CODE" != "null" ]; then
+          RELEASE_ID=$HTTP_CODE
+          echo "Release already exists, using ID=$RELEASE_ID"
+        else
+          echo "Creating new release for tag $TAG"
+          RESP=$(curl -s -X POST \
+            -H "Authorization: token $CODEBERG_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"tag_name\":\"$TAG\",\"name\":\"$TAG\",\"body\":\"BoxViewer $TAG\",\"prerelease\":false,\"draft\":false}" \
+            "$API/releases")
+          RELEASE_ID=$(echo "$RESP" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+          if [ -z "$RELEASE_ID" ]; then
+            echo "ERROR: Failed to create release"
+            echo "$RESP"
+            exit 1
+          fi
+          echo "Created release ID=$RELEASE_ID"
+        fi
         # Upload APK
+        APK="app/build/outputs/apk/release/app-release.apk"
+        if [ ! -f "$APK" ]; then
+          echo "ERROR: APK not found at $APK"
+          exit 1
+        fi
+        echo "Uploading $APK as BoxViewer-$TAG.apk"
         curl -s -X POST \
           -H "Authorization: token $CODEBERG_TOKEN" \
           -H "Content-Type: application/octet-stream" \
-          --data-binary @app/build/outputs/apk/release/app-release.apk \
-          "$API/releases/$RELEASE_ID/assets?name=BoxViewer-$TAG.apk" > /dev/null
+          --data-binary @"$APK" \
+          "$API/releases/$RELEASE_ID/assets?name=BoxViewer-$TAG.apk" -w "\nHTTP %{http_code}\n"
     when:
       - event: tag
