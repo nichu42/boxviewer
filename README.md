@@ -73,30 +73,6 @@ Use this with **[Obtainium](https://obtainium.imranr.dev/)** for automatic updat
 Stable versions are tagged and published as permanent releases:
 
 [**codeberg.org/nichu42/BoxViewer/releases**](https://codeberg.org/nichu42/BoxViewer/releases)
-
----
-
-## 🔧 Building from Source
-
-For developers who want to compile locally:
-
-```bash
-# Clone the repo
-git clone https://codeberg.org/nichu42/BoxViewer.git
-cd BoxViewer
-
-# Build a debug APK
-./gradlew assembleDebug
-
-# Run tests
-./gradlew test
-
-# Visual regression tests (Roborazzi)
-./gradlew verifyRoborazziDebug
-```
-
-Requires JDK 11+ and Android SDK 36.
-
 ---
 
 ## 🏠 App Homepage & Developer Support
