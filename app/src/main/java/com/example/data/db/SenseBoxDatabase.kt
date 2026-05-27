@@ -30,7 +30,7 @@ abstract class SenseBoxDatabase : RoomDatabase() {
                     SenseBoxDatabase::class.java,
                     "sensebox_database"
                 )
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
                 INSTANCE = instance
                 instance

@@ -48,7 +48,7 @@ fun DashboardScreen(
     var isReorderMode by remember { mutableStateOf(false) }
     var reorderList by remember { mutableStateOf<List<SavedBoxEntity>>(emptyList()) }
 
-    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
             if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
