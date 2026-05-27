@@ -17,15 +17,31 @@ steps:
         branch: main
 
   - name: dev-release
-    image: codeberg.org/woodpecker-plugins/forgejo-release:latest
-    settings:
-      base_url: https://codeberg.org
-      files:
-        - app/build/outputs/apk/debug/app-debug.apk
-      api_key:
+    image: alpine:latest
+    environment:
+      CODEBERG_TOKEN:
         from_secret: codeberg_token
-      tag: dev
-      overwrite: true
+    commands:
+      - apk add --no-cache curl jq
+      - TAG="dev"
+      - OWNER="nichu42"
+      - REPO="BoxViewer"
+      - API="https://codeberg.org/api/v1/repos/$OWNER/$REPO"
+      - |
+        # Delete existing dev release + tag if present
+        curl -s -X DELETE -H "Authorization: token $CODEBERG_TOKEN" \
+          "$API/releases/tags/$TAG" || true
+        # Create new release
+        curl -s -X POST -H "Authorization: token $CODEBERG_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d "{\"tag_name\":\"$TAG\",\"name\":\"Dev Build\",\"body\":\"Latest automatic dev build.\",\"prerelease\":true,\"draft\":false}" \
+          "$API/releases" | jq -r '.id' > /tmp/release_id
+        # Upload APK
+        RELEASE_ID=$(cat /tmp/release_id)
+        curl -s -X POST -H "Authorization: token $CODEBERG_TOKEN" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @app/build/outputs/apk/debug/app-debug.apk \
+          "$API/releases/$RELEASE_ID/assets?name=BoxViewer-dev.apk"
     when:
       - event: push
         branch: main
@@ -47,12 +63,27 @@ steps:
       - event: tag
 
   - name: release-upload
-    image: codeberg.org/woodpecker-plugins/forgejo-release:latest
-    settings:
-      base_url: https://codeberg.org
-      files:
-        - app/build/outputs/apk/release/app-release.apk
-      api_key:
+    image: alpine:latest
+    environment:
+      CODEBERG_TOKEN:
         from_secret: codeberg_token
+    commands:
+      - apk add --no-cache curl jq
+      - OWNER="nichu42"
+      - REPO="BoxViewer"
+      - TAG="${CI_COMMIT_TAG}"
+      - API="https://codeberg.org/api/v1/repos/$OWNER/$REPO"
+      - |
+        # Create release
+        curl -s -X POST -H "Authorization: token $CODEBERG_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d "{\"tag_name\":\"$TAG\",\"name\":\"$TAG\",\"body\":\"BoxViewer $TAG\",\"prerelease\":false,\"draft\":false}" \
+          "$API/releases" | jq -r '.id' > /tmp/release_id
+        # Upload APK
+        RELEASE_ID=$(cat /tmp/release_id)
+        curl -s -X POST -H "Authorization: token $CODEBERG_TOKEN" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @app/build/outputs/apk/release/app-release.apk \
+          "$API/releases/$RELEASE_ID/assets?name=BoxViewer-$TAG.apk"
     when:
       - event: tag
