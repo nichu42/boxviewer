@@ -1,16 +1,42 @@
 pipeline:
-  build:
+  dev-build:
     image: runmymind/docker-android-sdk:latest
     secrets: [keystore_b64, store_password, key_password]
     commands:
-      # Generate Gradle wrapper (not committed to the repo)
-      - gradle wrapper --gradle-version 9.3.1
-      # Decode keystore for release signing (requires CI secret 'keystore_b64')
-      - echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks 2>/dev/null || echo "No keystore secret set"
+      # Decode the release keystore from CI secret
+      - echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks
+      # Build debug APK (signing config reads STORE_PASSWORD and KEY_PASSWORD from env)
+      - ./gradlew assembleDebug
+    when:
+      branch: main
+      event: push
+
+  dev-release:
+    image: codeberg.org/woodpecker-plugins/forgejo-release:latest
+    settings:
+      base_url: https://codeberg.org
+      files:
+        - app/build/outputs/apk/debug/app-debug.apk
+      api_key:
+        from_secret: codeberg_token
+      tag: dev
+      overwrite: true
+    when:
+      branch: main
+      event: push
+
+  release-build:
+    image: runmymind/docker-android-sdk:latest
+    secrets: [keystore_b64, store_password, key_password]
+    commands:
+      # Decode the release keystore from CI secret
+      - echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks
       # Build signed release APK
       - ./gradlew assembleRelease
+    when:
+      event: tag
 
-  release:
+  release-upload:
     image: codeberg.org/woodpecker-plugins/forgejo-release:latest
     settings:
       base_url: https://codeberg.org
