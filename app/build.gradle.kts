@@ -69,8 +69,17 @@ android {
     }
     debug {
       signingConfig = signingConfigs.getByName("release")
-      versionCode = getDevBuildVersionCode()
       versionNameSuffix = "-dev.${getDevBuildSha()}"
+    }
+  }
+
+  androidComponents {
+    onVariants { variant ->
+      if (variant.buildType == "debug") {
+        variant.outputs.forEach { output ->
+          output.versionCode.set(getDevBuildVersionCode())
+        }
+      }
     }
   }
   compileOptions {
