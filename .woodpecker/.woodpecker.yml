@@ -68,7 +68,7 @@ steps:
           echo "Deleting existing asset ID=$asset_id"
           curl -s -X DELETE \
             -H "Authorization: token $CODEBERG_TOKEN" \
-            "$API/releases/assets/$asset_id"
+            "$API/releases/$RELEASE_ID/assets/$asset_id"
         done
         # Upload APK
         echo "Uploading APK..."
@@ -111,7 +111,7 @@ steps:
       - ./gradlew assembleRelease
     when:
       - event: tag
-        branch: v*
+        ref: refs/tags/v*.*
 
   - name: release-upload
     image: alpine:latest
@@ -155,7 +155,7 @@ steps:
           echo "Deleting existing asset ID=$asset_id"
           curl -s -X DELETE \
             -H "Authorization: token $CODEBERG_TOKEN" \
-            "$API/releases/assets/$asset_id" || true
+            "$API/releases/$RELEASE_ID/assets/$asset_id" || true
         done
         # Upload APK
         APK="app/build/outputs/apk/release/app-release.apk"
@@ -171,4 +171,4 @@ steps:
           "$API/releases/$RELEASE_ID/assets?name=BoxViewer-$TAG.apk" -w "\nHTTP %{http_code}\n"
     when:
       - event: tag
-        branch: v*
+        ref: refs/tags/v*.*
