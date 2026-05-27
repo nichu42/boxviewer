@@ -52,6 +52,7 @@ To receive automatic updates on de-googled systems, we recommend using **[Obtain
 1. Copy the Codeberg repository link: `https://codeberg.org/nichu42/BoxViewer`
 2. Open Obtainium and select **Add App**.
 3. Paste the URL and click **Add** to start tracking releases.
+(For the Dev APKs, check "Include prereleases" and "Use release title as version string" before you confirm)
 
 ---
 
