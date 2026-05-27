@@ -43,33 +43,41 @@ steps:
       - REPO="BoxViewer"
       - API="https://codeberg.org/api/v1/repos/$OWNER/$REPO"
       - |
-        # Get or create the dev release
+        # Get the existing release ID for tag "dev"
         RESP=$(curl -s -H "Authorization: token $CODEBERG_TOKEN" \
           "$API/releases/tags/$TAG")
         RELEASE_ID=$(echo "$RESP" | jq -r '.id // empty')
-        if [ -z "$RELEASE_ID" ]; then
-          echo "Creating new release"
-          RESP=$(curl -s -X POST \
-            -H "Authorization: token $CODEBERG_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"tag_name":"dev","name":"🔧 Dev Build","body":"Automatic build of the latest commit. Updated on every push to `main`.","prerelease":true,"draft":false}' \
-            "$API/releases")
-          RELEASE_ID=$(echo "$RESP" | jq -r '.id // empty')
-          if [ -z "$RELEASE_ID" ]; then
-            echo "ERROR: Failed to create release: $RESP"
-            exit 1
-          fi
-        else
-          echo "Using existing release ID=$RELEASE_ID"
-        fi
-        # Delete any existing assets before uploading
-        for asset_id in $(curl -s -H "Authorization: token $CODEBERG_TOKEN" \
-          "$API/releases/$RELEASE_ID/assets" | jq -r '.[].id'); do
-          echo "Deleting existing asset ID=$asset_id"
+        
+        if [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ]; then
+          echo "Deleting old release ID=$RELEASE_ID"
           curl -s -X DELETE \
             -H "Authorization: token $CODEBERG_TOKEN" \
-            "$API/releases/$RELEASE_ID/assets/$asset_id"
-        done
+            "$API/releases/$RELEASE_ID"
+        fi
+        
+        # Delete the old "dev" git tag so Gitea updates it to the new commit
+        echo "Deleting old git tag $TAG"
+        curl -s -X DELETE \
+          -H "Authorization: token $CODEBERG_TOKEN" \
+          "$API/tags/$TAG"
+        
+        # Get the short commit SHA
+        SHORT_SHA=$(echo "$CI_COMMIT_SHA" | cut -c1-7)
+        
+        # Create a brand new "dev" release pointing to the new commit
+        echo "Creating fresh release for tag $TAG at commit $CI_COMMIT_SHA"
+        RESP=$(curl -s -X POST \
+          -H "Authorization: token $CODEBERG_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d "{\"tag_name\":\"$TAG\",\"target_commitish\":\"$CI_COMMIT_SHA\",\"name\":\"🔧 Dev Build ($SHORT_SHA)\",\"body\":\"Automatic pre-release build of commit $CI_COMMIT_SHA. Updated on every push to \`main\`.\",\"prerelease\":true,\"draft\":false}" \
+          "$API/releases")
+        
+        RELEASE_ID=$(echo "$RESP" | jq -r '.id // empty')
+        if [ -z "$RELEASE_ID" ]; then
+          echo "ERROR: Failed to create release: $RESP"
+          exit 1
+        fi
+        
         # Upload APK
         echo "Uploading APK..."
         curl -s -X POST \
