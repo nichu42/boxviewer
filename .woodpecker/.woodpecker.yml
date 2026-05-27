@@ -64,6 +64,16 @@ steps:
           -d '{"tag_name":"dev","name":"🔧 Dev Build","body":"Automatic build of the latest commit. Updated on every push to `main`.","prerelease":true,"draft":false}' \
           "$API/releases")
         RELEASE_ID=$(echo "$RESP" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+        # Delete any existing assets with the same name before uploading
+        ASSETS_JSON=$(curl -s \
+          -H "Authorization: token $CODEBERG_TOKEN" \
+          "$API/releases/$RELEASE_ID/assets")
+        echo "$ASSETS_JSON" | grep -o '"id":[0-9]*' | cut -d: -f2 | while read asset_id; do
+          echo "Deleting existing asset ID=$asset_id"
+          curl -s -X DELETE \
+            -H "Authorization: token $CODEBERG_TOKEN" \
+            "$API/releases/assets/$asset_id" || true
+        done
         # Upload APK
         curl -s -X POST \
           -H "Authorization: token $CODEBERG_TOKEN" \
@@ -140,6 +150,16 @@ steps:
           fi
           echo "Created release ID=$RELEASE_ID"
         fi
+        # Delete any existing assets with the same name before uploading
+        ASSETS_JSON=$(curl -s \
+          -H "Authorization: token $CODEBERG_TOKEN" \
+          "$API/releases/$RELEASE_ID/assets")
+        echo "$ASSETS_JSON" | grep -o '"id":[0-9]*' | cut -d: -f2 | while read asset_id; do
+          echo "Deleting existing asset ID=$asset_id"
+          curl -s -X DELETE \
+            -H "Authorization: token $CODEBERG_TOKEN" \
+            "$API/releases/assets/$asset_id" || true
+        done
         # Upload APK
         APK="app/build/outputs/apk/release/app-release.apk"
         if [ ! -f "$APK" ]; then
