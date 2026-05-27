@@ -43,28 +43,31 @@ steps:
       - REPO="BoxViewer"
       - API="https://codeberg.org/api/v1/repos/$OWNER/$REPO"
       - |
-        # Check if release already exists
-        RESP=$(curl -s -o /dev/null -w "%{http_code}" \
-          -H "Authorization: token $CODEBERG_TOKEN" \
+        # Get or create the dev release
+        RESP=$(curl -s -H "Authorization: token $CODEBERG_TOKEN" \
           "$API/releases/tags/$TAG")
-        if [ "$RESP" = "200" ]; then
-          # Delete old dev release
-          curl -s -X DELETE \
+        RELEASE_ID=$(echo "$RESP" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+        if [ -z "$RELEASE_ID" ]; then
+          echo "Creating new release"
+          RESP=$(curl -s -X POST \
             -H "Authorization: token $CODEBERG_TOKEN" \
-            "$API/releases/tags/$TAG" || true
+            -H "Content-Type: application/json" \
+            -d '{"tag_name":"dev","name":"🔧 Dev Build","body":"Automatic build of the latest commit. Updated on every push to `main`.","prerelease":true,"draft":false}' \
+            "$API/releases")
+          RELEASE_ID=$(echo "$RESP" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+        else
+          echo "Using existing release ID=$RELEASE_ID"
         fi
-        # Delete the git tag so it's recreated at the latest commit
+        # Move the git tag to the current commit
         curl -s -X DELETE \
           -H "Authorization: token $CODEBERG_TOKEN" \
           "$API/tags/$TAG" || true
-        # Create fresh release and capture the top-level id
-        RESP=$(curl -s -X POST \
+        curl -s -X POST \
           -H "Authorization: token $CODEBERG_TOKEN" \
           -H "Content-Type: application/json" \
-          -d '{"tag_name":"dev","name":"🔧 Dev Build","body":"Automatic build of the latest commit. Updated on every push to `main`.","prerelease":true,"draft":false}' \
-          "$API/releases")
-        RELEASE_ID=$(echo "$RESP" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
-        # Delete any existing assets with the same name before uploading
+          -d "{\"ref\":\"refs/tags/$TAG\",\"sha\":\"${CI_COMMIT_SHA}\"}" \
+          "$API/git/refs" || true
+        # Delete any existing assets before uploading
         ASSETS_JSON=$(curl -s \
           -H "Authorization: token $CODEBERG_TOKEN" \
           "$API/releases/$RELEASE_ID/assets")
