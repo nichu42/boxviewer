@@ -100,6 +100,7 @@ steps:
       - ./gradlew assembleRelease
     when:
       - event: tag
+        tag: v*
 
   - name: release-upload
     image: alpine:latest
@@ -149,3 +150,4 @@ steps:
           "$API/releases/$RELEASE_ID/assets?name=BoxViewer-$TAG.apk" -w "\nHTTP %{http_code}\n"
     when:
       - event: tag
+        tag: v*
