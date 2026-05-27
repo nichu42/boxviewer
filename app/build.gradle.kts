@@ -6,6 +6,30 @@ plugins {
   alias(libs.plugins.secrets)
 }
 
+// Dynamic version for dev builds — monotonically increasing versionCode
+// and unique versionName based on git commit data.
+fun getDevBuildVersionCode(): Int {
+  return try {
+    val process = ProcessBuilder("git", "rev-list", "--count", "HEAD")
+      .directory(project.rootDir)
+      .start()
+    process.inputStream.bufferedReader().readText().trim().toInt()
+  } catch (e: Exception) {
+    project.findProperty("devVersionCode")?.toString()?.toInt() ?: 1
+  }
+}
+
+fun getDevBuildSha(): String {
+  return try {
+    val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+      .directory(project.rootDir)
+      .start()
+    process.inputStream.bufferedReader().readText().trim()
+  } catch (e: Exception) {
+    "dev"
+  }
+}
+
 android {
   namespace = "com.example"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
@@ -45,6 +69,8 @@ android {
     }
     debug {
       signingConfig = signingConfigs.getByName("release")
+      versionCode = getDevBuildVersionCode()
+      versionNameSuffix = "-dev.${getDevBuildSha()}"
     }
   }
   compileOptions {
