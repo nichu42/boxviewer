@@ -48,18 +48,18 @@ steps:
           -H "Authorization: token $CODEBERG_TOKEN" \
           "$API/releases/tags/$TAG")
         if [ "$RESP" = "200" ]; then
-          # Delete old dev release (but keep tag for reuse)
+          # Delete old dev release
           curl -s -X DELETE \
             -H "Authorization: token $CODEBERG_TOKEN" \
             "$API/releases/tags/$TAG" || true
         fi
-        # Create fresh release
+        # Create fresh release and capture the top-level id
         RESP=$(curl -s -X POST \
           -H "Authorization: token $CODEBERG_TOKEN" \
           -H "Content-Type: application/json" \
           -d '{"tag_name":"dev","name":"🔧 Dev Build","body":"Automatic build of the latest commit. Updated on every push to `main`.","prerelease":true,"draft":false}' \
           "$API/releases")
-        RELEASE_ID=$(echo "$RESP" | sed 's/.*"id":\([0-9]*\).*/\1/')
+        RELEASE_ID=$(echo "$RESP" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
         # Upload APK
         curl -s -X POST \
           -H "Authorization: token $CODEBERG_TOKEN" \
@@ -104,7 +104,7 @@ steps:
           -H "Content-Type: application/json" \
           -d "{\"tag_name\":\"$TAG\",\"name\":\"$TAG\",\"body\":\"BoxViewer $TAG\",\"prerelease\":false,\"draft\":false}" \
           "$API/releases")
-        RELEASE_ID=$(echo "$RESP" | sed 's/.*"id":\([0-9]*\).*/\1/')
+        RELEASE_ID=$(echo "$RESP" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
         # Upload APK
         curl -s -X POST \
           -H "Authorization: token $CODEBERG_TOKEN" \
