@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.example.util.ApiLogger.init(applicationContext)
         enableEdgeToEdge()
 
         pendingBoxIdFromWidget.value = intent?.getStringExtra("box_id")
@@ -214,6 +215,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        com.example.util.ApiLogger.isAppForeground = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        com.example.util.ApiLogger.isAppForeground = false
     }
 
     override fun onNewIntent(intent: android.content.Intent) {

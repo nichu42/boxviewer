@@ -4,6 +4,9 @@ import com.example.data.api.OpenSenseMapApi
 import com.example.data.api.RetrofitClient
 import com.example.data.api.SenseBox
 import com.example.data.db.*
+import com.example.util.ApiLogger
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.Dispatchers
@@ -88,7 +91,10 @@ class SenseBoxRepository(private val db: SenseBoxDatabase) {
             )
         }
 
-        val box = api.getBox(boxId)
+        val url = "https://api.opensensemap.org/boxes/$boxId"
+        val box = logApiCall("GET", url) {
+            api.getBox(boxId)
+        }
         
         // Cache sensors
         val caches = box.sensors?.map { sensor ->
@@ -165,11 +171,26 @@ class SenseBoxRepository(private val db: SenseBoxDatabase) {
 
     suspend fun searchBoxes(query: String): List<SenseBox> = withContext(Dispatchers.IO) {
         if (query.trim().isEmpty()) return@withContext emptyList()
-        api.searchBoxes(query)
+        val url = "https://api.opensensemap.org/boxes".toHttpUrlOrNull()!!
+            .newBuilder()
+            .addQueryParameter("name", query)
+            .build()
+            .toString()
+        logApiCall("GET", url) {
+            api.searchBoxes(query)
+        }
     }
 
     suspend fun findNearBoxes(longitude: Double, latitude: Double, maxDistanceMeters: Int): List<SenseBox> = withContext(Dispatchers.IO) {
-        api.getBoxesNear("$longitude,$latitude", maxDistanceMeters)
+        val url = "https://api.opensensemap.org/boxes".toHttpUrlOrNull()!!
+            .newBuilder()
+            .addQueryParameter("near", "$longitude,$latitude")
+            .addQueryParameter("maxDistance", maxDistanceMeters.toString())
+            .build()
+            .toString()
+        logApiCall("GET", url) {
+            api.getBoxesNear("$longitude,$latitude", maxDistanceMeters)
+        }
     }
 
     suspend fun refreshAllSavedBoxes(force: Boolean = false) = withContext(Dispatchers.IO) {
@@ -201,6 +222,87 @@ class SenseBoxRepository(private val db: SenseBoxDatabase) {
     }
 
     suspend fun getSensorData(boxId: String, sensorId: String, limit: Int = 20): List<com.example.data.api.Measurement> = withContext(Dispatchers.IO) {
-        api.getSensorData(boxId, sensorId, limit)
+        val url = ("https://api.opensensemap.org/boxes/$boxId/data/$sensorId").toHttpUrlOrNull()!!
+            .newBuilder()
+            .addQueryParameter("limit", limit.toString())
+            .addQueryParameter("format", "json")
+            .build()
+            .toString()
+        logApiCall("GET", url) {
+            api.getSensorData(boxId, sensorId, limit)
+        }
+    }
+
+    private suspend fun <T> logApiCall(
+        method: String,
+        url: String,
+        call: suspend () -> T
+    ): T {
+        if (!ApiLogger.isLoggingEnabled()) {
+            return call()
+        }
+
+        val startTime = System.currentTimeMillis()
+        var status = 0
+        var parsingResult: String? = null
+        var errorMsg: String? = null
+
+        try {
+            val result = call()
+            status = 200
+            
+            parsingResult = when (result) {
+                is SenseBox -> {
+                    "Success: Parsed Box '${result.name}' (id=${result.id}) with ${result.sensors?.size ?: 0} sensors: " +
+                            (result.sensors?.joinToString { "${it.title}=${it.lastMeasurement?.value ?: "null"}" } ?: "none")
+                }
+                is List<*> -> {
+                    if (result.isEmpty()) {
+                        "Success: Parsed empty list"
+                    } else {
+                        val first = result.firstOrNull()
+                        when (first) {
+                            is SenseBox -> {
+                                "Success: Parsed List of ${result.size} Boxes. Names: " +
+                                        result.joinToString(limit = 5) { (it as SenseBox).name }
+                            }
+                            is com.example.data.api.Measurement -> {
+                                "Success: Parsed List of ${result.size} Measurements. First: value=${first.value}, createdAt=${first.createdAt}"
+                            }
+                            else -> "Success: Parsed List of ${result.size} items of type ${first?.javaClass?.simpleName}"
+                        }
+                    }
+                }
+                else -> "Success: Parsed object of type ${result?.javaClass?.simpleName}"
+            }
+            return result
+        } catch (e: Exception) {
+            errorMsg = e.javaClass.name + ": " + e.message
+            
+            if (e is retrofit2.HttpException) {
+                status = e.code()
+                parsingResult = "HTTP Error: ${e.message()}"
+            } else if (e is com.squareup.moshi.JsonDataException || e is com.squareup.moshi.JsonEncodingException) {
+                status = 200
+                parsingResult = "Parsing Failed: " + e.javaClass.simpleName + " - " + e.message
+            } else {
+                status = 0
+                parsingResult = "Request Failed"
+            }
+            throw e
+        } finally {
+            val duration = System.currentTimeMillis() - startTime
+            val responseJson = ApiLogger.responseCache.remove(url)
+            
+            ApiLogger.logRequest(
+                method = method,
+                url = url,
+                status = status,
+                durationMs = duration,
+                responseJson = responseJson,
+                parsingResult = parsingResult,
+                error = errorMsg
+            )
+        }
     }
 }

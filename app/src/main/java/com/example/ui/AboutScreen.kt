@@ -49,6 +49,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import android.widget.Toast
 import com.example.util.CrashHandler
+import com.example.util.ApiLogger
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -671,6 +672,201 @@ fun AboutScreen(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 6. API Debug Logging Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("about_api_logging_card"),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "API DEBUG LOGGING",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    
+                    Text(
+                        text = "Capture raw JSON network requests, responses, and internal parsing metrics. Logs are saved locally in a JSON Lines format and can be shared to diagnose issues.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 20.sp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    var apiLoggingEnabled by remember { mutableStateOf(ApiLogger.isLoggingEnabled()) }
+                    var apiLogLimit by remember { mutableStateOf(ApiLogger.getMaxEntries()) }
+                    var logSizeStr by remember { mutableStateOf("0 B") }
+
+                    LaunchedEffect(apiLoggingEnabled) {
+                        val size = ApiLogger.getLogFileSize()
+                        logSizeStr = formatFileSize(size)
+                    }
+
+                    // Logging Toggle Switch
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "Enable API Logging",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Current size: $logSizeStr",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(
+                            checked = apiLoggingEnabled,
+                            onCheckedChange = { checked ->
+                                apiLoggingEnabled = checked
+                                ApiLogger.setLoggingEnabled(checked)
+                                Toast.makeText(context, if (checked) "API Logging Enabled" else "API Logging Disabled", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.testTag("api_logging_toggle")
+                        )
+                    }
+
+                    if (apiLoggingEnabled) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Max Log Entries",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        
+                        // Limit Selector Buttons
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            listOf(50, 100, 200, 500).forEach { limitVal ->
+                                val isSelected = apiLogLimit == limitVal
+                                Button(
+                                    onClick = {
+                                        apiLogLimit = limitVal
+                                        ApiLogger.setMaxEntries(limitVal)
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                                    ),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(38.dp)
+                                        .testTag("api_limit_$limitVal"),
+                                    contentPadding = PaddingValues(0.dp)
+                                ) {
+                                    Text(text = "$limitVal", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Action Buttons: Copy, Share, Clear
+                        val coroutineScope = rememberCoroutineScope()
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Button(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            val logText = ApiLogger.getLogsText()
+                                            if (logText.isEmpty()) {
+                                                Toast.makeText(context, "Log is empty!", Toast.LENGTH_SHORT).show()
+                                            } else {
+                                                clipboardManager.setText(AnnotatedString(logText))
+                                                Toast.makeText(context, "Logs copied to clipboard!", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    ),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("copy_api_logs")
+                                ) {
+                                    Text("Copy Logs", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                }
+
+                                Button(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            val logText = ApiLogger.getLogsText()
+                                            if (logText.isEmpty()) {
+                                                Toast.makeText(context, "Log is empty!", Toast.LENGTH_SHORT).show()
+                                            } else {
+                                                try {
+                                                    val sendIntent = android.content.Intent().apply {
+                                                        action = android.content.Intent.ACTION_SEND
+                                                        putExtra(android.content.Intent.EXTRA_TEXT, logText)
+                                                        type = "text/plain"
+                                                    }
+                                                    val shareIntent = android.content.Intent.createChooser(sendIntent, "Share API Logs")
+                                                    context.startActivity(shareIntent)
+                                                } catch (e: Exception) {
+                                                    e.printStackTrace()
+                                                    Toast.makeText(context, "Error sharing logs", Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    ),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("share_api_logs")
+                                ) {
+                                    Text("Share Logs", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+
+                            Button(
+                                onClick = {
+                                    ApiLogger.clearLogs()
+                                    logSizeStr = "0 B"
+                                    Toast.makeText(context, "Logs cleared", Toast.LENGTH_SHORT).show()
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                ),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("clear_api_logs")
+                            ) {
+                                Text("Clear API Logs", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                    }
+                }
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -1119,5 +1315,13 @@ fun ThirdPartyLicensesScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+}
+
+fun formatFileSize(size: Long): String {
+    return when {
+        size < 1024 -> "$size B"
+        size < 1024 * 1024 -> String.format(java.util.Locale.US, "%.1f KB", size / 1024.0)
+        else -> String.format(java.util.Locale.US, "%.1f MB", size / (1024.0 * 1024.0))
     }
 }
