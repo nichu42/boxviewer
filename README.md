@@ -33,14 +33,14 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 *   **🔍 Smart Discovery Engine**: Locate public senseBoxes from the openSenseMap community using direct search by name/ID, location address auto-complete, or on-demand GPS discovery.
 *   **📈 Rich Telemetry Analysis**: Deep telemetry streams visualization including units, last updated timestamps, coordinates, station type, and exposure type (indoor vs. outdoor).
 *   **🔋 Battery & API-Friendly**: Seamless local SQLite caching (`SensorCacheEntity`) and awake-on-unlock widget refresh logic ensure you get fresh data without draining your battery or hammering openSenseMap servers.
-*   **📱 Glanceable Home Widgets**: Customize home screen widgets featuring Material Design 3 theme colors to monitor your favorite senseBox metrics at periodic intervals.
+*   **📱 Glanceable Home Widgets**: Customize home screen widgets featuring Material Design 3 theme colors to monitor your favorite senseBox metrics. Supports text & icon scaling up to 200%, toggling detail styles (Full Details, Value & Unit, Value Only), and direct home-screen reconfiguration on Android 12+.
 *   **🛠️ Local API Debug Logging**: Opt-in to capture raw API requests, responses, and Moshi parsing results in a JSON Lines (`.jsonl`) file stored locally. Copy or share logs via native sheets to diagnose errors easily.
 
 ---
 
 ## ⬇️ Download & Install
 
-BoxViewer is distributed as an independent APK package and is compatible with Android 8.0 (API 26) and above.
+BoxViewer is distributed as an independent APK package and is compatible with Android 7.0 (API 24) and above.
 
 ### 🚀 Direct Download
 You can download stable APKs or development builds directly from Codeberg — no account required:
