@@ -13,7 +13,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         WidgetConfigEntity::class,
         SensorCacheEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class SenseBoxDatabase : RoomDatabase() {
@@ -41,6 +41,14 @@ abstract class SenseBoxDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // In version 6, showBoxName and showUpdateTime columns are added to widget_configs table
+                db.execSQL("ALTER TABLE widget_configs ADD COLUMN showBoxName INTEGER NOT NULL DEFAULT 1")
+                db.execSQL("ALTER TABLE widget_configs ADD COLUMN showUpdateTime INTEGER NOT NULL DEFAULT 1")
+            }
+        }
+
         fun getDatabase(context: Context): SenseBoxDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -48,7 +56,7 @@ abstract class SenseBoxDatabase : RoomDatabase() {
                     SenseBoxDatabase::class.java,
                     "sensebox_database"
                 )
-                .addMigrations(MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
                         super.onDestructiveMigration(db)

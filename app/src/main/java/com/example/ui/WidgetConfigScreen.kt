@@ -90,6 +90,8 @@ fun WidgetConfigScreen(
     var metricDisplayMode by remember { mutableStateOf("LABEL_VALUE_UNIT") }
     var showRefreshButton by remember { mutableStateOf(true) }
     var showConfigButton by remember { mutableStateOf(true) }
+    var showBoxName by remember { mutableStateOf(true) }
+    var showUpdateTime by remember { mutableStateOf(true) }
     
     var isLoading by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
@@ -123,6 +125,8 @@ fun WidgetConfigScreen(
                 metricDisplayMode = existingConfig.metricDisplayMode
                 showRefreshButton = existingConfig.showRefreshButton
                 showConfigButton = existingConfig.showConfigButton
+                showBoxName = existingConfig.showBoxName
+                showUpdateTime = existingConfig.showUpdateTime
             } else if (list.isNotEmpty()) {
                 selectedBox = list.first()
                 widgetColor = Color(0xFF0F172A)
@@ -262,11 +266,10 @@ fun WidgetConfigScreen(
             ) {
                 
 
-
-                // Selector 1: senseBox Target chooser
+                // CHOOSE SENSEBOX (Data Selection)
                 item {
                     Text(
-                        "1. CHOOSE SENSEBOX TO DISPLAY",
+                        "CHOOSE SENSEBOX",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -399,73 +402,11 @@ fun WidgetConfigScreen(
                     }
                 }
 
-                // Selector 2: Visualization Layout Type
+                // MONITORED METRICS / HIGHLIGHT METRIC (Data Selection)
                 item {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "2. VISUALIZATION FORMAT",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Card(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { visualizationType = "LIST" },
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (visualizationType == "LIST") MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(Icons.AutoMirrored.Filled.List, contentDescription = null)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text("Metrics List", style = MaterialTheme.typography.labelMedium)
-                            }
-                        }
-
-                        Card(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { 
-                                    visualizationType = "GRID"
-                                    if (selectedSensorIds.size > 1) {
-                                        selectedSensorIds = listOf(selectedSensorIds.first())
-                                    } else if (selectedSensorIds.isEmpty() && availableSensors.isNotEmpty()) {
-                                        selectedSensorIds = listOf(availableSensors.first().sensorId)
-                                    }
-                                },
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (visualizationType == "GRID") MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(Icons.Default.Star, contentDescription = null)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text("Single Highlight", style = MaterialTheme.typography.labelMedium)
-                            }
-                        }
-                    }
-                }
-
-                // Selector 3: Sensor checkboxes selection list / Dropdown for grid
-                item {
-                    Text(
-                        if (visualizationType == "GRID") "3. HIGHLIGHT METRIC" else "3. MONITORED METRICS",
+                        if (visualizationType == "GRID") "HIGHLIGHT METRIC" else "MONITORED METRICS",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -746,8 +687,8 @@ fun WidgetConfigScreen(
                                                                                                 val movedItem = newList.removeAt(currentIdx)
                                                                                                 newList.add(targetIdx, movedItem)
                                                                                                 selectedSensorIds = newList
-                                                                                                dragOffsetY -= (targetIdx - currentIdx) * currentItemHeightPxState.value
                                                                                                 draggedIndex = targetIdx
+                                                                                                dragOffsetY -= (targetIdx - currentIdx) * currentItemHeightPxState.value
                                                                                             }
                                                                                         }
                                                                                     }
@@ -775,11 +716,11 @@ fun WidgetConfigScreen(
                                 val unselectedSensors = availableSensors.filter { !selectedSensorIds.contains(it.sensorId) }
                                 if (unselectedSensors.isNotEmpty()) {
                                     if (selectedSensorIds.isNotEmpty()) {
-                                        HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
+                                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                                     }
                                     
                                     Text(
-                                        "AVAILABLE METRICS (CHECK TO MONITOR)",
+                                        "ADD MORE METRICS",
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -790,12 +731,12 @@ fun WidgetConfigScreen(
                                             Row(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .clip(RoundedCornerShape(8.dp))
-                                                    .background(MaterialTheme.colorScheme.surface)
                                                     .clickable {
-                                                        selectedSensorIds = selectedSensorIds + sensor.sensorId
+                                                        if (selectedSensorIds.size < 6) {
+                                                            selectedSensorIds = selectedSensorIds + sensor.sensorId
+                                                        }
                                                     }
-                                                    .padding(8.dp),
+                                                    .padding(vertical = 4.dp),
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Checkbox(
@@ -837,11 +778,146 @@ fun WidgetConfigScreen(
                     }
                 }
 
-                // Selector 4: Widget Text Scaling
+                // VISUALIZATION FORMAT (Visual Formats & Styling)
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "4. WIDGET TEXT SCALING",
+                        "VISUALIZATION FORMAT",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(80.dp)
+                                .clickable { visualizationType = "LIST" },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (visualizationType == "LIST") MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(Icons.AutoMirrored.Filled.List, contentDescription = null)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Metrics List", style = MaterialTheme.typography.labelMedium)
+                            }
+                        }
+
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(80.dp)
+                                .clickable { 
+                                    visualizationType = "GRID"
+                                    if (selectedSensorIds.size > 1) {
+                                        selectedSensorIds = listOf(selectedSensorIds.first())
+                                    } else if (selectedSensorIds.isEmpty() && availableSensors.isNotEmpty()) {
+                                        selectedSensorIds = listOf(availableSensors.first().sensorId)
+                                    }
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (visualizationType == "GRID") MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(Icons.Default.Star, contentDescription = null)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Single Highlight", style = MaterialTheme.typography.labelMedium)
+                            }
+                        }
+                    }
+                }
+
+                // METRIC DISPLAY STYLE (Visual Formats & Styling)
+                item {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
+                    Text(
+                        "METRIC DISPLAY STYLE",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        "Choose the visibility layout style for metrics in the widget.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(
+                            Triple("LABEL_VALUE_UNIT", "Full Details", "Icon + Label + Value + Unit"),
+                            Triple("VALUE_UNIT", "Value & Unit", "Icon + Value + Unit"),
+                            Triple("VALUE_ONLY", "Value Only", "Icon + Value only")
+                        ).forEach { (mode, title, subtitle) ->
+                            val isSelected = metricDisplayMode == mode
+                            OutlinedCard(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(80.dp)
+                                    .clickable { metricDisplayMode = mode },
+                                colors = CardDefaults.outlinedCardColors(
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                                ),
+                                border = androidx.compose.foundation.BorderStroke(
+                                    width = 1.dp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                                ),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(6.dp).fillMaxSize(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = subtitle,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontSize = 8.5.sp,
+                                        lineHeight = 11.sp,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // WIDGET TEXT SCALING (Visual Formats & Styling)
+                item {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
+                    Text(
+                        "WIDGET TEXT SCALING",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -925,125 +1001,11 @@ fun WidgetConfigScreen(
                     }
                 }
 
-                // Selector: Metric Display Mode
+                // WIDGET BACKGROUND COLOR (UI Elements)
                 item {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "METRIC DISPLAY STYLE",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        "Choose the visibility layout style for metrics in the widget.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        listOf(
-                            Triple("LABEL_VALUE_UNIT", "Full Details", "Icon + Label + Value + Unit"),
-                            Triple("VALUE_UNIT", "Value & Unit", "Icon + Value + Unit"),
-                            Triple("VALUE_ONLY", "Value Only", "Icon + Value only")
-                        ).forEach { (mode, title, subtitle) ->
-                            val isSelected = metricDisplayMode == mode
-                            OutlinedCard(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clickable { metricDisplayMode = mode },
-                                colors = CardDefaults.outlinedCardColors(
-                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-                                ),
-                                border = androidx.compose.foundation.BorderStroke(
-                                    width = 1.dp,
-                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                ),
-                                shape = RoundedCornerShape(10.dp)
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(10.dp).fillMaxWidth(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Text(
-                                        text = title,
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = subtitle,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        fontSize = 9.sp,
-                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Selector: Widget Header Buttons
-                item {
-                    Text(
-                        "WIDGET HEADER BUTTONS",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text("Show Refresh Button", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                    Text("Displays a sync icon to manually refresh on the widget", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                                Switch(
-                                    checked = showRefreshButton,
-                                    onCheckedChange = { showRefreshButton = it }
-                                )
-                            }
-                            HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text("Show Configuration Button", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                    Text("Displays a gear icon to configure widget settings", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                                Switch(
-                                    checked = showConfigButton,
-                                    onCheckedChange = { showConfigButton = it }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Selector 5: Widget Background Color Choice
-                item {
-                    Text(
-                        "5. WIDGET BACKGROUND COLOR",
+                        "WIDGET BACKGROUND COLOR",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -1072,7 +1034,7 @@ fun WidgetConfigScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                widgetBgColors.forEachIndexed { idx, color ->
+                                widgetBgColors.forEach { color ->
                                     val isSelected = widgetColor == color
                                     Box(
                                         modifier = Modifier
@@ -1362,7 +1324,7 @@ fun WidgetConfigScreen(
                                         )
                                         Spacer(modifier = Modifier.height(6.dp))
                                         OutlinedTextField(
-                                                                                        value = hexInputText,
+                                            value = hexInputText,
                                             onValueChange = onHexChanged,
                                             modifier = Modifier.fillMaxWidth(),
                                             placeholder = { Text("0F172A", color = com.example.ui.theme.SensorTheme.getContrastColor(widgetColor).copy(alpha = 0.6f)) },
@@ -1374,16 +1336,7 @@ fun WidgetConfigScreen(
                                                     color = com.example.ui.theme.SensorTheme.getContrastColor(widgetColor)
                                                 )
                                             },
-                                            /* trailingIcon = {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(24.dp)
-                                                        .clip(RoundedCornerShape(6.dp))
-                                                        .background(widgetColor)
-                                                        .border(1.dp, com.example.ui.theme.SensorTheme.getContrastColor(widgetColor).copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                                                )
-                                            },
-                                            */ singleLine = true,
+                                            singleLine = true,
                                             isError = hexError,
                                             textStyle = MaterialTheme.typography.bodyMedium.copy(
                                                 fontWeight = FontWeight.Bold,
@@ -1417,10 +1370,115 @@ fun WidgetConfigScreen(
                     }
                 }
 
-                // Selector 6: Custom refresh intervals
+                // WIDGET HEADER LABELS (UI Elements)
                 item {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "6. REFRESH SYNC TIME INTERVAL",
+                        "WIDGET HEADER LABELS",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Show senseBox Name", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                    Text("Displays the senseBox name in the widget header", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(
+                                    checked = showBoxName,
+                                    onCheckedChange = { showBoxName = it }
+                                )
+                            }
+                            HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Show Last Updated Time", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                    Text("Displays the last update timestamp in the widget header", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(
+                                    checked = showUpdateTime,
+                                    onCheckedChange = { showUpdateTime = it }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // WIDGET HEADER BUTTONS (UI Elements)
+                item {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
+                    Text(
+                        "WIDGET HEADER BUTTONS",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Show Refresh Button", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                    Text("Displays a sync icon to manually refresh on the widget", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(
+                                    checked = showRefreshButton,
+                                    onCheckedChange = { showRefreshButton = it }
+                                )
+                            }
+                            HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Show Configuration Button", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                    Text("Displays a gear icon to configure widget settings", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(
+                                    checked = showConfigButton,
+                                    onCheckedChange = { showConfigButton = it }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // REFRESH SYNC TIME INTERVAL (Background Frequency)
+                item {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
+                    Text(
+                        "REFRESH SYNC TIME INTERVAL",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -1539,7 +1597,9 @@ fun WidgetConfigScreen(
                                             textScale = textScale,
                                             metricDisplayMode = metricDisplayMode,
                                             showRefreshButton = showRefreshButton,
-                                            showConfigButton = showConfigButton
+                                            showConfigButton = showConfigButton,
+                                            showBoxName = showBoxName,
+                                            showUpdateTime = showUpdateTime
                                         )
                                         repository.saveWidgetConfig(entity)
                                         

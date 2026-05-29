@@ -28,7 +28,9 @@ data class WidgetConfigEntity(
     val textScale: Float = 1.0f,
     val metricDisplayMode: String = "LABEL_VALUE_UNIT",
     val showRefreshButton: Boolean = true,
-    val showConfigButton: Boolean = true
+    val showConfigButton: Boolean = true,
+    val showBoxName: Boolean = true,
+    val showUpdateTime: Boolean = true
 )
 
 @Entity(tableName = "sensor_caches")

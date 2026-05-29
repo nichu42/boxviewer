@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
         pendingBoxIdFromWidget.value = intent?.getStringExtra("box_id")
 
         val dbVersion = getDatabaseVersion()
-        val currentExpectedVersion = 5
+        val currentExpectedVersion = 6
         val isDowngraded = dbVersion > currentExpectedVersion
 
         setContent {

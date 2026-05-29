@@ -188,6 +188,7 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
 
             // Setup box details
             views.setTextViewText(R.id.widget_box_name, config.boxName)
+            views.setViewVisibility(R.id.widget_box_name, if (config.showBoxName) View.VISIBLE else View.GONE)
 
             // Format date string
             val updatedString = if (config.lastFetchedTime > 0) {
@@ -197,6 +198,7 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                 "Updated --:--"
             }
             views.setTextViewText(R.id.widget_update_time, updatedString)
+            views.setViewVisibility(R.id.widget_update_time, if (config.showUpdateTime) View.VISIBLE else View.GONE)
 
             val textScale = config.textScale
             views.setTextViewTextSize(R.id.widget_box_name, android.util.TypedValue.COMPLEX_UNIT_SP, 13f * textScale)
