@@ -8,4 +8,5 @@
     android:configure="com.example.ui.WidgetConfigActivity"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable"
     android:initialLayout="@layout/widget_layout_list" />

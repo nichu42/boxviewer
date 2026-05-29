@@ -49,20 +49,84 @@ class MainActivity : ComponentActivity() {
 
         pendingBoxIdFromWidget.value = intent?.getStringExtra("box_id")
 
+        val dbVersion = getDatabaseVersion()
+        val currentExpectedVersion = 5
+        val isDowngraded = dbVersion > currentExpectedVersion
+
         setContent {
             // Apply the custom Sleek Interface theme matching Material 3 specifications
             MyApplicationTheme(dynamicColor = false) {
-                val navController = rememberNavController()
-                val boxIdFromWidget by pendingBoxIdFromWidget.collectAsState()
+                var isDowngradedState by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(isDowngraded) }
 
-                LaunchedEffect(boxIdFromWidget) {
-                    if (!boxIdFromWidget.isNullOrEmpty()) {
-                        navController.navigate("detail/$boxIdFromWidget")
-                        // Reset the state to prevent infinite loop or re-navigation on recomposition
-                        pendingBoxIdFromWidget.value = null
-                        intent?.removeExtra("box_id")
+                if (isDowngradedState) {
+                    AlertDialog(
+                        onDismissRequest = { /* Prevent dismiss on click outside */ },
+                        title = { Text("Database Version Mismatch", fontWeight = FontWeight.Bold) },
+                        text = {
+                            Text(
+                                "The app database has been updated to a newer version. Your current app version is too old to read it.\n\n" +
+                                "To ensure stability, you can choose to start over fresh (which will clear your bookmarks and widget settings), or close the app and open the project page to install the update."
+                            )
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    applicationContext.deleteDatabase("sensebox_database")
+                                    isDowngradedState = false
+                                }
+                            ) {
+                                Text("Start Over")
+                            }
+                        },
+                        dismissButton = {
+                            OutlinedButton(
+                                onClick = {
+                                    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://codeberg.org/nichu42/BoxViewer"))
+                                    startActivity(intent)
+                                    finish()
+                                }
+                            ) {
+                                Text("Install Update")
+                            }
+                        }
+                    )
+                } else {
+                    var showResetAlert by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+
+                    LaunchedEffect(Unit) {
+                        val prefs = getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+                        if (prefs.getBoolean("db_reset_occurred", false)) {
+                            showResetAlert = true
+                            prefs.edit().putBoolean("db_reset_occurred", false).apply()
+                        }
                     }
-                }
+
+                    if (showResetAlert) {
+                        AlertDialog(
+                            onDismissRequest = { showResetAlert = false },
+                            title = { Text("Database Updated", fontWeight = FontWeight.Bold) },
+                            text = {
+                                Text("The app database has been updated to a newer version. To ensure stability and compatibility, some configurations have been reset. Please configure your favorites and widgets again.")
+                            },
+                            confirmButton = {
+                                Button(onClick = { showResetAlert = false }) {
+                                    Text("OK")
+                                }
+                            }
+                        )
+                    }
+
+                    val navController = rememberNavController()
+                    val boxIdFromWidget by pendingBoxIdFromWidget.collectAsState()
+
+                    LaunchedEffect(boxIdFromWidget) {
+                        if (!boxIdFromWidget.isNullOrEmpty()) {
+                            navController.navigate("detail/$boxIdFromWidget")
+                            // Reset the state to prevent infinite loop or re-navigation on recomposition
+                            pendingBoxIdFromWidget.value = null
+                            intent?.removeExtra("box_id")
+                        }
+                    }
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -231,5 +295,21 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         pendingBoxIdFromWidget.value = intent.getStringExtra("box_id")
+    }
+
+    private fun getDatabaseVersion(): Int {
+        val dbFile = getDatabasePath("sensebox_database")
+        if (!dbFile.exists()) return 0
+        return try {
+            android.database.sqlite.SQLiteDatabase.openDatabase(
+                dbFile.path,
+                null,
+                android.database.sqlite.SQLiteDatabase.OPEN_READONLY
+            ).use { db ->
+                db.version
+            }
+        } catch (e: Exception) {
+            0
+        }
     }
 }

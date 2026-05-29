@@ -44,6 +44,7 @@ import com.example.data.db.WidgetConfigEntity
 import com.example.data.repository.SenseBoxRepository
 import com.example.widget.SenseBoxWidgetProvider
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.key
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,6 +87,10 @@ fun WidgetConfigScreen(
     var dropdownExpanded by remember { mutableStateOf(false) }
     var boxDropdownExpanded by remember { mutableStateOf(false) }
     
+    var metricDisplayMode by remember { mutableStateOf("LABEL_VALUE_UNIT") }
+    var showRefreshButton by remember { mutableStateOf(true) }
+    var showConfigButton by remember { mutableStateOf(true) }
+    
     var isLoading by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
 
@@ -115,6 +120,9 @@ fun WidgetConfigScreen(
                 refreshIntervalMinutes = existingConfig.refreshIntervalMinutes
                 textScale = existingConfig.textScale
                 selectedSensorIds = existingConfig.sensorIdsString.split(",").filter { it.isNotEmpty() }
+                metricDisplayMode = existingConfig.metricDisplayMode
+                showRefreshButton = existingConfig.showRefreshButton
+                showConfigButton = existingConfig.showConfigButton
             } else if (list.isNotEmpty()) {
                 selectedBox = list.first()
                 widgetColor = Color(0xFF0F172A)
@@ -625,129 +633,131 @@ fun WidgetConfigScreen(
                                             .height(itemHeightDp * selectedSensorIds.size)
                                     ) {
                                         selectedSensorIds.forEachIndexed { index, sensorId ->
-                                            val sensor = availableSensors.find { it.sensorId == sensorId }
-                                            if (sensor != null) {
-                                                val currentIndexState = rememberUpdatedState(index)
-                                                val currentItemHeightPxState = rememberUpdatedState(itemHeightPx)
-                                                val isBeingDragged = draggedIndex == index
-                                                val currentVisualOffset = if (isBeingDragged) dragOffsetY else 0f
-                                                val basePositionDp = itemHeightDp * index
-                                                
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(56.dp)
-                                                        .offset(
-                                                            x = 0.dp,
-                                                            y = basePositionDp + with(density) { currentVisualOffset.toDp() }
-                                                        )
-                                                        .zIndex(if (isBeingDragged) 10f else 1f)
-                                                        .background(
-                                                            color = if (isBeingDragged) {
-                                                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f)
-                                                            } else {
-                                                                MaterialTheme.colorScheme.surface
-                                                            },
-                                                            shape = RoundedCornerShape(12.dp)
-                                                        )
-                                                        .border(
-                                                            width = 1.dp,
-                                                            color = if (isBeingDragged) {
-                                                                MaterialTheme.colorScheme.primary
-                                                            } else {
-                                                                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-                                                            },
-                                                            shape = RoundedCornerShape(12.dp)
-                                                        )
-                                                        .padding(horizontal = 12.dp),
-                                                    contentAlignment = Alignment.CenterStart
-                                                ) {
-                                                    Row(
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                        verticalAlignment = Alignment.CenterVertically,
-                                                        horizontalArrangement = Arrangement.SpaceBetween
+                                            key(sensorId) {
+                                                val sensor = availableSensors.find { it.sensorId == sensorId }
+                                                if (sensor != null) {
+                                                    val currentIndexState = rememberUpdatedState(index)
+                                                    val currentItemHeightPxState = rememberUpdatedState(itemHeightPx)
+                                                    val isBeingDragged = draggedIndex == index
+                                                    val currentVisualOffset = if (isBeingDragged) dragOffsetY else 0f
+                                                    val basePositionDp = itemHeightDp * index
+                                                    
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(56.dp)
+                                                            .offset(
+                                                                x = 0.dp,
+                                                                y = basePositionDp + with(density) { currentVisualOffset.toDp() }
+                                                            )
+                                                            .zIndex(if (isBeingDragged) 10f else 1f)
+                                                            .background(
+                                                                color = if (isBeingDragged) {
+                                                                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f)
+                                                                } else {
+                                                                    MaterialTheme.colorScheme.surface
+                                                                },
+                                                                shape = RoundedCornerShape(12.dp)
+                                                            )
+                                                            .border(
+                                                                width = 1.dp,
+                                                                color = if (isBeingDragged) {
+                                                                    MaterialTheme.colorScheme.primary
+                                                                } else {
+                                                                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                                                                },
+                                                                shape = RoundedCornerShape(12.dp)
+                                                            )
+                                                            .padding(horizontal = 12.dp),
+                                                        contentAlignment = Alignment.CenterStart
                                                     ) {
                                                         Row(
+                                                            modifier = Modifier.fillMaxWidth(),
                                                             verticalAlignment = Alignment.CenterVertically,
-                                                            modifier = Modifier.weight(1f)
+                                                            horizontalArrangement = Arrangement.SpaceBetween
                                                         ) {
-                                                            Checkbox(
-                                                                checked = true,
-                                                                onCheckedChange = { isChecked ->
-                                                                    if (!isChecked) {
-                                                                        selectedSensorIds = selectedSensorIds - sensorId
+                                                            Row(
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                modifier = Modifier.weight(1f)
+                                                            ) {
+                                                                Checkbox(
+                                                                    checked = true,
+                                                                    onCheckedChange = { isChecked ->
+                                                                        if (!isChecked) {
+                                                                            selectedSensorIds = selectedSensorIds - sensorId
+                                                                        }
                                                                     }
+                                                                )
+                                                                Spacer(modifier = Modifier.width(6.dp))
+                                                                val sVisuals = com.example.ui.theme.SensorTheme.getVisuals(sensor.sensorTitle)
+                                                                Icon(
+                                                                    imageVector = sVisuals.icon,
+                                                                    contentDescription = null,
+                                                                    tint = sVisuals.color,
+                                                                    modifier = Modifier.size(20.dp)
+                                                                )
+                                                                Spacer(modifier = Modifier.width(8.dp))
+                                                                Column {
+                                                                    Text(
+                                                                        text = sensor.sensorTitle,
+                                                                        style = MaterialTheme.typography.bodyMedium,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        color = sVisuals.color
+                                                                    )
+                                                                    Text(
+                                                                        text = "Unit: ${sensor.sensorUnit ?: ""} | Type: ${sensor.sensorType}",
+                                                                        style = MaterialTheme.typography.bodySmall,
+                                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                                    )
                                                                 }
-                                                            )
-                                                            Spacer(modifier = Modifier.width(6.dp))
-                                                            val sVisuals = com.example.ui.theme.SensorTheme.getVisuals(sensor.sensorTitle)
-                                                            Icon(
-                                                                imageVector = sVisuals.icon,
-                                                                contentDescription = null,
-                                                                tint = sVisuals.color,
-                                                                modifier = Modifier.size(20.dp)
-                                                            )
-                                                            Spacer(modifier = Modifier.width(8.dp))
-                                                            Column {
-                                                                Text(
-                                                                    text = sensor.sensorTitle,
-                                                                    style = MaterialTheme.typography.bodyMedium,
-                                                                    fontWeight = FontWeight.Bold,
-                                                                    color = sVisuals.color
-                                                                )
-                                                                Text(
-                                                                    text = "Unit: ${sensor.sensorUnit ?: ""} | Type: ${sensor.sensorType}",
-                                                                    style = MaterialTheme.typography.bodySmall,
-                                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                                )
                                                             }
-                                                        }
-                                                        
-                                                        Icon(
-                                                            imageVector = Icons.Default.Reorder,
-                                                            contentDescription = "Drag to reorder",
-                                                            tint = if (isBeingDragged) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                                            modifier = Modifier
-                                                                .size(28.dp)
-                                                                .pointerInput(sensorId) {
-                                                                    detectDragGesturesAfterLongPress(
-                                                                        onDragStart = { offset ->
-                                                                            draggedIndex = currentIndexState.value
-                                                                            dragOffsetY = 0f
-                                                                        },
-                                                                        onDragEnd = {
-                                                                            draggedIndex = null
-                                                                            dragOffsetY = 0f
-                                                                        },
-                                                                        onDragCancel = {
-                                                                            draggedIndex = null
-                                                                            dragOffsetY = 0f
-                                                                        },
-                                                                        onDrag = { change, dragAmount ->
-                                                                            change.consume()
-                                                                            dragOffsetY += dragAmount.y
-                                                                            
-                                                                            draggedIndex?.let { currentIdx ->
-                                                                                if (selectedSensorIds.isNotEmpty()) {
-                                                                                    val targetIdx = (currentIdx + (dragOffsetY / currentItemHeightPxState.value).roundToInt())
-                                                                                        .coerceIn(0, selectedSensorIds.size - 1)
-                                                                                    if (targetIdx != currentIdx) {
-                                                                                        val newList = selectedSensorIds.toMutableList()
-                                                                                        if (currentIdx in newList.indices && targetIdx in newList.indices) {
-                                                                                            val movedItem = newList.removeAt(currentIdx)
-                                                                                            newList.add(targetIdx, movedItem)
-                                                                                            selectedSensorIds = newList
-                                                                                            dragOffsetY -= (targetIdx - currentIdx) * currentItemHeightPxState.value
-                                                                                            draggedIndex = targetIdx
+                                                            
+                                                            Icon(
+                                                                imageVector = Icons.Default.Reorder,
+                                                                contentDescription = "Drag to reorder",
+                                                                tint = if (isBeingDragged) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                                modifier = Modifier
+                                                                    .size(28.dp)
+                                                                    .pointerInput(sensorId) {
+                                                                        detectDragGesturesAfterLongPress(
+                                                                            onDragStart = { offset ->
+                                                                                draggedIndex = currentIndexState.value
+                                                                                dragOffsetY = 0f
+                                                                            },
+                                                                            onDragEnd = {
+                                                                                draggedIndex = null
+                                                                                dragOffsetY = 0f
+                                                                            },
+                                                                            onDragCancel = {
+                                                                                draggedIndex = null
+                                                                                dragOffsetY = 0f
+                                                                            },
+                                                                            onDrag = { change, dragAmount ->
+                                                                                change.consume()
+                                                                                dragOffsetY += dragAmount.y
+                                                                                
+                                                                                draggedIndex?.let { currentIdx ->
+                                                                                    if (selectedSensorIds.isNotEmpty()) {
+                                                                                        val targetIdx = (currentIdx + (dragOffsetY / currentItemHeightPxState.value).roundToInt())
+                                                                                            .coerceIn(0, selectedSensorIds.size - 1)
+                                                                                        if (targetIdx != currentIdx) {
+                                                                                            val newList = selectedSensorIds.toMutableList()
+                                                                                            if (currentIdx in newList.indices && targetIdx in newList.indices) {
+                                                                                                val movedItem = newList.removeAt(currentIdx)
+                                                                                                newList.add(targetIdx, movedItem)
+                                                                                                selectedSensorIds = newList
+                                                                                                dragOffsetY -= (targetIdx - currentIdx) * currentItemHeightPxState.value
+                                                                                                draggedIndex = targetIdx
+                                                                                            }
                                                                                         }
                                                                                     }
                                                                                 }
                                                                             }
-                                                                        }
-                                                                    )
-                                                                }
-                                                                .padding(4.dp)
-                                                        )
+                                                                        )
+                                                                    }
+                                                                    .padding(4.dp)
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
@@ -884,7 +894,7 @@ fun WidgetConfigScreen(
                         Slider(
                             value = textScale,
                             onValueChange = { textScale = it },
-                            valueRange = 0.6f..1.5f,
+                            valueRange = 0.6f..2.0f,
                             modifier = Modifier.fillMaxWidth().testTag("widget_text_scale_slider"),
                             colors = SliderDefaults.colors(
                                 thumbColor = MaterialTheme.colorScheme.primary,
@@ -907,10 +917,125 @@ fun WidgetConfigScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                "150% (Large)",
+                                "200% (Double)",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
+                    }
+                }
+
+                // Selector: Metric Display Mode
+                item {
+                    Text(
+                        "METRIC DISPLAY STYLE",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        "Choose the visibility layout style for metrics in the widget.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(
+                            Triple("LABEL_VALUE_UNIT", "Full Details", "Icon + Label + Value + Unit"),
+                            Triple("VALUE_UNIT", "Value & Unit", "Icon + Value + Unit"),
+                            Triple("VALUE_ONLY", "Value Only", "Icon + Value only")
+                        ).forEach { (mode, title, subtitle) ->
+                            val isSelected = metricDisplayMode == mode
+                            OutlinedCard(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { metricDisplayMode = mode },
+                                colors = CardDefaults.outlinedCardColors(
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                                ),
+                                border = androidx.compose.foundation.BorderStroke(
+                                    width = 1.dp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                                ),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(10.dp).fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = subtitle,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontSize = 9.sp,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Selector: Widget Header Buttons
+                item {
+                    Text(
+                        "WIDGET HEADER BUTTONS",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Show Refresh Button", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                    Text("Displays a sync icon to manually refresh on the widget", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(
+                                    checked = showRefreshButton,
+                                    onCheckedChange = { showRefreshButton = it }
+                                )
+                            }
+                            HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Show Configuration Button", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                    Text("Displays a gear icon to configure widget settings", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(
+                                    checked = showConfigButton,
+                                    onCheckedChange = { showConfigButton = it }
+                                )
+                            }
                         }
                     }
                 }
@@ -1411,7 +1536,10 @@ fun WidgetConfigScreen(
                                             visualizationType = visualizationType,
                                             themeColorIndex = widgetColor.toArgb(),
                                             lastFetchedTime = System.currentTimeMillis(),
-                                            textScale = textScale
+                                            textScale = textScale,
+                                            metricDisplayMode = metricDisplayMode,
+                                            showRefreshButton = showRefreshButton,
+                                            showConfigButton = showConfigButton
                                         )
                                         repository.saveWidgetConfig(entity)
                                         

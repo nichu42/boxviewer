@@ -202,6 +202,9 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
             views.setTextViewTextSize(R.id.widget_box_name, android.util.TypedValue.COMPLEX_UNIT_SP, 13f * textScale)
             views.setTextViewTextSize(R.id.widget_update_time, android.util.TypedValue.COMPLEX_UNIT_SP, 9f * textScale)
 
+            views.setViewVisibility(R.id.widget_refresh_button, if (config.showRefreshButton) View.VISIBLE else View.GONE)
+            views.setViewVisibility(R.id.widget_settings_button, if (config.showConfigButton) View.VISIBLE else View.GONE)
+
             // Theme indices background colors (modern, material palettes).
             // Handles backward-compatibility for values < 10, or treats them as ARGB colors directly.
             val themeColor = if (config.themeColorIndex in 0..9) {
@@ -226,13 +229,31 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                 views.setTextViewTextSize(R.id.big_sensor_title, android.util.TypedValue.COMPLEX_UNIT_SP, 11f * textScale)
 
                 if (targetSensor != null) {
-                    val valueText = "${targetSensor.value ?: "--"} ${targetSensor.sensorUnit ?: ""}"
+                    val showLabel = config.metricDisplayMode == "LABEL_VALUE_UNIT"
+                    val showUnit = config.metricDisplayMode == "LABEL_VALUE_UNIT" || config.metricDisplayMode == "VALUE_UNIT"
+                    
+                    val valueText = if (showUnit) {
+                        "${targetSensor.value ?: "--"} ${targetSensor.sensorUnit ?: ""}"
+                    } else {
+                        targetSensor.value ?: "--"
+                    }
                     views.setTextViewText(R.id.big_sensor_value, valueText)
-                    views.setTextViewText(R.id.big_sensor_title, targetSensor.sensorTitle)
+                    
+                    if (showLabel) {
+                        views.setViewVisibility(R.id.big_sensor_title, View.VISIBLE)
+                        views.setTextViewText(R.id.big_sensor_title, targetSensor.sensorTitle)
+                    } else {
+                        views.setViewVisibility(R.id.big_sensor_title, View.GONE)
+                    }
                     
                     val visuals = getSensorVisuals(targetSensor.sensorTitle)
                     views.setImageViewResource(R.id.big_sensor_icon, visuals.first)
                     views.setInt(R.id.big_sensor_icon, "setColorFilter", visuals.second)
+                    
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                        views.setViewLayoutWidth(R.id.big_sensor_icon, 40f * textScale, android.util.TypedValue.COMPLEX_UNIT_DIP)
+                        views.setViewLayoutHeight(R.id.big_sensor_icon, 40f * textScale, android.util.TypedValue.COMPLEX_UNIT_DIP)
+                    }
                     
                     val valueColor = getSensorValueColor(targetSensor.sensorTitle, targetSensor.value, visuals.second)
                     views.setTextColor(R.id.big_sensor_value, valueColor)
@@ -241,6 +262,12 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                     views.setTextViewText(R.id.big_sensor_title, "No active sensor")
                     views.setImageViewResource(R.id.big_sensor_icon, R.drawable.ic_sensor_generic)
                     views.setInt(R.id.big_sensor_icon, "setColorFilter", 0xFF94A3B8.toInt())
+                    
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                        views.setViewLayoutWidth(R.id.big_sensor_icon, 40f * textScale, android.util.TypedValue.COMPLEX_UNIT_DIP)
+                        views.setViewLayoutHeight(R.id.big_sensor_icon, 40f * textScale, android.util.TypedValue.COMPLEX_UNIT_DIP)
+                    }
+                    
                     views.setTextColor(R.id.big_sensor_value, 0xFF38BDF8.toInt())
                 }
             } else {
@@ -275,8 +302,22 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                     val sensor = listToDisplay.getOrNull(i)
                     if (sensor != null) {
                         views.setViewVisibility(rows[i], View.VISIBLE)
-                        views.setTextViewText(titles[i], sensor.sensorTitle)
-                        val valStr = "${sensor.value ?: "--"} ${sensor.sensorUnit ?: ""}"
+                        
+                        val showLabel = config.metricDisplayMode == "LABEL_VALUE_UNIT"
+                        val showUnit = config.metricDisplayMode == "LABEL_VALUE_UNIT" || config.metricDisplayMode == "VALUE_UNIT"
+                        
+                        if (showLabel) {
+                            views.setViewVisibility(titles[i], View.VISIBLE)
+                            views.setTextViewText(titles[i], sensor.sensorTitle)
+                        } else {
+                            views.setViewVisibility(titles[i], View.GONE)
+                        }
+                        
+                        val valStr = if (showUnit) {
+                            "${sensor.value ?: "--"} ${sensor.sensorUnit ?: ""}"
+                        } else {
+                            sensor.value ?: "--"
+                        }
                         views.setTextViewText(vals[i], valStr)
 
                         views.setTextViewTextSize(titles[i], android.util.TypedValue.COMPLEX_UNIT_SP, 11f * textScale)
@@ -285,6 +326,11 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                         val visuals = getSensorVisuals(sensor.sensorTitle)
                         views.setImageViewResource(icons[i], visuals.first)
                         views.setInt(icons[i], "setColorFilter", visuals.second)
+                        
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                            views.setViewLayoutWidth(icons[i], 14f * textScale, android.util.TypedValue.COMPLEX_UNIT_DIP)
+                            views.setViewLayoutHeight(icons[i], 14f * textScale, android.util.TypedValue.COMPLEX_UNIT_DIP)
+                        }
                         
                         val valueColor = getSensorValueColor(sensor.sensorTitle, sensor.value, visuals.second)
                         views.setTextColor(vals[i], valueColor)

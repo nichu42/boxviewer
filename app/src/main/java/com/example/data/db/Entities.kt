@@ -25,7 +25,10 @@ data class WidgetConfigEntity(
     val visualizationType: String = "LIST", // "LIST", "GRID", "BANNER"
     val themeColorIndex: Int = 0, // color selection index
     val lastFetchedTime: Long = 0,
-    val textScale: Float = 1.0f
+    val textScale: Float = 1.0f,
+    val metricDisplayMode: String = "LABEL_VALUE_UNIT",
+    val showRefreshButton: Boolean = true,
+    val showConfigButton: Boolean = true
 )
 
 @Entity(tableName = "sensor_caches")
