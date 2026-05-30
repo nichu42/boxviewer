@@ -86,6 +86,7 @@ fun WidgetConfigScreen(
     var textScale by remember { mutableFloatStateOf(1.0f) }
     var dropdownExpanded by remember { mutableStateOf(false) }
     var boxDropdownExpanded by remember { mutableStateOf(false) }
+    var displayStyleDropdownExpanded by remember { mutableStateOf(false) }
     
     var metricDisplayMode by remember { mutableStateOf("LABEL_VALUE_UNIT") }
     var showRefreshButton by remember { mutableStateOf(true) }
@@ -397,6 +398,74 @@ fun WidgetConfigScreen(
                                         }
                                     )
                                 }
+                            }
+                        }
+                    }
+                }
+
+                // VISUALIZATION FORMAT (Visual Formats & Styling)
+                item {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
+                    Text(
+                        "VISUALIZATION FORMAT",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(80.dp)
+                                .clickable { visualizationType = "LIST" },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (visualizationType == "LIST") MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(Icons.AutoMirrored.Filled.List, contentDescription = null)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Metrics List", style = MaterialTheme.typography.labelMedium)
+                            }
+                        }
+
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(80.dp)
+                                .clickable { 
+                                    visualizationType = "GRID"
+                                    if (selectedSensorIds.size > 1) {
+                                        selectedSensorIds = listOf(selectedSensorIds.first())
+                                    } else if (selectedSensorIds.isEmpty() && availableSensors.isNotEmpty()) {
+                                        selectedSensorIds = listOf(availableSensors.first().sensorId)
+                                    }
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (visualizationType == "GRID") MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(Icons.Default.Star, contentDescription = null)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Single Highlight", style = MaterialTheme.typography.labelMedium)
                             }
                         }
                     }
@@ -778,74 +847,6 @@ fun WidgetConfigScreen(
                     }
                 }
 
-                // VISUALIZATION FORMAT (Visual Formats & Styling)
-                item {
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
-                    Text(
-                        "VISUALIZATION FORMAT",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Card(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(80.dp)
-                                .clickable { visualizationType = "LIST" },
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (visualizationType == "LIST") MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(12.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Icon(Icons.AutoMirrored.Filled.List, contentDescription = null)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text("Metrics List", style = MaterialTheme.typography.labelMedium)
-                            }
-                        }
-
-                        Card(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(80.dp)
-                                .clickable { 
-                                    visualizationType = "GRID"
-                                    if (selectedSensorIds.size > 1) {
-                                        selectedSensorIds = listOf(selectedSensorIds.first())
-                                    } else if (selectedSensorIds.isEmpty() && availableSensors.isNotEmpty()) {
-                                        selectedSensorIds = listOf(availableSensors.first().sensorId)
-                                    }
-                                },
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (visualizationType == "GRID") MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(12.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Icon(Icons.Default.Star, contentDescription = null)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text("Single Highlight", style = MaterialTheme.typography.labelMedium)
-                            }
-                        }
-                    }
-                }
-
                 // METRIC DISPLAY STYLE (Visual Formats & Styling)
                 item {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
@@ -863,51 +864,85 @@ fun WidgetConfigScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        listOf(
-                            Triple("LABEL_VALUE_UNIT", "Full Details", "Icon + Label + Value + Unit"),
-                            Triple("VALUE_UNIT", "Value & Unit", "Icon + Value + Unit"),
-                            Triple("VALUE_ONLY", "Value Only", "Icon + Value only")
-                        ).forEach { (mode, title, subtitle) ->
-                            val isSelected = metricDisplayMode == mode
-                            OutlinedCard(
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedCard(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { displayStyleDropdownExpanded = true }
+                                .testTag("metric_display_style_dropdown"),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.outlinedCardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            Row(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .height(80.dp)
-                                    .clickable { metricDisplayMode = mode },
-                                colors = CardDefaults.outlinedCardColors(
-                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-                                ),
-                                border = androidx.compose.foundation.BorderStroke(
-                                    width = 1.dp,
-                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                ),
-                                shape = RoundedCornerShape(10.dp)
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Column(
-                                    modifier = Modifier.padding(6.dp).fillMaxSize(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Text(
-                                        text = title,
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = subtitle,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        fontSize = 8.5.sp,
-                                        lineHeight = 11.sp,
-                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                                    )
+                                val currentLabel = when (metricDisplayMode) {
+                                    "LABEL_VALUE_UNIT" -> "Full Details"
+                                    "VALUE_UNIT" -> "Value & Unit"
+                                    "VALUE_ONLY" -> "Value only"
+                                    else -> "Full Details"
                                 }
+                                Text(
+                                    text = currentLabel,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Icon(
+                                    imageVector = if (displayStyleDropdownExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = "Expand metric display style dropdown",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        DropdownMenu(
+                            expanded = displayStyleDropdownExpanded,
+                            onDismissRequest = { displayStyleDropdownExpanded = false },
+                            modifier = Modifier
+                                .fillMaxWidth(0.9f)
+                                .background(MaterialTheme.colorScheme.surface)
+                        ) {
+                            listOf(
+                                "LABEL_VALUE_UNIT" to "Full Details",
+                                "VALUE_UNIT" to "Value & Unit",
+                                "VALUE_ONLY" to "Value only"
+                            ).forEach { (mode, label) ->
+                                val isSelected = metricDisplayMode == mode
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = label,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                            )
+                                            if (isSelected) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Check,
+                                                    contentDescription = "Selected",
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.size(18.dp)
+                                                )
+                                            }
+                                        }
+                                    },
+                                    onClick = {
+                                        metricDisplayMode = mode
+                                        displayStyleDropdownExpanded = false
+                                    }
+                                )
                             }
                         }
                     }
