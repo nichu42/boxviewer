@@ -10,7 +10,6 @@
 
 <p style="text-align: center;">
   <a href="https://codeberg.org/nichu42/BoxViewer/releases"><img src="https://img.shields.io/badge/Download-Stable%20APK-success?style=for-the-badge&logo=android&logoColor=white" alt="Download Stable APK" /></a>
-  <a href="https://codeberg.org/nichu42/BoxViewer/releases/tag/dev"><img src="https://img.shields.io/badge/Download-Dev%20APK-orange?style=for-the-badge&logo=android&logoColor=white" alt="Download Dev APK" /></a>
   <a href="https://obtainium.imranr.dev/"><img src="https://img.shields.io/badge/Obtainium-Compatible-purple?style=for-the-badge&logo=android&logoColor=white" alt="Obtainium Compatible" /></a>
 </p>
 
@@ -43,17 +42,15 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 BoxViewer is distributed as an independent APK package and is compatible with Android 7.0 (API 24) and above.
 
 ### 🚀 Direct Download
-You can download stable APKs or development builds directly from Codeberg — no account required:
+You can download stable APKs directly from Codeberg — no account required:
 
 *   **[Download Stable APKs](https://codeberg.org/nichu42/BoxViewer/releases)**: Recommended for most users. Contains vetted, officially tagged stable releases.
-*   **[Download Dev APKs (Latest)](https://codeberg.org/nichu42/BoxViewer/releases/tag/dev)**: Rolling release built automatically on every push to the `main` branch.
 
 ### 🔄 Automatic Updates with Obtainium
 To receive automatic updates on de-googled systems, we recommend using **[Obtainium](https://github.com/ImranR17/Obtainium)**:
 1. Copy the Codeberg repository link: `https://codeberg.org/nichu42/BoxViewer`
 2. Open Obtainium and select **Add App**.
 3. Paste the URL and click **Add** to start tracking releases.
-(For the Dev APKs, check "Include prereleases" and "Use release title as version string" before you confirm)
 
 ---
 

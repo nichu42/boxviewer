@@ -6,12 +6,6 @@ plugins {
   alias(libs.plugins.secrets)
 }
 
-// Dynamic version for dev builds — set via CI with -PdevSha.
-// When this property is not set (local builds), sensible defaults are used.
-fun getDevBuildSha(): String {
-  return project.findProperty("devSha")?.toString() ?: "dev"
-}
-
 android {
   namespace = "de.nichu42.boxviewer"
   compileSdk = 37
@@ -44,7 +38,7 @@ android {
       signingConfig = signingConfigs.getByName("release")
     }
     debug {
-      versionNameSuffix = "-dev.${getDevBuildSha()}"
+      versionNameSuffix = "-debug"
     }
   }
 
