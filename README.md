@@ -1,20 +1,20 @@
 # BoxViewer
 
-<p align="center">
-  <img src="app/src/main/res/drawable/boxviewer_white_bg.webp" alt="BoxViewer Logo" width="220" style="border-radius: 36px;" />
+<p style="text-align: center;">
+  <img src="app/src/main/res/drawable-nodpi/boxviewer_white_bg.webp" alt="BoxViewer Logo" width="220" style="border-radius: 36px;" />
 </p>
 
-<p align="center">
+<p style="text-align: center;">
   <b>A beautiful, modern, privacy-first openSenseMap Android client.</b>
 </p>
 
-<p align="center">
+<p style="text-align: center;">
   <a href="https://codeberg.org/nichu42/BoxViewer/releases"><img src="https://img.shields.io/badge/Download-Stable%20APK-success?style=for-the-badge&logo=android&logoColor=white" alt="Download Stable APK" /></a>
   <a href="https://codeberg.org/nichu42/BoxViewer/releases/tag/dev"><img src="https://img.shields.io/badge/Download-Dev%20APK-orange?style=for-the-badge&logo=android&logoColor=white" alt="Download Dev APK" /></a>
   <a href="https://obtainium.imranr.dev/"><img src="https://img.shields.io/badge/Obtainium-Compatible-purple?style=for-the-badge&logo=android&logoColor=white" alt="Obtainium Compatible" /></a>
 </p>
 
-<p align="center">
+<p style="text-align: center;">
   <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat-square" alt="License: GPL v3" /></a>
   <a href="https://developer.android.com"><img src="https://img.shields.io/badge/Platform-Android-green.svg?style=flat-square" alt="Platform" /></a>
   <a href="https://kotlinlang.org"><img src="https://img.shields.io/badge/Kotlin-Compose-orange.svg?style=flat-square" alt="Kotlin Compose" /></a>
@@ -61,7 +61,7 @@ To receive automatic updates on de-googled systems, we recommend using **[Obtain
 
 BoxViewer is developed with love as an open-source project. If you are happy with the app and would like to support its ongoing development, please consider donating:
 
-<p align="left">
+<p style="text-align: left;">
   <a href="https://ko-fi.com/nichu42"><img src="https://img.shields.io/badge/Support_on_Ko--fi-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Support on Ko-fi" /></a>
   <a href="https://liberapay.com/nichu42"><img src="https://img.shields.io/badge/Donate_via_Liberapay-F6C915?style=for-the-badge&logo=liberapay&logoColor=black" alt="Donate via Liberapay" /></a>
 </p>

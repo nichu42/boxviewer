@@ -21,7 +21,7 @@ local.properties
 .env
 debug.keystore
 debug.keystore.base64
-release-upload-key.jks
-release-upload-key.b64
+*.jks
+*.b64
 .env.example
 AGENTS.md

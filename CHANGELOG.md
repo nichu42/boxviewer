@@ -2,6 +2,29 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [0.30] - 2026-06-24
+### Added
+- **SenseBox Sharing via QR & Deep Links**: Long-press a senseBox on the dashboard or detail screen to open the new Share sheet — generate a QR code (ZXing), share it as a PNG via the native Android share sheet (backed by a new `FileProvider`), or save it directly to the gallery on Android 10+. Recipients scan the QR or open the HTTPS link and land on a new `AddBoxConfirmScreen` previewing the box with explicit **Add to Dashboard** / **View Details** options.
+- **Deep Link Entry Points**: Registered `boxviewer://box/{id}` (custom scheme) and an auto-verified HTTPS App Link `https://nichu42.codeberg.page/BoxViewer` so shared links open BoxViewer directly from any chat app or browser, with a graceful web fallback page (`web/index.html` + Open Graph metadata) hosted on Codeberg Pages (`web/.well-known/assetlinks.json` for App Links verification).
+- **First-Time User Onboarding**: Comprehensive empty-state on the dashboard for users with no saved senseBoxes — friendly icon, "No senseBoxes added yet" heading, explanatory copy, and an "Add a senseBox" primary CTA, followed by a "What is openSenseMap?" infocard explaining the platform and the role of BoxViewer. On the detail screen, an "Add to Dashboard" call-to-action card appears for unfavorited stations, plus a "Home Screen Widgets" infobox explaining how to add a widget on the home screen. Reorder mode also gained an instructional infocard for drag/remove/save actions.
+- **Splash Screen**: Adopted `androidx.core.splashscreen` with a themed `Theme.App.Starting`, dedicated `ic_splash_icon` drawable, and a `splash_background` color that respects dark mode (`values-night/colors.xml`). MainActivity set to `singleTop` launch mode to keep deep-link navigation stable.
+- **Widget Localization & RTL Support**: Externalized all hard-coded widget placeholder strings (`Temperatur`, `Feuchte`, `Updated just now`, sensor category labels, `--` no-value markers, content descriptions) into `strings.xml`. Widget layout now uses `marginStart/End` instead of `marginLeft/Right` for proper right-to-left rendering on supported locales.
+
+### Changed
+- **Application Identity**: Renamed the entire application package from `com.example` to `de.nichu42.boxviewer` (namespace, `applicationId`, manifest, widget broadcast action prefix, all source files). Aligns the on-disk package with the published app identifier.
+- **Signing Key**: Future Codeberg releases are signed with the same release key used for the Google Play closed-testing track. **Existing Codeberg users (0.10) will need to uninstall before installing 0.30** due to the certificate change.
+- **Dependency Refresh**: compileSdk & targetSdk bumped to 37. Kotlin 2.4.0, Compose BOM 2026.06, Room 2.8.4, Navigation 2.9.8, Lifecycle 2.11.0, Activity-Compose 1.13.0, core-ktx 1.19.0.
+- **Widget Timestamp Legibility**: Bumped the widget "last updated" text from 9sp to 11sp for improved readability at a glance.
+
+### Removed
+- **Unused Dependencies**: Dropped Firebase BOM, Google Play Services Location (`play-services-location`), Accompanist Permissions, and the AndroidX Camera libraries — none were linked at runtime, and their removal completes the de-Googled dependency profile mandated by the project charter (no GMS dependencies, no telemetry).
+- **Stale Debug Signing Config**: Removed the now-unneeded `debugConfig` signing block from `build.gradle.kts`; debug builds now use Android's default debug keystore as intended.
+
+### Fixed
+- **Keystore Gitignore Hygiene**: Replaced the narrow `release-upload-key.jks` ignore pattern with `*.jks` / `*.b64` wildcards to prevent any signing key or base64 export from being committed, regardless of filename.
+
+---
+
 ## [0.20] - 2026-05-29
 ### Added
 - **Widget Customization Options**: Users can now configure the widget layout to show Full Details, Value & Unit (hiding category labels), or Value Only (hiding both labels and units).

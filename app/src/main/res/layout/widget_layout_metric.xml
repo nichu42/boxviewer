@@ -20,7 +20,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Münster senseBox"
+            android:text="@string/widget_default_box_name"
             android:textColor="#F8FAFC"
             android:textSize="13sp"
             android:textStyle="bold"
@@ -31,34 +31,34 @@
             android:id="@+id/widget_update_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="2dp"
-            android:text="Updated just now"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="2dp"
+            android:text="@string/widget_updated_just_now"
             android:textColor="#94A3B8"
-            android:textSize="9sp" />
+            android:textSize="11sp" />
 
         <ImageView
             android:id="@+id/widget_refresh_button"
             android:layout_width="26dp"
             android:layout_height="26dp"
-            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
             android:padding="3dp"
             android:src="@drawable/ic_refresh"
             android:clickable="true"
             android:focusable="true"
-            android:contentDescription="Refresh Widget"
+            android:contentDescription="@string/widget_refresh"
             android:background="?android:attr/selectableItemBackgroundBorderless" />
 
         <ImageView
             android:id="@+id/widget_settings_button"
             android:layout_width="26dp"
             android:layout_height="26dp"
-            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
             android:padding="3dp"
             android:src="@drawable/ic_gear"
             android:clickable="true"
             android:focusable="true"
-            android:contentDescription="Configure Widget"
+            android:contentDescription="@string/widget_configure"
             android:background="?android:attr/selectableItemBackgroundBorderless" />
     </LinearLayout>
 
@@ -81,9 +81,9 @@
             android:id="@+id/big_sensor_icon"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginRight="14dp"
+            android:layout_marginEnd="14dp"
             android:src="@drawable/ic_sensor_temp"
-            android:contentDescription="Sensor category icon" />
+            android:contentDescription="@string/widget_sensor_category_icon" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -95,7 +95,7 @@
                 android:id="@+id/big_sensor_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="--"
+                android:text="@string/widget_no_value"
                 android:textColor="#38BDF8"
                 android:textSize="26sp"
                 android:textStyle="bold" />
@@ -104,7 +104,7 @@
                 android:id="@+id/big_sensor_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Select Sensor"
+                android:text="@string/widget_select_sensor"
                 android:textColor="#94A3B8"
                 android:textSize="11sp"
                 android:layout_marginTop="2.5dp"

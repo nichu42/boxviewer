@@ -13,32 +13,26 @@ fun getDevBuildSha(): String {
 }
 
 android {
-  namespace = "com.example"
-  compileSdk { version = release(36) { minorApiLevel = 1 } }
+  namespace = "de.nichu42.boxviewer"
+  compileSdk = 37
 
   defaultConfig {
     applicationId = "de.nichu42.boxviewer"
     minSdk = 24
-    targetSdk = 36
-    versionCode = 6
-    versionName = "0.20"
+    targetSdk = 37
+    versionCode = 7
+    versionName = "0.30"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
   signingConfigs {
     create("release") {
-      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
+      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "$rootDir/my-upload-key.jks"
       storeFile = file(keystorePath)
       storePassword = System.getenv("STORE_PASSWORD")
       keyAlias = "upload"
       keyPassword = System.getenv("KEY_PASSWORD")
-    }
-    create("debugConfig") {
-      storeFile = file("${rootDir}/debug.keystore")
-      storePassword = "android"
-      keyAlias = "androiddebugkey"
-      keyPassword = "android"
     }
   }
 
@@ -50,7 +44,6 @@ android {
       signingConfig = signingConfigs.getByName("release")
     }
     debug {
-      signingConfig = signingConfigs.getByName("release")
       versionNameSuffix = "-dev.${getDevBuildSha()}"
     }
   }
@@ -67,6 +60,14 @@ android {
   testOptions { unitTests { isIncludeAndroidResources = true } }
 }
 
+configurations {
+  val sharedTestImplementation = configurations.create("sharedTestImplementation") {
+    extendsFrom(configurations.implementation.get())
+  }
+  configurations.testImplementation.get().extendsFrom(sharedTestImplementation)
+  configurations.androidTestImplementation.get().extendsFrom(sharedTestImplementation)
+}
+
 // Ensure at least one secrets-related properties file exists so that the Secrets Gradle Plugin does not fail configuration.
 val localPropsExist = project.rootProject.file("local.properties").exists()
 val envFileExist = project.rootProject.file(".env").exists()
@@ -75,7 +76,7 @@ val envExampleFileExist = project.rootProject.file(".env.example").exists()
 if (!localPropsExist && !envFileExist && !envExampleFileExist) {
   try {
     project.rootProject.file("local.properties").createNewFile()
-  } catch (e: Exception) {
+  } catch (_: Exception) {
     // Ignore any exceptions
   }
 }
@@ -97,20 +98,14 @@ secrets {
 // This makes it easy to add them back in the future if needed.
 dependencies {
   implementation(platform(libs.androidx.compose.bom))
-  implementation(platform(libs.firebase.bom))
-  // implementation(libs.accompanist.permissions)
   implementation(libs.androidx.activity.compose)
-  // implementation(libs.androidx.camera.camera2)
-  // implementation(libs.androidx.camera.core)
-  // implementation(libs.androidx.camera.lifecycle)
-  // implementation(libs.androidx.camera.view)
   implementation(libs.androidx.compose.material.icons.extended)
   implementation(libs.androidx.compose.material3)
   implementation(libs.androidx.compose.ui)
   implementation(libs.androidx.compose.ui.graphics)
   implementation(libs.androidx.compose.ui.tooling.preview)
   implementation(libs.androidx.core.ktx)
-  // implementation(libs.androidx.datastore.preferences)
+  implementation(libs.androidx.core.splashscreen)
   implementation(libs.androidx.lifecycle.runtime.compose)
   implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -120,16 +115,14 @@ dependencies {
   implementation(libs.coil.compose)
   implementation(libs.coil.svg)
   implementation(libs.converter.moshi)
-  // implementation(libs.firebase.ai)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.logging.interceptor)
   implementation(libs.moshi.kotlin)
   implementation(libs.okhttp)
   implementation(libs.retrofit)
-  testImplementation(libs.androidx.compose.ui.test.junit4)
+  implementation(libs.zxing.core)
   testImplementation(libs.androidx.core)
-  testImplementation(libs.androidx.junit)
   testImplementation(libs.junit)
   testImplementation(libs.kotlinx.coroutines.test)
   testImplementation(libs.robolectric)
@@ -137,10 +130,10 @@ dependencies {
   testImplementation(libs.roborazzi.compose)
   testImplementation(libs.roborazzi.junit.rule)
   androidTestImplementation(platform(libs.androidx.compose.bom))
-  androidTestImplementation(libs.androidx.compose.ui.test.junit4)
   androidTestImplementation(libs.androidx.espresso.core)
-  androidTestImplementation(libs.androidx.junit)
   androidTestImplementation(libs.androidx.runner)
+  "sharedTestImplementation"(libs.androidx.compose.ui.test.junit4)
+  "sharedTestImplementation"(libs.androidx.junit)
   debugImplementation(libs.androidx.compose.ui.test.manifest)
   debugImplementation(libs.androidx.compose.ui.tooling)
   "ksp"(libs.androidx.room.compiler)

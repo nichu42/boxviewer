@@ -20,7 +20,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Münster senseBox"
+            android:text="@string/widget_default_box_name"
             android:textColor="#F8FAFC"
             android:textSize="13sp"
             android:textStyle="bold"
@@ -31,34 +31,34 @@
             android:id="@+id/widget_update_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="2dp"
-            android:text="Updated just now"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="2dp"
+            android:text="@string/widget_updated_just_now"
             android:textColor="#94A3B8"
-            android:textSize="9sp" />
+            android:textSize="11sp" />
 
         <ImageView
             android:id="@+id/widget_refresh_button"
             android:layout_width="26dp"
             android:layout_height="26dp"
-            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
             android:padding="3dp"
             android:src="@drawable/ic_refresh"
             android:clickable="true"
             android:focusable="true"
-            android:contentDescription="Refresh Widget"
+            android:contentDescription="@string/widget_refresh"
             android:background="?android:attr/selectableItemBackgroundBorderless" />
 
         <ImageView
             android:id="@+id/widget_settings_button"
             android:layout_width="26dp"
             android:layout_height="26dp"
-            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
             android:padding="3dp"
             android:src="@drawable/ic_gear"
             android:clickable="true"
             android:focusable="true"
-            android:contentDescription="Configure Widget"
+            android:contentDescription="@string/widget_configure"
             android:background="?android:attr/selectableItemBackgroundBorderless" />
     </LinearLayout>
 
@@ -89,16 +89,16 @@
                 android:id="@+id/sensor_icon_1"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_sensor_generic"
-                android:contentDescription="Sensor type" />
+                android:contentDescription="@string/widget_sensor_type" />
 
             <TextView
                 android:id="@+id/sensor_title_1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Temperatur"
+                android:text="@string/widget_placeholder_temperature"
                 android:textColor="#E2E8F0"
                 android:textSize="11sp"
                 android:maxLines="1"
@@ -108,7 +108,7 @@
                 android:id="@+id/sensor_value_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="--"
+                android:text="@string/widget_no_value"
                 android:textColor="#38BDF8"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -127,16 +127,16 @@
                 android:id="@+id/sensor_icon_2"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_sensor_generic"
-                android:contentDescription="Sensor type" />
+                android:contentDescription="@string/widget_sensor_type" />
 
             <TextView
                 android:id="@+id/sensor_title_2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Feuchte"
+                android:text="@string/widget_placeholder_humidity"
                 android:textColor="#E2E8F0"
                 android:textSize="11sp"
                 android:maxLines="1"
@@ -146,7 +146,7 @@
                 android:id="@+id/sensor_value_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="--"
+                android:text="@string/widget_no_value"
                 android:textColor="#F43F5E"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -165,16 +165,16 @@
                 android:id="@+id/sensor_icon_3"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_sensor_generic"
-                android:contentDescription="Sensor type" />
+                android:contentDescription="@string/widget_sensor_type" />
 
             <TextView
                 android:id="@+id/sensor_title_3"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Beleuchtung"
+                android:text="@string/widget_placeholder_illumination"
                 android:textColor="#E2E8F0"
                 android:textSize="11sp"
                 android:maxLines="1"
@@ -184,7 +184,7 @@
                 android:id="@+id/sensor_value_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="--"
+                android:text="@string/widget_no_value"
                 android:textColor="#10B981"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -204,16 +204,16 @@
                 android:id="@+id/sensor_icon_4"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_sensor_generic"
-                android:contentDescription="Sensor type" />
+                android:contentDescription="@string/widget_sensor_type" />
 
             <TextView
                 android:id="@+id/sensor_title_4"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="PM2.5"
+                android:text="@string/widget_placeholder_pm25"
                 android:textColor="#E2E8F0"
                 android:textSize="11sp"
                 android:maxLines="1"
@@ -223,7 +223,7 @@
                 android:id="@+id/sensor_value_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="--"
+                android:text="@string/widget_no_value"
                 android:textColor="#F59E0B"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -243,16 +243,16 @@
                 android:id="@+id/sensor_icon_5"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_sensor_generic"
-                android:contentDescription="Sensor type" />
+                android:contentDescription="@string/widget_sensor_type" />
 
             <TextView
                 android:id="@+id/sensor_title_5"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="PM10"
+                android:text="@string/widget_placeholder_pm10"
                 android:textColor="#E2E8F0"
                 android:textSize="11sp"
                 android:maxLines="1"
@@ -262,7 +262,7 @@
                 android:id="@+id/sensor_value_5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="--"
+                android:text="@string/widget_no_value"
                 android:textColor="#EC4899"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -282,16 +282,16 @@
                 android:id="@+id/sensor_icon_6"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:src="@drawable/ic_sensor_generic"
-                android:contentDescription="Sensor type" />
+                android:contentDescription="@string/widget_sensor_type" />
 
             <TextView
                 android:id="@+id/sensor_title_6"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Druck"
+                android:text="@string/widget_placeholder_pressure"
                 android:textColor="#E2E8F0"
                 android:textSize="11sp"
                 android:maxLines="1"
@@ -301,7 +301,7 @@
                 android:id="@+id/sensor_value_6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="--"
+                android:text="@string/widget_no_value"
                 android:textColor="#8B5CF6"
                 android:textSize="11sp"
                 android:textStyle="bold" />
