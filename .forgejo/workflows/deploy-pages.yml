@@ -1,0 +1,23 @@
+name: Deploy Codeberg Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'web/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Deploy static web folder to Codeberg Pages
+        uses: https://codeberg.org/git-pages/action@v2
+        with:
+          site: 'https://${{ forge.repository_owner }}.codeberg.page/${{ forge.repository_name }}/'
+          token: ${{ forge.token }}
+          source: web/
