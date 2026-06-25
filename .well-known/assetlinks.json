@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "de.nichu42.boxviewer",
+      "sha256_cert_fingerprints": [
+        "D4:34:F2:82:CF:61:74:5B:94:3E:35:43:52:DC:1F:D1:C3:06:E3:82:F3:02:77:68:1E:48:BE:77:AB:E5:A9:3D",
+        "8C:EE:76:60:D0:C2:1E:F2:D3:23:05:60:2B:7C:D1:19:D7:56:64:25:F1:6A:96:63:CB:61:85:21:4B:5A:56:5F"
+      ]
+    }
+  }
+]
