@@ -35,8 +35,8 @@ jobs:
           # Remove all existing tracked files on the pages branch
           git rm -rf .
           
-          # Copy new files from temporary directory to the root
-          cp -r ../temp_web/* .
+          # Copy new files from temporary directory to the root (including dotfiles)
+          cp -a ../temp_web/. .
           rm -rf ../temp_web
           
           # Stage all changes (new, modified, deleted files)
