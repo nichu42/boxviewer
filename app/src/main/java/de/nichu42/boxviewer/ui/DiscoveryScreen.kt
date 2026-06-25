@@ -683,7 +683,7 @@ fun DiscoveryScreen(
                                         modifier = Modifier.padding(start = 8.dp)
                                     ) {
                                         Text(
-                                            text = "Search radius: ${radiusMeters!! / 1000} km",
+                                            text = "Search radius: ${radiusMeters / 1000} km",
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.onPrimaryContainer,

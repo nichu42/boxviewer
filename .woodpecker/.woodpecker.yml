@@ -11,7 +11,7 @@ steps:
     commands:
       - echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks
       - chmod +x gradlew
-      - ./gradlew assembleRelease
+      - ./gradlew assembleRelease --warning-mode all
     when:
       - event: tag
         ref: refs/tags/v*.*
