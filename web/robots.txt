@@ -1,0 +1,5 @@
+# robots.txt for BoxViewer landing page
+# Reference: https://www.robotstxt.org/
+
+User-agent: *
+Allow: /

@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none';">
     <title>BoxViewer | senseBox Sharing</title>
+
+    <link rel="icon" type="image/webp" href="logo.webp">
 
     <!-- Open Graph Metadata for Social Previews -->
     <meta property="og:title" content="BoxViewer - senseBox Sharing">
@@ -12,81 +15,378 @@
     <meta property="og:type" content="website">
 
     <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(15, 23, 42, 0.06);
+            --card-shadow: 0 20px 50px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-gradient: linear-gradient(135deg, #0f172a 60%, #334155 100%);
+            --primary-accent: #2563eb;
+            --primary-accent-glow: rgba(37, 99, 235, 0.25);
+            --logo-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+            --footer-border: rgba(15, 23, 42, 0.06);
+            --spinner-border: rgba(15, 23, 42, 0.08);
+            --tag-bg: rgba(15, 23, 42, 0.03);
+            --glow-color-1: rgba(99, 102, 241, 0.06);
+            --glow-color-2: rgba(59, 130, 246, 0.06);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #0b0f19;
+                --card-bg: rgba(255, 255, 255, 0.03);
+                --card-border: rgba(255, 255, 255, 0.08);
+                --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                --text-primary: #ffffff;
+                --text-secondary: #94a3b8;
+                --text-gradient: linear-gradient(135deg, #ffffff 60%, #cbd5e1 100%);
+                --primary-accent: #3b82f6;
+                --primary-accent-glow: rgba(59, 130, 246, 0.5);
+                --logo-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+                --footer-border: rgba(255, 255, 255, 0.05);
+                --spinner-border: rgba(255, 255, 255, 0.1);
+                --tag-bg: rgba(255, 255, 255, 0.04);
+                --glow-color-1: rgba(99, 102, 241, 0.15);
+                --glow-color-2: rgba(59, 130, 246, 0.15);
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f5f5f7;
-            color: #1d1d1f;
-            text-align: center;
+            overflow: hidden;
+            position: relative;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
+
+        /* Animated background glows */
+        .ambient-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.8;
+            transition: background 0.4s ease;
+        }
+
+        .glow-1 {
+            background: var(--glow-color-1);
+            top: -10%;
+            left: -10%;
+            animation: floatGlow1 20s infinite alternate ease-in-out;
+        }
+
+        .glow-2 {
+            background: var(--glow-color-2);
+            bottom: -10%;
+            right: -10%;
+            animation: floatGlow2 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes floatGlow1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 50px) scale(1.2); }
+        }
+
+        @keyframes floatGlow2 {
+            0% { transform: translate(0, 0) scale(1.2); }
+            100% { transform: translate(-100px, -50px) scale(1); }
+        }
+
         .container {
-            max-width: 400px;
-            padding: 2.5rem;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            padding: 2rem;
         }
-        .logo {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 1.5rem;
-            border-radius: 18px;
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            animation: cardAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
         }
-        h1 { font-size: 24px; margin-bottom: 1rem; }
-        p { color: #86868b; line-height: 1.5; margin-bottom: 2rem; }
-        .btn {
+
+        @keyframes cardAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            position: relative;
             display: inline-block;
-            background-color: #0071e3;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            width: 96px;
+            height: 96px;
+            border-radius: 22px;
+            position: relative;
+            z-index: 2;
+            box-shadow: var(--logo-shadow);
+            animation: logoPulse 4s infinite ease-in-out;
+            transition: box-shadow 0.4s ease;
+        }
+
+        .logo-glow {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+            border-radius: 26px;
+            filter: blur(12px);
+            z-index: 1;
+            opacity: 0.5;
+            animation: glowPulse 4s infinite ease-in-out;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            background: var(--text-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+            transition: color 0.4s ease;
+        }
+
+        /* Loading spinner element */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2.5px solid var(--spinner-border);
+            border-top: 2.5px solid var(--primary-accent);
+            border-radius: 50%;
+            margin: 0 auto 2rem auto;
+            animation: spin 1s linear infinite;
+            display: none;
+            transition: border-color 0.4s ease;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
-            padding: 12px 24px;
-            border-radius: 980px;
+            padding: 14px 28px;
+            border-radius: 16px;
             text-decoration: none;
             font-weight: 600;
-            transition: background-color 0.2s;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 15px var(--primary-accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
-        .btn:hover { background-color: #0077ed; }
-        .footer { margin-top: 2rem; font-size: 12px; color: #86868b; }
-        .footer a { color: #0071e3; text-decoration: none; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--primary-accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .install-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: var(--primary-accent);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s ease, opacity 0.2s ease;
+        }
+
+        .install-link:hover {
+            opacity: 0.85;
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 2.5rem;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--footer-border);
+            padding-top: 1.5rem;
+            font-weight: 300;
+            transition: border-top-color 0.4s ease, color 0.4s ease;
+        }
+
+        .footer p {
+            margin-bottom: 0;
+            font-size: 12px;
+        }
+
+        .footer .copyright {
+            margin-top: 0.75rem;
+            font-size: 11px;
+            opacity: 0.85;
+        }
+
+        .footer .copyright a {
+            color: var(--text-secondary);
+            text-decoration: underline;
+            transition: color 0.2s ease;
+        }
+
+        .footer .copyright a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-links {
+            margin-top: 0.75rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .footer-links a, .footer-links span {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+            text-decoration: underline;
+        }
+
     </style>
 </head>
 <body>
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
     <div class="container">
-        <img src="logo.webp" alt="BoxViewer Logo" class="logo">
-        <h1>Opening senseBox...</h1>
-        <p>We're attempting to open this station in the BoxViewer app.</p>
+        <main class="card">
+            <div class="logo-container">
+                <div class="logo-glow"></div>
+                <img src="logo.webp" alt="BoxViewer Logo" class="logo">
+            </div>
+            
+            <h1>BoxViewer for openSenseMap</h1>
+            
+            <div class="spinner" id="loading-spinner"></div>
+            
+            <p id="status-text">BoxViewer is a beautiful, tracking-free Android companion client. Loading shared senseBox station...</p>
 
-        <a href="https://codeberg.org/nichu42/BoxViewer" class="btn">Get BoxViewer on Codeberg</a>
+            <a href="https://codeberg.org/nichu42/BoxViewer" class="btn" id="action-btn">Get BoxViewer on Codeberg</a>
 
-        <div class="footer">
-            <p>Compatible with de-googled Android devices.<br>
-            Privacy-first. Open Source.</p>
-        </div>
+            <footer class="footer">
+                <div class="footer-links">
+                    <a href="https://codeberg.org/nichu42/BoxViewer">Source Code</a>
+                    <span>•</span>
+                    <a href="https://codeberg.org/nichu42/BoxViewer/issues">Support &amp; Feedback</a>
+                </div>
+                <div class="footer-links" style="margin-top: 0.5rem;">
+                    <a href="https://codeberg.org/nichu42/BoxViewer/src/branch/main/PRIVACY.md#imprint" target="_blank" rel="noopener noreferrer">Imprint / Impressum</a>
+                    <span>•</span>
+                    <a href="https://codeberg.org/nichu42/BoxViewer/src/branch/main/PRIVACY.md#privacy" target="_blank" rel="noopener noreferrer">Privacy Policy / Datenschutzerklärung</a>
+                </div>
+                <p class="copyright">&copy; 2026 nichu42 and contributors. Licensed under <a href="https://codeberg.org/nichu42/BoxViewer/src/branch/main/LICENSE" target="_blank" rel="noopener noreferrer">GPLv3</a>.</p>
+            </footer>
+        </main>
     </div>
 
     <script>
         (function() {
             const params = new URLSearchParams(window.location.search);
             const boxId = params.get('id');
+            const heading = document.querySelector('h1');
+            const statusText = document.getElementById('status-text');
+            const actionBtn = document.getElementById('action-btn');
+            const spinner = document.getElementById('loading-spinner');
 
             if (boxId) {
-                const deepLink = `boxviewer://box/${boxId}`;
+                // Validate if it is a 24-character hexadecimal MongoDB ObjectId
+                if (/^[0-9a-fA-F]{24}$/.test(boxId)) {
+                    spinner.style.display = "block";
+                    heading.textContent = "Opening senseBox Station";
+                    statusText.textContent = "We are attempting to open this environmental sensor station directly inside the BoxViewer app...";
+                    actionBtn.textContent = "Open in BoxViewer";
+                    
+                    const deepLink = `boxviewer://box/${boxId}`;
+                    actionBtn.href = deepLink;
 
-                // Try to redirect immediately
-                window.location.href = deepLink;
+                    // Try to redirect immediately
+                    window.location.href = deepLink;
 
-                // Fallback for browsers that don't redirect automatically
-                setTimeout(() => {
-                    // If we're still here, maybe suggest manual click
-                    console.log("Deep link attempt finished.");
-                }, 2000);
+                    // Fallback for browsers that don't redirect automatically
+                    setTimeout(() => {
+                        spinner.style.display = "none";
+                        statusText.textContent = "If the station did not open automatically, tap the button below to launch the app. If you don't have BoxViewer installed, you can download the open-source client from Codeberg.";
+                        actionBtn.textContent = "Open in App";
+                        
+                        const installContainer = document.createElement('div');
+                        installContainer.innerHTML = '<a href="https://codeberg.org/nichu42/BoxViewer" class="install-link">Get BoxViewer on Codeberg &rarr;</a>';
+                        actionBtn.parentNode.insertBefore(installContainer, actionBtn.nextSibling);
+                    }, 2500);
+                } else {
+                    heading.textContent = "Invalid Station Link";
+                    statusText.textContent = "The senseBox ID provided in this URL is invalid or malformed. Please verify that you have copied the correct sharing link from your device.";
+                    actionBtn.textContent = "Visit Codeberg Project";
+                    actionBtn.href = "https://codeberg.org/nichu42/BoxViewer";
+                }
             } else {
-                document.querySelector('h1').textContent = "BoxViewer Sharing";
-                document.querySelector('p').textContent = "Use this service to share senseBoxes with other BoxViewer users.";
+                heading.textContent = "BoxViewer for openSenseMap";
+                statusText.textContent = "BoxViewer is a beautiful, tracking-free Android companion client for the openSenseMap community. This sharing page helps you open community weather stations and DIY senseBoxes directly in the app.";
+                actionBtn.textContent = "Get BoxViewer on Codeberg";
+                actionBtn.href = "https://codeberg.org/nichu42/BoxViewer";
             }
         })();
     </script>
