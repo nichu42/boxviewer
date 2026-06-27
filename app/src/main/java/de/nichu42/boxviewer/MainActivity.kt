@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,15 +33,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import de.nichu42.boxviewer.ui.AboutScreen
+import de.nichu42.boxviewer.ui.SettingsScreen
+import de.nichu42.boxviewer.ui.AqiInfoScreen
 import de.nichu42.boxviewer.ui.AddBoxConfirmScreen
 import de.nichu42.boxviewer.ui.LicenseScreen
 import de.nichu42.boxviewer.ui.ThirdPartyLicensesScreen
 import de.nichu42.boxviewer.ui.BoxDetailScreen
 import de.nichu42.boxviewer.ui.DashboardScreen
 import de.nichu42.boxviewer.ui.DiscoveryScreen
+import de.nichu42.boxviewer.data.db.DB_VERSION
 import de.nichu42.boxviewer.ui.SenseBoxViewModel
 import de.nichu42.boxviewer.ui.theme.MyApplicationTheme
 import de.nichu42.boxviewer.util.ApiLogger
+import de.nichu42.boxviewer.data.db.SenseBoxDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainActivity : ComponentActivity() {
@@ -65,17 +70,24 @@ class MainActivity : ComponentActivity() {
         }
 
         val dbVersion = getDatabaseVersion()
-        val currentExpectedVersion = 6
+        val currentExpectedVersion = DB_VERSION
         val isDowngraded = dbVersion > currentExpectedVersion
 
         setContent {
+            val appTheme by viewModel.appTheme.collectAsState()
+            val isDarkTheme = when (appTheme) {
+                SenseBoxViewModel.AppTheme.SYSTEM -> androidx.compose.foundation.isSystemInDarkTheme()
+                SenseBoxViewModel.AppTheme.LIGHT -> false
+                SenseBoxViewModel.AppTheme.DARK -> true
+            }
             // Apply the custom Sleek Interface theme matching Material 3 specifications
-            MyApplicationTheme(dynamicColor = false) {
+            MyApplicationTheme(darkTheme = isDarkTheme, dynamicColor = false) {
                 var isDowngradedState by remember { mutableStateOf(isDowngraded) }
 
                 if (isDowngradedState) {
                     AlertDialog(
                         onDismissRequest = { /* Prevent dismiss on click outside */ },
+                        properties = androidx.compose.ui.window.DialogProperties(dismissOnClickOutside = false),
                         title = { Text("Database Version Mismatch", fontWeight = FontWeight.Bold) },
                         text = {
                             Text(
@@ -160,7 +172,7 @@ class MainActivity : ComponentActivity() {
                         val currentRoute = navBackStackEntry?.destination?.route
 
                         // Only render Bottom Navigation rails on root tabs (not on detailed views)
-                        if (currentRoute == "dashboard" || currentRoute == "discovery" || currentRoute == "about") {
+                        if (currentRoute == "dashboard" || currentRoute == "discovery" || currentRoute == "settings" || currentRoute == "about") {
                             NavigationBar(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -198,6 +210,25 @@ class MainActivity : ComponentActivity() {
                                     onClick = {
                                         if (currentRoute != "discovery") {
                                             navController.navigate("discovery") {
+                                                popUpTo("dashboard")
+                                            }
+                                        }
+                                    }
+                                )
+                                NavigationBarItem(
+                                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                                    label = { Text("Settings", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                    selected = currentRoute == "settings",
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+                                    ),
+                                    onClick = {
+                                        if (currentRoute != "settings") {
+                                            navController.navigate("settings") {
                                                 popUpTo("dashboard")
                                             }
                                         }
@@ -259,8 +290,24 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                        composable("settings") {
+                            SettingsScreen(
+                                viewModel = viewModel,
+                                onNavigateToAqiInfo = {
+                                    navController.navigate("aqi_info")
+                                }
+                            )
+                        }
+                        composable("aqi_info") {
+                            AqiInfoScreen(
+                                onBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
                         composable("about") {
                             AboutScreen(
+                                viewModel = viewModel,
                                 onViewLicense = {
                                     navController.navigate("license")
                                 },

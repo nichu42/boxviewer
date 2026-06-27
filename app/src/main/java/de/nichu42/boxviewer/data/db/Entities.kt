@@ -30,7 +30,10 @@ data class WidgetConfigEntity(
     val showRefreshButton: Boolean = true,
     val showConfigButton: Boolean = true,
     val showBoxName: Boolean = true,
-    val showUpdateTime: Boolean = true
+    val showUpdateTime: Boolean = true,
+    val useConditionalFormatting: Boolean = true,
+    // How AQI (Instant) is displayed in the widget: "NUMBER_AND_LABEL", "NUMBER_ONLY", "LABEL_ONLY"
+    val aqiDisplayMode: String = "NUMBER_AND_LABEL"
 )
 
 @Entity(tableName = "sensor_caches")

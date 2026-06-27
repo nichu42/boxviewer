@@ -1,6 +1,7 @@
 package de.nichu42.boxviewer.ui
 
 import android.appwidget.AppWidgetManager
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +25,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.ui.zIndex
@@ -40,6 +43,8 @@ import de.nichu42.boxviewer.data.db.SensorCacheEntity
 import de.nichu42.boxviewer.data.db.WidgetConfigEntity
 import de.nichu42.boxviewer.data.repository.SenseBoxRepository
 import de.nichu42.boxviewer.widget.SenseBoxWidgetProvider
+import de.nichu42.boxviewer.util.AqiSystem
+import de.nichu42.boxviewer.util.AqiCalculator
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.key
 
@@ -60,8 +65,10 @@ fun WidgetConfigScreen(
         Color(0xFF064E3B), // Forest Green
         Color(0xFF0F3D5C), // Celestial Blue
         Color(0xFF581C87), // Royal Purple
-        Color(0xFF881337), // Crimson Red
-        Color(0xFF7C2D12), // Warm Terracotta
+        Color(0xFFF8FAFC), // Slate Light
+        Color(0xFFECFDF5), // Mint Green Light
+        Color(0xFFF0F9FF), // Sky Blue Light
+        Color(0xFFFFFBEB), // Warm Cream Light
         Color(0xFF18181B)  // Dark Charcoal
     )
 
@@ -79,13 +86,16 @@ fun WidgetConfigScreen(
     var textScale by remember { mutableFloatStateOf(1.0f) }
     var dropdownExpanded by remember { mutableStateOf(false) }
     var boxDropdownExpanded by remember { mutableStateOf(false) }
+    var showAqiInfoDialog by remember { mutableStateOf(false) }
     var displayStyleDropdownExpanded by remember { mutableStateOf(false) }
     
     var metricDisplayMode by remember { mutableStateOf("LABEL_VALUE_UNIT") }
+    var aqiDisplayMode by remember { mutableStateOf("NUMBER_AND_LABEL") }
     var showRefreshButton by remember { mutableStateOf(true) }
     var showConfigButton by remember { mutableStateOf(true) }
     var showBoxName by remember { mutableStateOf(true) }
     var showUpdateTime by remember { mutableStateOf(true) }
+    var useConditionalFormatting by remember { mutableStateOf(true) }
     
     var isLoading by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
@@ -117,10 +127,12 @@ fun WidgetConfigScreen(
                 textScale = existingConfig.textScale
                 selectedSensorIds = existingConfig.sensorIdsString.split(",").filter { it.isNotEmpty() }
                 metricDisplayMode = existingConfig.metricDisplayMode
+                aqiDisplayMode = existingConfig.aqiDisplayMode
                 showRefreshButton = existingConfig.showRefreshButton
                 showConfigButton = existingConfig.showConfigButton
                 showBoxName = existingConfig.showBoxName
                 showUpdateTime = existingConfig.showUpdateTime
+                useConditionalFormatting = existingConfig.useConditionalFormatting
             } else if (list.isNotEmpty()) {
                 selectedBox = list.first()
                 widgetColor = Color(0xFF0F172A)
@@ -146,14 +158,19 @@ fun WidgetConfigScreen(
                 e.printStackTrace()
             }
             val sensors = repository.getCachedSensors(box.boxId)
-            availableSensors = sensors
-            
+            val prefs = context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+            val aqiStr = prefs.getString("aqi_system", AqiSystem.US_EPA.name) ?: AqiSystem.US_EPA.name
+            val system = try { AqiSystem.valueOf(aqiStr) } catch (e: Exception) { AqiSystem.US_EPA }
+            val synthesized = AqiCalculator.synthesizeVirtualSensors(sensors, system, box.boxId)
+                .sortedWith(compareBy({ de.nichu42.boxviewer.util.SensorSortKey.of(it.sensorTitle) }, { it.sensorTitle }))
+            availableSensors = synthesized
+
             val existingConfig = repository.getWidgetConfig(appWidgetId)
             selectedSensorIds = if (existingConfig != null && existingConfig.boxId == box.boxId) {
                 existingConfig.sensorIdsString.split(",").filter { it.isNotEmpty() }
             } else {
-                // Selected top 6 sensors as default
-                sensors.take(6).map { it.sensorId }
+                // Default to the top 6 canonical-order sensors (includes AQI when PM data is present)
+                synthesized.take(6).map { it.sensorId }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -435,10 +452,15 @@ fun WidgetConfigScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(80.dp)
-                                .clickable { 
+                                .clickable {
                                     visualizationType = "GRID"
                                     if (selectedSensorIds.size > 1) {
                                         selectedSensorIds = listOf(selectedSensorIds.first())
+                                        Toast.makeText(
+                                            context,
+                                            "Only one sensor shown; other selections dropped.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     } else if (selectedSensorIds.isEmpty() && availableSensors.isNotEmpty()) {
                                         selectedSensorIds = listOf(availableSensors.first().sensorId)
                                     }
@@ -526,7 +548,7 @@ fun WidgetConfigScreen(
                                             )
                                             if (currentSelectedSensor != null) {
                                                 Text(
-                                                    text = "Unit: ${currentSelectedSensor.sensorUnit ?: ""} | Type: ${currentSelectedSensor.sensorType}",
+                                                    text = if (currentSelectedSensor.sensorId == "virtual_aqi") "Locally computed" else "Unit: ${currentSelectedSensor.sensorUnit ?: ""} | Type: ${currentSelectedSensor.sensorType}",
                                                     style = MaterialTheme.typography.bodySmall,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
@@ -577,7 +599,7 @@ fun WidgetConfigScreen(
                                                             color = if (isSelected) sVisuals.color else MaterialTheme.colorScheme.onSurface
                                                         )
                                                         Text(
-                                                            text = "Unit: ${sensor.sensorUnit ?: ""} | Type: ${sensor.sensorType}",
+                                                            text = if (sensor.sensorId == "virtual_aqi") "Locally computed" else "Unit: ${sensor.sensorUnit ?: ""} | Type: ${sensor.sensorType}",
                                                             style = MaterialTheme.typography.bodySmall,
                                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                                         )
@@ -699,14 +721,30 @@ fun WidgetConfigScreen(
                                                                 )
                                                                 Spacer(modifier = Modifier.width(8.dp))
                                                                 Column {
+                                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                        Text(
+                                                                            text = sensor.sensorTitle,
+                                                                            style = MaterialTheme.typography.bodyMedium,
+                                                                            fontWeight = FontWeight.Bold,
+                                                                            color = sVisuals.color
+                                                                        )
+                                                                        if (sensor.sensorId == "virtual_aqi") {
+                                                                            Spacer(modifier = Modifier.width(4.dp))
+                                                                            IconButton(
+                                                                                onClick = { showAqiInfoDialog = true },
+                                                                                modifier = Modifier.size(24.dp)
+                                                                            ) {
+                                                                                Icon(
+                                                                                    imageVector = Icons.Default.Info,
+                                                                                    contentDescription = "AQI Info",
+                                                                                    tint = MaterialTheme.colorScheme.primary,
+                                                                                    modifier = Modifier.size(16.dp)
+                                                                                )
+                                                                            }
+                                                                        }
+                                                                    }
                                                                     Text(
-                                                                        text = sensor.sensorTitle,
-                                                                        style = MaterialTheme.typography.bodyMedium,
-                                                                        fontWeight = FontWeight.Bold,
-                                                                        color = sVisuals.color
-                                                                    )
-                                                                    Text(
-                                                                        text = "Unit: ${sensor.sensorUnit ?: ""} | Type: ${sensor.sensorType}",
+                                                                        text = if (sensor.sensorId == "virtual_aqi") "Locally computed" else "Unit: ${sensor.sensorUnit ?: ""} | Type: ${sensor.sensorType}",
                                                                         style = MaterialTheme.typography.bodySmall,
                                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                                     )
@@ -802,7 +840,7 @@ fun WidgetConfigScreen(
                                                 Checkbox(
                                                     checked = false,
                                                     onCheckedChange = { isChecked ->
-                                                        if (isChecked) {
+                                                        if (isChecked && selectedSensorIds.size < 6) {
                                                             selectedSensorIds = selectedSensorIds + sensor.sensorId
                                                         }
                                                     }
@@ -817,14 +855,30 @@ fun WidgetConfigScreen(
                                                 )
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Column {
+                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                        Text(
+                                                            text = sensor.sensorTitle,
+                                                            style = MaterialTheme.typography.bodyMedium,
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = sVisuals.color
+                                                        )
+                                                        if (sensor.sensorId == "virtual_aqi") {
+                                                            Spacer(modifier = Modifier.width(4.dp))
+                                                            IconButton(
+                                                                onClick = { showAqiInfoDialog = true },
+                                                                modifier = Modifier.size(24.dp)
+                                                            ) {
+                                                                Icon(
+                                                                    imageVector = Icons.Default.Info,
+                                                                    contentDescription = "AQI Info",
+                                                                    tint = MaterialTheme.colorScheme.primary,
+                                                                    modifier = Modifier.size(16.dp)
+                                                                )
+                                                            }
+                                                        }
+                                                    }
                                                     Text(
-                                                        text = sensor.sensorTitle,
-                                                        style = MaterialTheme.typography.bodyMedium,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = sVisuals.color
-                                                    )
-                                                    Text(
-                                                        text = "Unit: ${sensor.sensorUnit ?: ""} | Type: ${sensor.sensorType}",
+                                                        text = if (sensor.sensorId == "virtual_aqi") "Locally computed" else "Unit: ${sensor.sensorUnit ?: ""} | Type: ${sensor.sensorType}",
                                                         style = MaterialTheme.typography.bodySmall,
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
@@ -934,6 +988,93 @@ fun WidgetConfigScreen(
                                         displayStyleDropdownExpanded = false
                                     }
                                 )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Conditional Formatting", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                Text("Colorize values based on sensor thresholds", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Switch(
+                                checked = useConditionalFormatting,
+                                onCheckedChange = { useConditionalFormatting = it }
+                            )
+                        }
+                    }
+                }
+
+                // AQI VALUE DISPLAY (Visual Formats & Styling)
+                item {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
+                    Text(
+                        "AQI VALUE DISPLAY",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        "Choose how the AQI (Instant) metric is shown in the widget when selected.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(
+                            "NUMBER_AND_LABEL" to "Number\n& label",
+                            "NUMBER_ONLY" to "Number\nonly",
+                            "LABEL_ONLY" to "Label\nonly"
+                        ).forEach { (mode, label) ->
+                            val isSelected = aqiDisplayMode == mode
+                            OutlinedCard(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(80.dp)
+                                    .clickable { aqiDisplayMode = mode },
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.outlinedCardColors(
+                                    containerColor = if (isSelected)
+                                        MaterialTheme.colorScheme.primaryContainer
+                                    else
+                                        MaterialTheme.colorScheme.surface
+                                ),
+                                border = androidx.compose.foundation.BorderStroke(
+                                    width = if (isSelected) 2.dp else 1.dp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary
+                                            else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                                )
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = label,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary
+                                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+                                }
                             }
                         }
                     }
@@ -1072,10 +1213,11 @@ fun WidgetConfigScreen(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         if (isSelected) {
+                                            val isLightPreset = (color.red * 0.2126 + color.green * 0.7152 + color.blue * 0.0722) > 0.5
                                             Icon(
                                                 imageVector = Icons.Default.Check,
                                                 contentDescription = "Selected",
-                                                tint = Color.White,
+                                                tint = if (isLightPreset) Color.Black else Color.White,
                                                 modifier = Modifier.size(18.dp)
                                             )
                                         }
@@ -1622,10 +1764,12 @@ fun WidgetConfigScreen(
                                             lastFetchedTime = System.currentTimeMillis(),
                                             textScale = textScale,
                                             metricDisplayMode = metricDisplayMode,
+                                            aqiDisplayMode = aqiDisplayMode,
                                             showRefreshButton = showRefreshButton,
                                             showConfigButton = showConfigButton,
                                             showBoxName = showBoxName,
-                                            showUpdateTime = showUpdateTime
+                                            showUpdateTime = showUpdateTime,
+                                            useConditionalFormatting = useConditionalFormatting
                                         )
                                         repository.saveWidgetConfig(entity)
                                         
@@ -1654,7 +1798,54 @@ fun WidgetConfigScreen(
                 }
             }
         }
+
+        if (showAqiInfoDialog) {
+            AlertDialog(
+                onDismissRequest = { showAqiInfoDialog = false },
+                title = {
+                    Text(
+                        text = "Air Quality Index (AQI) Guide",
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
+                text = {
+                    Column(
+                        modifier = Modifier.verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "The Air Quality Index is a virtual metric synthesized locally by BoxViewer when a station provides PM2.5 or PM10 particulate matter readings.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "• InstantCast (Live Widget & Dashboard):\nCalculates the index immediately from the latest concentration reading.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            text = "• NowCast (Expanded Card History):\nApplies a 12-hour weighted average algorithm to smooth out temporary spikes.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            text = "• Consolidated Sensor:\nIf both PM2.5 and PM10 exist, it automatically reports the worst-case (maximum) index score.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "You can customize the regional standard (US EPA, UK DAQI, European EAQI, Canada AQHI, India AQI, China AQI) under the general App Settings.",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showAqiInfoDialog = false }) {
+                        Text("Got it")
+                    }
+                }
+            )
+        }
     }
 }
-
-

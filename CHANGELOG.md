@@ -2,6 +2,31 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [Unreleased]
+
+## [0.40] - 2026-06-27
+
+### Added
+- **Air Quality Index (AQI) Engine**: Six international standards (US EPA, UK DAQI, EU EAQI, Canada AQHI, India, China). A virtual AQI sensor is synthesized for every box with PM2.5/PM10 readings, and a 12-hour NowCast weighted average is computed from openSenseMap sensor stats.
+- **Dedicated AQI Info Screen**: New `AqiInfoScreen` explains each supported AQI standard, breakpoints, and health guidance.
+- **Unit Conversion System**: Per-sensor unit switching for temperature (°C/°F/K), pressure (hPa/mbar/Pa/inHg/mmHg), and wind (m/s/km/h/mph/kn). Unit unification normalizes common openSenseMap unit strings before conversion. Includes a JUnit/Robolectric test suite (`ConverterTest.kt`).
+- **Settings Screen Rewrite**: New app-level `SettingsScreen` reachable from the dashboard, grouping general app settings, diagnostics/bug reporting, and local-only API debug logging. Diagnostics and API logs can be copied to the clipboard or shared via the native share sheet.
+- **Widget Conditional Formatting & AQI Display**: Widget config now supports `useConditionalFormatting` and `aqiDisplayMode`, with matching database migrations (`MIGRATION_6_7`, `MIGRATION_7_8`, schema version 8).
+
+### Changed
+- **Discovery "Last Updated" Filter**: Reworked to use minute-level steps (15, 30, 60, 180, 360, 720, 1440, All Time) instead of hours, matching the slider UI.
+- **Third-Party Licenses**: Updated `AboutScreen` attribution list for the new dependency set.
+- **Canonical Sensor Ordering**: Newly added senseBoxes now default to a consistent sensor order (Temperature → Humidity → PM10 → PM2.5 → AQI → Pressure → Wind → other) on both the dashboard and in widget configuration, rather than the raw API order.
+
+### Fixed
+- **Clipboard API**: Replaced the non-existent `LocalClipboard` / `toClipEntry()` calls in the new Settings screen with the standard `LocalClipboardManager` + `AnnotatedString` API.
+- **AQI Missing from Default Selection**: The synthesized virtual AQI sensor is now included in the default pre-selected metrics when adding a senseBox to the dashboard or configuring a new widget, provided PM2.5/PM10 data is available.
+- **Discovery List Geocoding on De-Googled Devices**: `resolveLocationsFor` now falls back to Nominatim when the native Android `Geocoder` returns no results.
+- **Widget Wake-to-Refresh**: Force-triggered updates (`ACTION_SCREEN_ON` / `ACTION_USER_PRESENT`) now bypass the `isInteractive` short-circuit so they don't silently skip on devices where the interactive state lags behind the broadcast.
+- **Foreground Polling Lifecycle**: Box detail and dashboard auto-refresh loops are now gated by `repeatOnLifecycle(STARTED)` so they stop when the UI is not in the foreground.
+- **Sensor Value Color Thresholds**: `SensorTheme.getValueColor` now applies thresholds to converted canonical units, so values in Kelvin, °F, Pa, inHg, etc. are colored correctly.
+- **"All Time" Discovery Filter**: The discovery slider can now select the "All Time" option.
+
 ## [0.30] - 2026-06-24
 ### Added
 - **SenseBox Sharing via QR & Deep Links**: Long-press a senseBox on the dashboard or detail screen to open the new Share sheet — generate a QR code (ZXing), share it as a PNG via the native Android share sheet (backed by a new `FileProvider`), or save it directly to the gallery on Android 10+. Recipients scan the QR or open the HTTPS link and land on a new `AddBoxConfirmScreen` previewing the box with explicit **Add to Dashboard** / **View Details** options.

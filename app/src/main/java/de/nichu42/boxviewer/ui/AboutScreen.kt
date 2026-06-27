@@ -48,27 +48,28 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalConfiguration
 import android.content.ClipData
 import android.widget.Toast
-import androidx.compose.ui.platform.LocalClipboard
-import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.unit.IntOffset
 import kotlin.math.roundToInt
 import de.nichu42.boxviewer.util.CrashHandler
 import de.nichu42.boxviewer.util.ApiLogger
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
+    viewModel: SenseBoxViewModel,
     onViewLicense: () -> Unit = {},
     onViewThirdPartyLicenses: () -> Unit = {}
 ) {
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
-    val clipboard = LocalClipboard.current
-    val clipboardScope = rememberCoroutineScope()
-    var crashLog by remember { mutableStateOf<String?>(null) }
+    val globalStats by viewModel.globalStats.collectAsStateWithLifecycle()
+    val isLoadingStats by viewModel.isLoadingStats.collectAsStateWithLifecycle()
+    val statsError by viewModel.statsError.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        crashLog = CrashHandler.getCrashLog(context)
+        viewModel.fetchGlobalStats()
     }
 
     val versionName = remember(context) {
@@ -97,7 +98,8 @@ fun AboutScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            
+
+
             // App Branding Block - Modern, High-End Compose Vector Branding (Fully Crash-Proof)
             Image(
                 painter = painterResource(id = R.drawable.boxviewer_white_bg),
@@ -382,6 +384,134 @@ fun AboutScreen(
                         color = MaterialTheme.colorScheme.onSurface,
                         lineHeight = 20.sp
                     )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Network Stats Row inside the card
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "OPENSENSEMAP NETWORK STATS",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                if (isLoadingStats) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(12.dp),
+                                        strokeWidth = 1.5.dp,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                } else if (statsError != null) {
+                                    Text(
+                                        "Offline",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            if (statsError != null) {
+                                Text(
+                                    text = "Failed to load database stats.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            } else if (globalStats != null) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    // Stat 1: senseBoxes
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text(
+                                            text = globalStats?.boxesCount ?: "-",
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            fontWeight = FontWeight.Black,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = "Stations",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    // Stat 2: measurements
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text(
+                                            text = globalStats?.measurementsCount ?: "-",
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            fontWeight = FontWeight.Black,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = "Measurements",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    // Stat 3: last minute
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text(
+                                            text = "${globalStats?.measurementsLastMinute}/m",
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            fontWeight = FontWeight.Black,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(
+                                            text = "Active Rate",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            } else {
+                                // Placeholders
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    listOf("...", "...", "...").forEach { placeholder ->
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Text(
+                                                text = placeholder,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                fontWeight = FontWeight.Black,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     
                     Spacer(modifier = Modifier.height(14.dp))
                     Text(
@@ -564,320 +694,6 @@ fun AboutScreen(
                     )
                 }
             }
-            
-            // 5. Diagnostics & Bug Reporting Card
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("about_diagnostics_card"),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "DIAGNOSTICS & BUG REPORTING",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    
-                    if (crashLog != null) {
-                        Text(
-                            text = "⚠️ Detection: A crash was captured from a recent session. Please copy the log below and include it in your issue on Codeberg.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.error,
-                            lineHeight = 20.sp
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 200.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
-                                    shape = RoundedCornerShape(6.dp)
-                                )
-                                .verticalScroll(rememberScrollState())
-                                .padding(12.dp)
-                        ) {
-                            Text(
-                                text = crashLog ?: "",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontFamily = FontFamily.Monospace,
-                                color = MaterialTheme.colorScheme.onErrorContainer
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(14.dp))
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Button(
-                                onClick = {
-                                    crashLog?.let {
-                                        clipboardScope.launch {
-                                            clipboard.setClipEntry(ClipData.newPlainText("Crash report", it).toClipEntry())
-                                        }
-                                        Toast.makeText(context, "Crash report copied to clipboard!", Toast.LENGTH_SHORT).show()
-                                    }
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                ),
-                                shape = RoundedCornerShape(8.dp),
-                                modifier = Modifier.weight(1f).heightIn(min = 48.dp)
-                            ) {
-                                Text("Copy Crash Log", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                            }
-                            Button(
-                                onClick = {
-                                    CrashHandler.clearCrashLog(context)
-                                    crashLog = null
-                                    Toast.makeText(context, "Crash log cleared", Toast.LENGTH_SHORT).show()
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                ),
-                                shape = RoundedCornerShape(8.dp),
-                                modifier = Modifier.weight(1f).heightIn(min = 48.dp)
-                            ) {
-                                Text("Clear Log", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                            }
-                        }
-                    } else {
-                        Text(
-                            text = "No crashes detected. The app is running smoothly! If you encounter any bugs, you can copy standard system info to help us diagnose the issue.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            lineHeight = 20.sp
-                        )
-                        Spacer(modifier = Modifier.height(14.dp))
-                        Button(
-                            onClick = {
-                                val systemInfo = CrashHandler.generateSystemDiagnostics(context)
-                                clipboardScope.launch {
-                                    clipboard.setClipEntry(ClipData.newPlainText("Diagnostics", systemInfo).toClipEntry())
-                                }
-                                Toast.makeText(context, "Diagnostics copied to clipboard!", Toast.LENGTH_SHORT).show()
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                        ) {
-                            Icon(imageVector = Icons.Default.Info, contentDescription = "Copy diagnostics", modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Copy System Diagnostics Info", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 6. API Debug Logging Card
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("about_api_logging_card"),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "API DEBUG LOGGING",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    
-                    Text(
-                        text = "Capture raw JSON network requests, responses, and internal parsing metrics. Logs are saved locally in a JSON Lines format and can be shared to diagnose issues.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 20.sp
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    var apiLoggingEnabled by remember { mutableStateOf(ApiLogger.isLoggingEnabled()) }
-                    var apiLogLimit by remember { mutableIntStateOf(ApiLogger.getMaxEntries()) }
-                    var logSizeStr by remember { mutableStateOf("0 B") }
-
-                    LaunchedEffect(apiLoggingEnabled) {
-                        val size = ApiLogger.getLogFileSize()
-                        logSizeStr = formatFileSize(size)
-                    }
-
-                    // Logging Toggle Switch
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = "Enable API Logging",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                text = "Current size: $logSizeStr",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Switch(
-                            checked = apiLoggingEnabled,
-                            onCheckedChange = { checked ->
-                                apiLoggingEnabled = checked
-                                ApiLogger.setLoggingEnabled(checked)
-                                Toast.makeText(context, if (checked) "API Logging Enabled" else "API Logging Disabled", Toast.LENGTH_SHORT).show()
-                            },
-                            modifier = Modifier.testTag("api_logging_toggle")
-                        )
-                    }
-
-                    if (apiLoggingEnabled) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Max Log Entries",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        
-                        // Limit Selector Buttons
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            listOf(50, 100, 200, 500).forEach { limitVal ->
-                                val isSelected = apiLogLimit == limitVal
-                                Button(
-                                    onClick = {
-                                        apiLogLimit = limitVal
-                                        ApiLogger.setMaxEntries(limitVal)
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                                        contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                                    ),
-                                    shape = RoundedCornerShape(8.dp),
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(38.dp)
-                                        .testTag("api_limit_$limitVal"),
-                                    contentPadding = PaddingValues(0.dp)
-                                ) {
-                                    Text(text = "$limitVal", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Action Buttons: Copy, Share, Clear
-                        val coroutineScope = rememberCoroutineScope()
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Button(
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            val logText = ApiLogger.getLogsText()
-                                            if (logText.isEmpty()) {
-                                                Toast.makeText(context, "Log is empty!", Toast.LENGTH_SHORT).show()
-                                            } else {
-                                                clipboard.setClipEntry(ClipData.newPlainText("API Logs", logText).toClipEntry())
-                                                Toast.makeText(context, "Logs copied to clipboard!", Toast.LENGTH_SHORT).show()
-                                            }
-                                        }
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                    ),
-                                    shape = RoundedCornerShape(8.dp),
-                                    modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("copy_api_logs")
-                                ) {
-                                    Text("Copy Logs", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                                }
-
-                                Button(
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            val logText = ApiLogger.getLogsText()
-                                            if (logText.isEmpty()) {
-                                                Toast.makeText(context, "Log is empty!", Toast.LENGTH_SHORT).show()
-                                            } else {
-                                                try {
-                                                    val sendIntent = android.content.Intent().apply {
-                                                        action = android.content.Intent.ACTION_SEND
-                                                        putExtra(android.content.Intent.EXTRA_TEXT, logText)
-                                                        type = "text/plain"
-                                                    }
-                                                    val shareIntent = android.content.Intent.createChooser(sendIntent, "Share API Logs")
-                                                    context.startActivity(shareIntent)
-                                                } catch (e: Exception) {
-                                                    e.printStackTrace()
-                                                    Toast.makeText(context, "Error sharing logs", Toast.LENGTH_SHORT).show()
-                                                }
-                                            }
-                                        }
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                    ),
-                                    shape = RoundedCornerShape(8.dp),
-                                    modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("share_api_logs")
-                                ) {
-                                    Text("Share Logs", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                                }
-                            }
-
-                            Button(
-                                onClick = {
-                                    ApiLogger.clearLogs()
-                                    logSizeStr = "0 B"
-                                    Toast.makeText(context, "Logs cleared", Toast.LENGTH_SHORT).show()
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                ),
-                                shape = RoundedCornerShape(8.dp),
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("clear_api_logs")
-                            ) {
-                                Text("Clear API Logs", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                            }
-                        }
-                    }
-                }
-            }
-            
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -1121,6 +937,26 @@ fun ThirdPartyLicensesScreen(
         limitations under the License.
     """.trimIndent()
 
+    val mit = """
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+    """.trimIndent()
+
     val libraries = remember {
         listOf(
             ThirdPartyLib(
@@ -1186,6 +1022,62 @@ fun ThirdPartyLicensesScreen(
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
                 url = "https://github.com/zxing/zxing"
+            ),
+            ThirdPartyLib(
+                name = "AndroidX Navigation Compose",
+                author = "Google LLC",
+                description = "Type-safe navigation component for Jetpack Compose, used for in-app routing between dashboard, details, settings, and AQI screens.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://developer.android.com/jetpack/compose/navigation"
+            ),
+            ThirdPartyLib(
+                name = "AndroidX Core KTX & SplashScreen",
+                author = "Google LLC",
+                description = "Kotlin extensions for Android framework APIs and the backwards-compatible splash screen API used at app launch.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://developer.android.com/jetpack/androidx/releases/core"
+            ),
+            ThirdPartyLib(
+                name = "AndroidX Lifecycle Compose",
+                author = "Google LLC",
+                description = "Lifecycle-aware coroutine scopes, ViewModel integration, and Flow collection utilities for Compose.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://developer.android.com/jetpack/androidx/releases/lifecycle"
+            ),
+            ThirdPartyLib(
+                name = "AndroidX Activity Compose",
+                author = "Google LLC",
+                description = "Compose integration for Activities, providing setContent support and handling configuration changes.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://developer.android.com/jetpack/androidx/releases/activity"
+            ),
+            ThirdPartyLib(
+                name = "Compose Material Icons Extended",
+                author = "Google LLC",
+                description = "Extended Material Design icon set used throughout the app for richer iconography.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary"
+            ),
+            ThirdPartyLib(
+                name = "Robolectric",
+                author = "Robolectric Authors",
+                description = "Unit testing framework that runs Android framework code on the JVM, used for the converter and AQI test suite.",
+                licenseName = "MIT License",
+                licenseText = mit,
+                url = "https://github.com/robolectric/robolectric"
+            ),
+            ThirdPartyLib(
+                name = "Roborazzi",
+                author = "Takahiro Menju and Contributors",
+                description = "Screenshot testing toolkit for Compose used in the automated visual regression test suite.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://github.com/takahirom/roborazzi"
             )
         )
     }

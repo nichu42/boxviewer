@@ -28,7 +28,10 @@ import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.nichu42.boxviewer.util.SensorDisplayConverter
 import de.nichu42.boxviewer.data.db.SavedBoxEntity
 import java.util.*
 
@@ -67,12 +70,14 @@ fun DashboardScreen(
         }
     }
 
-    LaunchedEffect(isReorderMode) {
-        if (!isReorderMode) {
-            while (true) {
-                kotlinx.coroutines.delay(60.seconds)
-                if (viewModel.savedBoxes.value.isNotEmpty()) {
-                    viewModel.refreshAll()
+    LaunchedEffect(isReorderMode, lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            if (!isReorderMode) {
+                while (true) {
+                    kotlinx.coroutines.delay(60.seconds)
+                    if (viewModel.savedBoxes.value.isNotEmpty()) {
+                        viewModel.refreshAll()
+                    }
                 }
             }
         }
@@ -405,6 +410,12 @@ fun SavedBoxCard(
 ) {
     val cachedSensors by viewModel.getCachedSensorsFlow(box.boxId).collectAsStateWithLifecycle(initialValue = emptyList())
     val autoConfigureBoxId by viewModel.autoConfigureBoxId.collectAsStateWithLifecycle()
+    val useConditionalFormatting by viewModel.useConditionalFormatting.collectAsStateWithLifecycle()
+    val temperatureUnit by viewModel.temperatureUnit.collectAsStateWithLifecycle()
+    val pressureUnit by viewModel.pressureUnit.collectAsStateWithLifecycle()
+    val windUnit by viewModel.windUnit.collectAsStateWithLifecycle()
+    val formatPressure by viewModel.formatPressure.collectAsStateWithLifecycle()
+    val aqiSystem by viewModel.aqiSystem.collectAsStateWithLifecycle()
     var isConfiguring by remember { mutableStateOf(false) }
 
     var resolvedLocation by remember { mutableStateOf(String.format(Locale.getDefault(), "Lat: %.3f, Lon: %.3f", box.latitude, box.longitude)) }
@@ -770,8 +781,16 @@ fun SavedBoxCard(
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     sensor.value?.let { v ->
+                                        val conversion = SensorDisplayConverter.convert(
+                                            rawValue = v,
+                                            sourceUnit = sensor.sensorUnit,
+                                            temperatureUnit = temperatureUnit,
+                                            pressureUnit = pressureUnit,
+                                            windUnit = windUnit,
+                                            formatPressure = formatPressure
+                                        )
                                         Text(
-                                            text = "Current: $v ${sensor.sensorUnit ?: ""}",
+                                            text = "Current: ${conversion.value} ${conversion.unit}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -831,9 +850,26 @@ fun SavedBoxCard(
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
-                                val valueColor = de.nichu42.boxviewer.ui.theme.SensorTheme.getValueColor(s.sensorTitle, s.value)
+                                val valueColor = if (useConditionalFormatting) {
+                                    de.nichu42.boxviewer.ui.theme.SensorTheme.getValueColor(s.sensorTitle, s.value, aqiSystem, s.sensorUnit)
+                                } else {
+                                    de.nichu42.boxviewer.ui.theme.SensorTheme.getVisuals(s.sensorTitle).color
+                                }
+                                val conversion = SensorDisplayConverter.convert(
+                                    rawValue = s.value,
+                                    sourceUnit = s.sensorUnit,
+                                    temperatureUnit = temperatureUnit,
+                                    pressureUnit = pressureUnit,
+                                    windUnit = windUnit,
+                                    formatPressure = formatPressure
+                                )
+                                val displayValue = if (conversion.unit.isNullOrEmpty()) {
+                                    conversion.value ?: "--"
+                                } else {
+                                    "${conversion.value ?: "--"} ${conversion.unit}"
+                                }
                                 Text(
-                                    text = "${s.value ?: "--"} ${s.sensorUnit ?: ""}",
+                                    text = displayValue,
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = valueColor

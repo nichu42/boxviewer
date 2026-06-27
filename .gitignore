@@ -24,4 +24,5 @@ debug.keystore.base64
 *.jks
 *.b64
 .env.example
+app/build*/
 AGENTS.md

@@ -28,4 +28,9 @@ interface OpenSenseMapApi {
         @Query("limit") limit: Int = 20,
         @Query("format") format: String = "json"
     ): List<Measurement>
+
+    @GET("stats")
+    suspend fun getStats(
+        @Query("human") human: Boolean = true
+    ): List<String>
 }

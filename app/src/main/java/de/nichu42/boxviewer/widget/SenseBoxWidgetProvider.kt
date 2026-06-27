@@ -15,11 +15,28 @@ import de.nichu42.boxviewer.data.db.SenseBoxDatabase
 import de.nichu42.boxviewer.data.repository.SenseBoxRepository
 import de.nichu42.boxviewer.MainActivity
 import de.nichu42.boxviewer.ui.WidgetConfigActivity
+import de.nichu42.boxviewer.util.SensorDisplayConverter
+import de.nichu42.boxviewer.util.SensorValueColorResolver
+import de.nichu42.boxviewer.util.AqiSystem
+import de.nichu42.boxviewer.util.AqiCalculator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+
+/**
+ * Display representation used only inside the widget. Keeps the AQI label separate from
+ * the physical sensor unit so that [sensorUnit] is always a real unit (or null for AQI).
+ */
+private data class WidgetSensorDisplay(
+    val sensorId: String,
+    val sensorTitle: String,
+    val sensorUnit: String?,
+    val sensorType: String?,
+    val value: String?,
+    val aqiLabel: String? = null
+)
 
 class SenseBoxWidgetProvider : AppWidgetProvider() {
 
@@ -60,6 +77,14 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
 
     companion object {
         const val ACTION_REFRESH_WIDGET = "de.nichu42.boxviewer.widget.ACTION_REFRESH_WIDGET"
+
+        private fun isLightColor(color: Int): Boolean {
+            val r = (color shr 16) and 0xFF
+            val g = (color shr 8) and 0xFF
+            val b = color and 0xFF
+            val luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255.0
+            return luminance > 0.5
+        }
 
         fun scheduleAlarm(context: Context, appWidgetId: Int, intervalMinutes: Int) {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -133,8 +158,10 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                 val config = repository.getWidgetConfig(appWidgetId) ?: return@launch
                 
                 // Keep things battery friendly: skip network fetches when the screen is off (non-interactive).
+                // Wake-time forced refreshes (force = true) bypass this check so they don't silently skip
+                // on devices where isInteractive lags behind ACTION_SCREEN_ON / ACTION_USER_PRESENT.
                 val powerManager = context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
-                if (powerManager != null && !powerManager.isInteractive) {
+                if (powerManager != null && !powerManager.isInteractive && !force) {
                     return@launch
                 }
 
@@ -179,6 +206,40 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
             config: de.nichu42.boxviewer.data.db.WidgetConfigEntity,
             sensors: List<de.nichu42.boxviewer.data.db.SensorCacheEntity>
         ): RemoteViews {
+            val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            val oldFahrenheit = prefs.getBoolean("use_fahrenheit", false)
+            val defaultTemp = if (oldFahrenheit) "°F" else "°C"
+            val temperatureUnit = prefs.getString("temperature_unit", defaultTemp) ?: defaultTemp
+            val pressureUnit = prefs.getString("pressure_unit", "hPa") ?: "hPa"
+            val windUnit = prefs.getString("wind_unit", "m/s") ?: "m/s"
+            val formatPressure = prefs.getBoolean("format_pressure", true)
+            val aqiStr = prefs.getString("aqi_system", AqiSystem.US_EPA.name) ?: AqiSystem.US_EPA.name
+            val aqiSystem = try { AqiSystem.valueOf(aqiStr) } catch (e: Exception) { AqiSystem.US_EPA }
+
+            // Synthesize the virtual AQI sensor and map to a widget display wrapper.
+            // The wrapper keeps the AQI label out of sensorUnit.
+            val displaySensors = AqiCalculator.synthesizeVirtualSensors(sensors, aqiSystem, config.boxId).map {
+                if (it.sensorId == "virtual_aqi") {
+                    WidgetSensorDisplay(
+                        sensorId = it.sensorId,
+                        sensorTitle = it.sensorTitle,
+                        sensorUnit = null,
+                        sensorType = it.sensorType,
+                        value = it.value,
+                        aqiLabel = it.sensorUnit // AqiCalculator stores the label here for the virtual sensor
+                    )
+                } else {
+                    WidgetSensorDisplay(
+                        sensorId = it.sensorId,
+                        sensorTitle = it.sensorTitle,
+                        sensorUnit = it.sensorUnit,
+                        sensorType = it.sensorType,
+                        value = it.value,
+                        aqiLabel = null
+                    )
+                }
+            }
+
             val isMetricMode = config.visualizationType == "GRID" // LIST or GRID (Metric)
             val layoutId = if (isMetricMode) R.layout.widget_layout_metric else R.layout.widget_layout_list
             val views = RemoteViews(context.packageName, layoutId)
@@ -207,21 +268,46 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
             // Theme indices background colors (modern, material palettes).
             // Handles backward-compatibility for values < 10, or treats them as ARGB colors directly.
             val themeColor = if (config.themeColorIndex in 0..9) {
-                val presets = listOf(0xFF0F172A.toInt(), 0xFF064E3B.toInt(), 0xFF0F3D5C.toInt(), 0xFF581C87.toInt())
+                val presets = listOf(
+                    0xFF0F172A.toInt(), // Slate Dark
+                    0xFF020617.toInt(), // Deep Navy
+                    0xFF064E3B.toInt(), // Forest Green
+                    0xFF0F3D5C.toInt(), // Celestial Blue
+                    0xFF581C87.toInt(), // Royal Purple
+                    0xFFF8FAFC.toInt(), // Slate Light
+                    0xFFECFDF5.toInt(), // Mint Green Light
+                    0xFFF0F9FF.toInt(), // Sky Blue Light
+                    0xFFFFFBEB.toInt(), // Warm Cream Light
+                    0xFF18181B.toInt()  // Dark Charcoal
+                )
                 presets.getOrElse(config.themeColorIndex) { 0xFF0F172A.toInt() }
             } else {
                 config.themeColorIndex
             }
             views.setInt(R.id.widget_root, "setBackgroundColor", themeColor)
 
+            // Dynamic text/icon contrast styling based on background luminance
+            val isLight = isLightColor(themeColor)
+            val textColor = if (isLight) 0xFF0F172A.toInt() else 0xFFF8FAFC.toInt()
+            val subTextColor = if (isLight) 0xFF475569.toInt() else 0xFF94A3B8.toInt()
+            val iconColor = if (isLight) 0xFF0F172A.toInt() else 0xFFF8FAFC.toInt()
+            val innerBgOverlay = if (isLight) 0x0A000000 else 0x1AFFFFFF
+
+            // Apply global colors to header
+            views.setTextColor(R.id.widget_box_name, textColor)
+            views.setTextColor(R.id.widget_update_time, subTextColor)
+            views.setInt(R.id.widget_refresh_button, "setColorFilter", iconColor)
+            views.setInt(R.id.widget_settings_button, "setColorFilter", iconColor)
+            views.setInt(R.id.widget_values_container, "setBackgroundColor", innerBgOverlay)
+
             // Split dynamic config sensor elements
             val selectedIdsList = config.sensorIdsString.split(",").filter { it.isNotEmpty() }
 
             if (isMetricMode) {
                 val targetSensor = if (selectedIdsList.isNotEmpty()) {
-                    sensors.find { it.sensorId == selectedIdsList.first() } ?: sensors.firstOrNull()
+                    displaySensors.find { it.sensorId == selectedIdsList.first() } ?: displaySensors.firstOrNull()
                 } else {
-                    sensors.firstOrNull()
+                    displaySensors.firstOrNull()
                 }
 
                 views.setTextViewTextSize(R.id.big_sensor_value, android.util.TypedValue.COMPLEX_UNIT_SP, 26f * textScale)
@@ -231,16 +317,36 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                     val showLabel = config.metricDisplayMode == "LABEL_VALUE_UNIT"
                     val showUnit = config.metricDisplayMode == "LABEL_VALUE_UNIT" || config.metricDisplayMode == "VALUE_UNIT"
                     
-                    val valueText = if (showUnit) {
-                        "${targetSensor.value ?: "--"} ${targetSensor.sensorUnit ?: ""}"
+                    val conversion = SensorDisplayConverter.convert(
+                        rawValue = targetSensor.value,
+                        sourceUnit = targetSensor.sensorUnit,
+                        temperatureUnit = temperatureUnit,
+                        pressureUnit = pressureUnit,
+                        windUnit = windUnit,
+                        formatPressure = formatPressure
+                    )
+                    val displayVal = conversion.value
+                    val displayUnit = conversion.unit
+                    val valueText = if (targetSensor.sensorId == "virtual_aqi") {
+                        // AQI: format according to aqiDisplayMode; aqiLabel holds the AQI label text
+                        val aqiNumber = targetSensor.value ?: "--"
+                        val aqiLabel = targetSensor.aqiLabel ?: ""
+                        when (config.aqiDisplayMode) {
+                            "NUMBER_ONLY" -> aqiNumber
+                            "LABEL_ONLY"  -> aqiLabel.ifEmpty { aqiNumber }
+                            else          -> if (aqiLabel.isNotEmpty()) "$aqiNumber\n$aqiLabel" else aqiNumber
+                        }
+                    } else if (showUnit) {
+                        "$displayVal $displayUnit"
                     } else {
-                        targetSensor.value ?: "--"
+                        displayVal
                     }
                     views.setTextViewText(R.id.big_sensor_value, valueText)
                     
                     if (showLabel) {
                         views.setViewVisibility(R.id.big_sensor_title, View.VISIBLE)
                         views.setTextViewText(R.id.big_sensor_title, targetSensor.sensorTitle)
+                        views.setTextColor(R.id.big_sensor_title, subTextColor)
                     } else {
                         views.setViewVisibility(R.id.big_sensor_title, View.GONE)
                     }
@@ -254,7 +360,13 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                         views.setViewLayoutHeight(R.id.big_sensor_icon, 40f * textScale, android.util.TypedValue.COMPLEX_UNIT_DIP)
                     }
                     
-                    val valueColor = getSensorValueColor(targetSensor.sensorTitle, targetSensor.value, visuals.second)
+                    val valueColor = if (config.useConditionalFormatting) {
+                        // Use the converted display value so thresholds are applied to canonical units.
+                        val colorInput = if (targetSensor.sensorId == "virtual_aqi") targetSensor.value else displayVal
+                        getSensorValueColor(targetSensor.sensorTitle, colorInput, visuals.second, aqiSystem)
+                    } else {
+                        visuals.second
+                    }
                     views.setTextColor(R.id.big_sensor_value, valueColor)
                 } else {
                     views.setTextViewText(R.id.big_sensor_value, "--")
@@ -271,13 +383,13 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                 }
             } else {
                 val listToDisplay = if (selectedIdsList.isNotEmpty()) {
-                    val matched = mutableListOf<de.nichu42.boxviewer.data.db.SensorCacheEntity>()
+                    val matched = mutableListOf<WidgetSensorDisplay>()
                     for (selectedId in selectedIdsList) {
-                        sensors.find { it.sensorId == selectedId }?.let { matched.add(it) }
+                        displaySensors.find { it.sensorId == selectedId }?.let { matched.add(it) }
                     }
                     matched.take(6)
                 } else {
-                    sensors.take(6)
+                    displaySensors.take(6)
                 }
 
                 val titles = listOf(
@@ -308,14 +420,33 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                         if (showLabel) {
                             views.setViewVisibility(titles[i], View.VISIBLE)
                             views.setTextViewText(titles[i], sensor.sensorTitle)
+                            views.setTextColor(titles[i], subTextColor)
                         } else {
                             views.setViewVisibility(titles[i], View.GONE)
                         }
                         
-                        val valStr = if (showUnit) {
-                            "${sensor.value ?: "--"} ${sensor.sensorUnit ?: ""}"
+                        val conversion = SensorDisplayConverter.convert(
+                            rawValue = sensor.value,
+                            sourceUnit = sensor.sensorUnit,
+                            temperatureUnit = temperatureUnit,
+                            pressureUnit = pressureUnit,
+                            windUnit = windUnit,
+                            formatPressure = formatPressure
+                        )
+                        val displayVal = conversion.value
+                        val displayUnit = conversion.unit
+                        val valStr = if (sensor.sensorId == "virtual_aqi") {
+                            val aqiNumber = sensor.value ?: "--"
+                            val aqiLabel = sensor.aqiLabel ?: ""
+                            when (config.aqiDisplayMode) {
+                                "NUMBER_ONLY" -> aqiNumber
+                                "LABEL_ONLY"  -> aqiLabel.ifEmpty { aqiNumber }
+                                else          -> if (aqiLabel.isNotEmpty()) "$aqiNumber $aqiLabel" else aqiNumber
+                            }
+                        } else if (showUnit) {
+                            "$displayVal $displayUnit"
                         } else {
-                            sensor.value ?: "--"
+                            displayVal
                         }
                         views.setTextViewText(vals[i], valStr)
 
@@ -331,7 +462,13 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                             views.setViewLayoutHeight(icons[i], 14f * textScale, android.util.TypedValue.COMPLEX_UNIT_DIP)
                         }
                         
-                        val valueColor = getSensorValueColor(sensor.sensorTitle, sensor.value, visuals.second)
+                        val valueColor = if (config.useConditionalFormatting) {
+                            // Use the converted display value so thresholds are applied to canonical units.
+                            val colorInput = if (sensor.sensorId == "virtual_aqi") sensor.value else displayVal
+                            getSensorValueColor(sensor.sensorTitle, colorInput, visuals.second, aqiSystem)
+                        } else {
+                            visuals.second
+                        }
                         views.setTextColor(vals[i], valueColor)
                     } else {
                         views.setViewVisibility(rows[i], View.GONE)
@@ -391,59 +528,24 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                 lower.contains("temp") -> Pair(R.drawable.ic_sensor_temp, 0xFFF97316.toInt()) // Orange/Amber
                 lower.contains("feucht") || lower.contains("humid") -> Pair(R.drawable.ic_sensor_humidity, 0xFF0EA5E9.toInt()) // Sky Blue/Teal
                 lower.contains("druck") || lower.contains("press") -> Pair(R.drawable.ic_sensor_pressure, 0xFF8B5CF6.toInt()) // Purple
+                lower.contains("aqi") || lower.contains("air quality index") -> Pair(R.drawable.ic_sensor_air, 0xFF0D9488.toInt()) // Teal – AQI virtual sensor
                 lower.contains("pm10") || lower.contains("pm2") || lower.contains("air") || lower.contains("dust") || lower.contains("feinstaub") -> Pair(R.drawable.ic_sensor_air, 0xFFEC4899.toInt()) // Pink
                 lower.contains("bell") || lower.contains("light") || lower.contains("lux") || lower.contains("sonne") || lower.contains("uv") -> Pair(R.drawable.ic_sensor_light, 0xFFF59E0B.toInt()) // Amber/Yellow
                 else -> Pair(R.drawable.ic_sensor_generic, 0xFF10B981.toInt()) // Emerald Green
             }
         }
 
-        private fun getSensorValueColor(title: String, valueString: String?, defaultColor: Int): Int {
-            val value = valueString?.toDoubleOrNull() ?: return defaultColor
-            val lower = title.lowercase()
-            return when {
-                lower.contains("temp") -> {
-                    when {
-                        value <= 0.0 -> 0xFF1E88E5.toInt()      // Freezing: Deep Blue
-                        value <= 15.0 -> 0xFF64B5F6.toInt()     // Cold: Light Blue
-                        value <= 25.0 -> 0xFF4CAF50.toInt()     // Comfortable: Green
-                        value <= 32.0 -> 0xFFFFA726.toInt()     // Warm: Orange
-                        else -> 0xFFE53935.toInt()              // Hot: Red
-                    }
-                }
-                lower.contains("feucht") || lower.contains("humid") -> {
-                    when {
-                        value < 30.0 -> 0xFFFFB74D.toInt()      // Low/Dry: Amber
-                        value <= 60.0 -> 0xFF4CAF50.toInt()     // Optimal: Green
-                        else -> 0xFF0288D1.toInt()              // High/Sticky: Moisture Blue
-                    }
-                }
-                lower.contains("druck") || lower.contains("press") -> {
-                    when {
-                        value < 1000.0 -> 0xFF90A4AE.toInt()    // Low/Stormy: Stormy Gray
-                        value <= 1020.0 -> 0xFF4CAF50.toInt()   // Normal/Stable: Green
-                        else -> 0xFFFBC02D.toInt()              // High/Dry: Bright Yellow
-                    }
-                }
-                lower.contains("pm10") -> {
-                    when {
-                        value <= 45.0 -> 0xFF4CAF50.toInt()     // Good: Green
-                        value <= 60.0 -> 0xFFFBC02D.toInt()     // Fair: Yellow
-                        value <= 100.0 -> 0xFFFFA726.toInt()    // Poor: Orange
-                        else -> 0xFFE53935.toInt()              // Severe: Red
-                    }
-                }
-                lower.contains("pm2") || lower.contains("pm 2") -> {
-                    when {
-                        value <= 15.0 -> 0xFF4CAF50.toInt()     // Good: Green
-                        value <= 25.0 -> 0xFFFBC02D.toInt()     // Fair: Yellow
-                        value <= 50.0 -> 0xFFFFA726.toInt()     // Poor: Orange
-                        else -> 0xFFE53935.toInt()              // Severe: Red
-                    }
-                }
-                else -> defaultColor
-            }
-        }
+        private fun getSensorValueColor(
+            title: String,
+            valueString: String?,
+            defaultColor: Int,
+            aqiSystem: AqiSystem
+        ): Int = SensorValueColorResolver.resolveColor(
+            title = title,
+            valueString = valueString,
+            unit = null, // widget callers already convert to canonical units before passing
+            aqiSystem = aqiSystem,
+            defaultColor = defaultColor
+        )
     }
 }
-
-// Trigger CI Build

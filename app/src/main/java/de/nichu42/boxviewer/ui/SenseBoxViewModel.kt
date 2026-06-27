@@ -9,6 +9,11 @@ import de.nichu42.boxviewer.data.api.SenseBox
 import de.nichu42.boxviewer.data.db.SenseBoxDatabase
 import de.nichu42.boxviewer.data.db.SensorCacheEntity
 import de.nichu42.boxviewer.data.repository.SenseBoxRepository
+import de.nichu42.boxviewer.util.AqiSystem
+import de.nichu42.boxviewer.util.AqiCalculator
+import de.nichu42.boxviewer.util.AqiResult
+import de.nichu42.boxviewer.util.SensorSortKey
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
 
 class SenseBoxViewModel(application: Application) : AndroidViewModel(application) {
@@ -30,6 +36,190 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             initialValue = emptyList()
         )
 
+    enum class AppTheme(val label: String) {
+        SYSTEM("System"),
+        LIGHT("Light"),
+        DARK("Dark")
+    }
+
+    private val _useConditionalFormatting = MutableStateFlow(true)
+    val useConditionalFormatting: StateFlow<Boolean> = _useConditionalFormatting.asStateFlow()
+
+    private val _temperatureUnit = MutableStateFlow("°C")
+    val temperatureUnit: StateFlow<String> = _temperatureUnit.asStateFlow()
+
+    private val _pressureUnit = MutableStateFlow("hPa")
+    val pressureUnit: StateFlow<String> = _pressureUnit.asStateFlow()
+
+    private val _windUnit = MutableStateFlow("m/s")
+    val windUnit: StateFlow<String> = _windUnit.asStateFlow()
+
+    private val _formatPressure = MutableStateFlow(true)
+    val formatPressure: StateFlow<Boolean> = _formatPressure.asStateFlow()
+
+    private val _appTheme = MutableStateFlow(AppTheme.SYSTEM)
+    val appTheme: StateFlow<AppTheme> = _appTheme.asStateFlow()
+
+    private val _aqiSystem = MutableStateFlow(AqiSystem.US_EPA)
+    val aqiSystem: StateFlow<AqiSystem> = _aqiSystem.asStateFlow()
+
+    private val _lastUpdatedMinutes = MutableStateFlow(60) // Default 60 minutes (1 hour)
+    val lastUpdatedMinutes: StateFlow<Int> = _lastUpdatedMinutes.asStateFlow()
+
+    fun setLastUpdatedMinutes(minutes: Int) {
+        _lastUpdatedMinutes.value = minutes
+    }
+
+    fun toggleSensorExpanded(sensorId: String) {
+        val current = _expandedSensorIds.value
+        _expandedSensorIds.value = if (sensorId in current) current - sensorId else current + sensorId
+    }
+
+    fun loadSensorHistoryIfNeeded(boxId: String, sensorId: String, limit: Int) {
+        val key = "$boxId/$sensorId"
+        if (_sensorHistoryCache.value.containsKey(key)) return
+        if (_sensorHistoryLoading.value.contains(key)) return
+        viewModelScope.launch {
+            _sensorHistoryLoading.value = _sensorHistoryLoading.value + key
+            try {
+                val measurements = getSensorData(boxId, sensorId, limit).reversed()
+                _sensorHistoryCache.value = _sensorHistoryCache.value + (key to measurements)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _sensorHistoryLoading.value = _sensorHistoryLoading.value - key
+            }
+        }
+    }
+
+    fun clearDetailScreenCache() {
+        _sensorHistoryCache.value = emptyMap()
+        _sensorHistoryLoading.value = emptySet()
+        _expandedSensorIds.value = emptySet()
+    }
+
+    data class OpenSenseMapStats(
+        val boxesCount: String,
+        val measurementsCount: String,
+        val measurementsLastMinute: String
+    )
+
+    private val _globalStats = MutableStateFlow<OpenSenseMapStats?>(null)
+    val globalStats: StateFlow<OpenSenseMapStats?> = _globalStats.asStateFlow()
+
+    private val _isLoadingStats = MutableStateFlow(false)
+    val isLoadingStats: StateFlow<Boolean> = _isLoadingStats.asStateFlow()
+
+    private val _statsError = MutableStateFlow<String?>(null)
+    val statsError: StateFlow<String?> = _statsError.asStateFlow()
+
+    fun fetchGlobalStats() {
+        viewModelScope.launch {
+            _isLoadingStats.value = true
+            _statsError.value = null
+            try {
+                val response = repository.getStats(human = true)
+                if (response.size >= 3) {
+                    _globalStats.value = OpenSenseMapStats(
+                        boxesCount = response[0],
+                        measurementsCount = response[1],
+                        measurementsLastMinute = response[2]
+                    )
+                } else {
+                    _statsError.value = "Invalid stats format returned by API."
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _statsError.value = "Failed to load database stats: ${e.localizedMessage ?: e.message}"
+            } finally {
+                _isLoadingStats.value = false
+            }
+        }
+    }
+
+    init {
+        val prefs = getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+        _useConditionalFormatting.value = prefs.getBoolean("use_conditional_formatting", true)
+
+        val oldFahrenheit = prefs.getBoolean("use_fahrenheit", false)
+        val defaultTemp = if (oldFahrenheit) "°F" else "°C"
+        _temperatureUnit.value = prefs.getString("temperature_unit", defaultTemp) ?: defaultTemp
+        _pressureUnit.value = prefs.getString("pressure_unit", "hPa") ?: "hPa"
+        _windUnit.value = prefs.getString("wind_unit", "m/s") ?: "m/s"
+
+        _formatPressure.value = prefs.getBoolean("format_pressure", true)
+        val themeStr = prefs.getString("app_theme", AppTheme.SYSTEM.name) ?: AppTheme.SYSTEM.name
+        _appTheme.value = try { AppTheme.valueOf(themeStr) } catch (e: Exception) { AppTheme.SYSTEM }
+
+        val aqiStr = prefs.getString("aqi_system", AqiSystem.US_EPA.name) ?: AqiSystem.US_EPA.name
+        _aqiSystem.value = try { AqiSystem.valueOf(aqiStr) } catch(e: Exception) { AqiSystem.US_EPA }
+
+        // No automatic nearby search on startup, but sync saved boxes to make sure their values are up to date!
+        viewModelScope.launch {
+            try {
+                repository.refreshAllSavedBoxes()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun setUseConditionalFormatting(use: Boolean) {
+        _useConditionalFormatting.value = use
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean("use_conditional_formatting", use)
+            .apply()
+    }
+
+    fun setTemperatureUnit(unit: String) {
+        _temperatureUnit.value = unit
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putString("temperature_unit", unit)
+            .apply()
+    }
+
+    fun setPressureUnit(unit: String) {
+        _pressureUnit.value = unit
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putString("pressure_unit", unit)
+            .apply()
+    }
+
+    fun setWindUnit(unit: String) {
+        _windUnit.value = unit
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putString("wind_unit", unit)
+            .apply()
+    }
+
+    fun setFormatPressure(format: Boolean) {
+        _formatPressure.value = format
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean("format_pressure", format)
+            .apply()
+    }
+
+    fun setAppTheme(theme: AppTheme) {
+        _appTheme.value = theme
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putString("app_theme", theme.name)
+            .apply()
+    }
+
+    fun setAqiSystem(system: AqiSystem) {
+        _aqiSystem.value = system
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putString("aqi_system", system.name)
+            .apply()
+    }
+
     enum class ExposureFilter(val label: String) {
         OUTDOOR("Outdoor"),
         INDOOR("Indoor"),
@@ -41,12 +231,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     
     val selectedExposure = MutableStateFlow(ExposureFilter.OUTDOOR)
     
-    private val _lastUpdatedHours = MutableStateFlow(1) // Default 1 hour
-    val lastUpdatedHours: StateFlow<Int> = _lastUpdatedHours.asStateFlow()
 
-    fun setLastUpdatedHours(hours: Int) {
-        _lastUpdatedHours.value = hours
-    }
 
     // Reverse-geocoded locations cache mapping boxId -> "City, State, Country"
     private val _boxLocations = MutableStateFlow<Map<String, String>>(emptyMap())
@@ -59,11 +244,22 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         _searchRadiusKm.value = km
     }
 
-    // Cache for box last updated timestamps and text to avoid repeating expensive formatting/parsing
     private val boxLastUpdatedCache = java.util.concurrent.ConcurrentHashMap<String, Long>()
     private val boxLastUpdatedTextCache = java.util.concurrent.ConcurrentHashMap<String, String>()
     private val boxAddressCache = java.util.concurrent.ConcurrentHashMap<String, String>()
     private val boxFullAddressCache = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+    // Per-box sensor history cache: key = "$boxId/$sensorId" -> measurements list
+    // Survives LazyColumn item disposal and back-and-forth navigation within the same box.
+    private val _sensorHistoryCache = MutableStateFlow<Map<String, List<de.nichu42.boxviewer.data.api.Measurement>>>(emptyMap())
+    val sensorHistoryCache: StateFlow<Map<String, List<de.nichu42.boxviewer.data.api.Measurement>>> = _sensorHistoryCache.asStateFlow()
+
+    private val _sensorHistoryLoading = MutableStateFlow<Set<String>>(emptySet())
+    val sensorHistoryLoading: StateFlow<Set<String>> = _sensorHistoryLoading.asStateFlow()
+
+    // Track which sensor cards are expanded
+    private val _expandedSensorIds = MutableStateFlow<Set<String>>(emptySet())
+    val expandedSensorIds: StateFlow<Set<String>> = _expandedSensorIds.asStateFlow()
 
     private val _isLocationSearch = MutableStateFlow(true)
     val isLocationSearch: StateFlow<Boolean> = _isLocationSearch.asStateFlow()
@@ -85,14 +281,14 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     val discoveredBoxes: StateFlow<List<SenseBox>> = kotlinx.coroutines.flow.combine(
         _rawDiscoveredBoxes,
         selectedExposure,
-        _lastUpdatedHours,
+        _lastUpdatedMinutes,
         _searchRadiusKm,
         _isLocationSearch
-    ) { rawList, exposure, lastHours, radiusKm, isLocSearch ->
+    ) { rawList, exposure, lastMinutes, radiusKm, isLocSearch ->
         val filtered = if (!isLocSearch) {
             rawList
         } else {
-            filterBoxes(rawList, exposure, lastHours, radiusKm)
+            filterBoxes(rawList, exposure, lastMinutes, radiusKm)
         }
         filtered.distinctBy { it.id }
     }
@@ -134,72 +330,9 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                     }
                 }
 
-                // 2. Supplementary Photon Komoot API query (highly reliable on cloud clusters, no 403 blocks)
-                val photonAddresses = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    val list = mutableListOf<android.location.Address>()
-                    try {
-                        val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
-                        val url = "https://photon.komoot.io/api/?q=$encodedQuery&limit=5"
-                        val client = okhttp3.OkHttpClient()
-                        val request = okhttp3.Request.Builder()
-                            .url(url)
-                            .header("User-Agent", "SenseBoxFinderApp/1.0")
-                            .build()
-                        client.newCall(request).execute().use { response ->
-                            if (response.isSuccessful) {
-                                val body = response.body.string()
-                                if (body.isNotBlank()) {
-                                    val jsonObject = org.json.JSONObject(body)
-                                    val features = jsonObject.optJSONArray("features")
-                                    if (features != null) {
-                                        for (i in 0 until features.length()) {
-                                            val feature = features.getJSONObject(i)
-                                            val geometry = feature.optJSONObject("geometry")
-                                            val properties = feature.optJSONObject("properties")
-                                            if (geometry != null && properties != null) {
-                                                val coords = geometry.optJSONArray("coordinates")
-                                                if (coords != null && coords.length() >= 2) {
-                                                    val lon = coords.optDouble(0, 0.0)
-                                                    val lat = coords.optDouble(1, 0.0)
-                                                    
-                                                    val name = properties.optString("name", "")
-                                                    val city = properties.optString("city", "")
-                                                    val state = properties.optString("state", "")
-                                                    val country = properties.optString("country", "")
-                                                    
-                                                    val labelParts = listOfNotNull(
-                                                        name.ifBlank { null },
-                                                        city.ifBlank { null },
-                                                        state.ifBlank { null },
-                                                        country.ifBlank { null }
-                                                    ).distinct()
-                                                    val displayName = labelParts.joinToString(", ")
-                                                    
-                                                    if (displayName.isNotBlank()) {
-                                                        val address = android.location.Address(java.util.Locale.US).apply {
-                                                            latitude = lat
-                                                            longitude = lon
-                                                            setAddressLine(0, displayName)
-                                                            locality = city.ifBlank { name }
-                                                            adminArea = state
-                                                            countryName = country
-                                                        }
-                                                        list.add(address)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                    list
-                }
-
-                // 3. Supplementary Nominatim OSM API query for multiple rich results
+                // 2. Supplementary Nominatim OSM API query for multiple rich results
+                // (Photon/Komoot was removed to keep all network traffic strictly within
+                // openSenseMap + OSM Nominatim, per the project's no-external-calls charter.)
                 val nominatimAddresses = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                     val list = mutableListOf<android.location.Address>()
                     try {
@@ -244,8 +377,8 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                     list
                 }
 
-                // 4. Combine all lists, filter duplicates by label, and take up to 3-5 results
-                val combined = (nativeAddresses ?: emptyList()) + photonAddresses + nominatimAddresses
+                // 3. Combine all lists, filter duplicates by label, and take up to 3-5 results
+                val combined = (nativeAddresses ?: emptyList()) + nominatimAddresses
                 val distinct = combined.distinctBy { addr ->
                     val line = addr.getAddressLine(0) ?: addr.locality ?: ""
                     line.lowercase().trim()
@@ -373,17 +506,6 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         _previewLocation.value = null
     }
 
-    init {
-        // No automatic nearby search on startup, but sync saved boxes to make sure their values are up to date!
-        viewModelScope.launch {
-            try {
-                repository.refreshAllSavedBoxes()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     fun clearError() {
         _errorMessage.value = null
     }
@@ -399,48 +521,72 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun getSensorLastMeasurementDate(sensor: de.nichu42.boxviewer.data.api.Sensor): java.util.Date? {
+        val m = sensor.lastMeasurement ?: return null
+        val formats = listOf(
+            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss"
+        )
+        m.createdAt?.let { ts ->
+            if (ts.length >= 19) {
+                for (format in formats) {
+                    try {
+                        val sdf = java.text.SimpleDateFormat(format, java.util.Locale.US).apply {
+                            timeZone = java.util.TimeZone.getTimeZone("UTC")
+                            isLenient = true
+                        }
+                        val parsedDate = sdf.parse(ts)
+                        if (parsedDate != null) return parsedDate
+                    } catch (_: Exception) {}
+                }
+            }
+        }
+        return m.value?.let { v ->
+            parseObjectIdTimestamp(v)
+        }
+    }
+
+    fun hasOutdatedSensors(box: SenseBox, thresholdMinutes: Int): Boolean {
+        if (thresholdMinutes >= 999999) return false
+        val sensors = box.sensors ?: return false
+        if (sensors.isEmpty()) return false
+        
+        val now = java.util.Date()
+        val maxAgeMs = thresholdMinutes * 60 * 1000L
+        
+        var hasActive = false
+        var hasInactive = false
+        
+        for (sensor in sensors) {
+            val lastDate = getSensorLastMeasurementDate(sensor)
+            if (lastDate == null) {
+                hasInactive = true
+            } else {
+                val ageMs = now.time - lastDate.time
+                if (ageMs <= maxAgeMs) {
+                    hasActive = true
+                } else {
+                    hasInactive = true
+                }
+            }
+        }
+        
+        return hasActive && hasInactive
+    }
+
     fun getBoxLastUpdatedDate(box: SenseBox): java.util.Date? {
         val cached = boxLastUpdatedCache[box.id]
         if (cached != null) {
             return if (cached == -1L) null else java.util.Date(cached)
         }
 
-        val formats = listOf(
-            "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-            "yyyy-MM-dd'T'HH:mm:ss'Z'",
-            "yyyy-MM-dd'T'HH:mm:ss"
-        )
         val sensorsList = box.sensors
         if (sensorsList == null) {
             boxLastUpdatedCache[box.id] = -1L
             return null
         }
-        val dates = sensorsList.mapNotNull { sensor ->
-            val m = sensor.lastMeasurement ?: return@mapNotNull null
-            
-            // 1. Try to parse createdAt if available standard string format
-            m.createdAt?.let { ts ->
-                if (ts.length >= 19) {
-                    for (format in formats) {
-                        try {
-                            val sdf = java.text.SimpleDateFormat(format, java.util.Locale.US).apply {
-                                timeZone = java.util.TimeZone.getTimeZone("UTC")
-                                isLenient = true
-                            }
-                            val parsedDate = sdf.parse(ts)
-                            if (parsedDate != null) return@mapNotNull parsedDate
-                        } catch (_: Exception) {
-                            // try next format
-                        }
-                    }
-                }
-            }
-            
-            // 2. If createdAt is null, try to parse from the value (since list endpoint passes Object ID as value)
-            m.value?.let { v ->
-                parseObjectIdTimestamp(v)
-            }
-        }
+        val dates = sensorsList.mapNotNull { getSensorLastMeasurementDate(it) }
         val maxDate = dates.maxOrNull()
         if (maxDate != null) {
             boxLastUpdatedCache[box.id] = maxDate.time
@@ -511,7 +657,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private fun calculateDistanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+    fun calculateDistanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val r = 6371.0 // Earth radius in km
         fun toRad(deg: Double) = deg * kotlin.math.PI / 180.0
         val dLat = toRad(lat2 - lat1)
@@ -523,62 +669,100 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         return r * c
     }
 
+    /**
+     * Reverse-geocode a coordinate. Tries the Android native Geocoder first, then falls back
+     * to the openSenseMap-compatible Nominatim OSM reverse endpoint. De-Googled devices often
+     * have no cloud-backed Geocoder, so the fallback is required for a usable location label.
+     */
+    private suspend fun reverseGeocodeWithFallback(
+        lat: Double,
+        lng: Double,
+        fullAddress: Boolean = false
+    ): String {
+        // 1. Try native Android Geocoder reverse lookup
+        val nativeAddress = withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val geocoder = android.location.Geocoder(getApplication(), java.util.Locale.getDefault())
+                @Suppress("DEPRECATION")
+                geocoder.getFromLocation(lat, lng, 1)?.firstOrNull()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+
+        if (nativeAddress != null) {
+            val city = (nativeAddress.locality ?: nativeAddress.subAdminArea ?: nativeAddress.subLocality ?: "").trim()
+            val state = (nativeAddress.adminArea ?: "").trim()
+            val country = if (fullAddress) {
+                (nativeAddress.countryName ?: "").trim()
+            } else {
+                (nativeAddress.countryCode ?: "").trim().uppercase(java.util.Locale.US)
+            }
+            val formattedState = if (fullAddress) state else abbreviateState(state)
+            val parts = listOf(city, formattedState, country).filter { it.isNotBlank() }
+            if (parts.isNotEmpty()) {
+                return parts.joinToString(", ")
+            }
+        }
+
+        // 2. Fallback to Nominatim OSM Reverse API
+        val nominatimLabel = withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val url = "https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=json&accept-language=en"
+                val client = okhttp3.OkHttpClient()
+                val request = okhttp3.Request.Builder()
+                    .url(url)
+                    .header("User-Agent", "SenseBoxFinderApp/1.0 (contact: nicolai.roediger@gmail.com)")
+                    .build()
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val body = response.body.string()
+                        if (body.isNotBlank()) {
+                            val json = org.json.JSONObject(body)
+                            val addressObj = json.optJSONObject("address")
+                            if (addressObj != null) {
+                                val city = addressObj.optString("city", "").ifBlank {
+                                    addressObj.optString("town", "").ifBlank {
+                                        addressObj.optString("village", "").ifBlank {
+                                            addressObj.optString("suburb", "").ifBlank {
+                                                addressObj.optString("county", "").ifBlank {
+                                                    addressObj.optString("municipality", "")
+                                                }
+                                            }
+                                        }
+                                    }
+                                }.trim()
+                                val state = addressObj.optString("state", "").trim()
+                                val country = if (fullAddress) {
+                                    addressObj.optString("country", "").trim()
+                                } else {
+                                    addressObj.optString("country_code", "").trim().uppercase(java.util.Locale.US)
+                                }
+                                val formattedState = if (fullAddress) state else abbreviateState(state)
+                                val parts = listOf(city, formattedState, country).filter { it.isNotBlank() }
+                                if (parts.isNotEmpty()) {
+                                    parts.joinToString(", ")
+                                } else ""
+                            } else ""
+                        } else ""
+                    } else ""
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                ""
+            }
+        }
+        return nominatimLabel
+    }
+
     fun getAddressFromLocation(lat: Double, lng: Double, onResult: (String) -> Unit) {
         viewModelScope.launch {
             var label = "Location (${"%.4f".format(java.util.Locale.US, lat)}, ${"%.4f".format(java.util.Locale.US, lng)})"
             try {
-                // 1. Try local Android Geocoder reverse lookup
-                val nativeAddress = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    try {
-                        val geocoder = android.location.Geocoder(getApplication(), java.util.Locale.getDefault())
-                        @Suppress("DEPRECATION")
-                        geocoder.getFromLocation(lat, lng, 1)?.firstOrNull()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        null
-                    }
-                }
-
-                if (nativeAddress != null) {
-                    val city = nativeAddress.locality ?: nativeAddress.subAdminArea ?: nativeAddress.subLocality
-                    val state = nativeAddress.adminArea
-                    val country = nativeAddress.countryName
-                    val parts = listOfNotNull(city, state, country).filter { it.isNotBlank() }
-                    if (parts.isNotEmpty()) {
-                        label = parts.joinToString(", ")
-                    } else {
-                        val firstLine = nativeAddress.getAddressLine(0)
-                        if (!firstLine.isNullOrBlank()) {
-                            label = firstLine
-                        }
-                    }
-                } else {
-                    // 2. Fallback to Nominatim OSM Reverse API
-                    val nominatimLabel = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                        try {
-                            val url = "https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=json&accept-language=en"
-                            val client = okhttp3.OkHttpClient()
-                            val request = okhttp3.Request.Builder()
-                                .url(url)
-                                .header("User-Agent", "SenseBoxFinderApp/1.0 (contact: nicolai.roediger@gmail.com)")
-                                .build()
-                            client.newCall(request).execute().use { response ->
-                                if (response.isSuccessful) {
-                                    val body = response.body.string()
-                                    if (body.isNotBlank()) {
-                                        val json = org.json.JSONObject(body)
-                                        json.optString("display_name", "")
-                                    } else ""
-                                } else ""
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            ""
-                        }
-                    }
-                    if (nominatimLabel.isNotBlank()) {
-                        label = nominatimLabel
-                    }
+                val fallbackLabel = reverseGeocodeWithFallback(lat, lng)
+                if (fallbackLabel.isNotBlank()) {
+                    label = fallbackLabel
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -644,86 +828,15 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             onResult(cached)
             return
         }
-        
+
         viewModelScope.launch {
             var label = ""
             try {
-                // 1. Try native Geocoder
-                val nativeAddress = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    try {
-                        val geocoder = android.location.Geocoder(getApplication(), java.util.Locale.getDefault())
-                        @Suppress("DEPRECATION")
-                        geocoder.getFromLocation(lat, lng, 1)?.firstOrNull()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        null
-                    }
-                }
-                
-                if (nativeAddress != null) {
-                    val city = (nativeAddress.locality ?: nativeAddress.subAdminArea ?: nativeAddress.subLocality ?: "").trim()
-                    val state = (nativeAddress.adminArea ?: "").trim()
-                    val countryCode = (nativeAddress.countryCode ?: "").trim().uppercase(java.util.Locale.US)
-                    
-                    val abbrevState = abbreviateState(state)
-                    val parts = listOf(city, abbrevState, countryCode).filter { it.isNotBlank() }
-                    if (parts.isNotEmpty()) {
-                        label = parts.joinToString(", ")
-                    }
-                }
-                
-                // 2. Try Nominatim fallback if native geocoder failed or returned empty
-                if (label.isBlank()) {
-                    val nominatimLabel = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                        try {
-                            val url = "https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=json&accept-language=en"
-                            val client = okhttp3.OkHttpClient()
-                            val request = okhttp3.Request.Builder()
-                                .url(url)
-                                .header("User-Agent", "SenseBoxFinderApp/1.0 (contact: nicolai.roediger@gmail.com)")
-                                .build()
-                            client.newCall(request).execute().use { response ->
-                                if (response.isSuccessful) {
-                                    val body = response.body.string()
-                                    if (body.isNotBlank()) {
-                                        val json = org.json.JSONObject(body)
-                                        val addressObj = json.optJSONObject("address")
-                                        if (addressObj != null) {
-                                            val city = addressObj.optString("city", "").ifBlank {
-                                                addressObj.optString("town", "").ifBlank {
-                                                    addressObj.optString("village", "").ifBlank {
-                                                        addressObj.optString("suburb", "").ifBlank {
-                                                            addressObj.optString("county", "").ifBlank {
-                                                                addressObj.optString("municipality", "")
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }.trim()
-                                            val state = addressObj.optString("state", "").trim()
-                                            val countryCode = addressObj.optString("country_code", "").trim().uppercase(java.util.Locale.US)
-                                            val abbrevState = abbreviateState(state)
-                                            val parts = listOf(city, abbrevState, countryCode).filter { it.isNotBlank() }
-                                            if (parts.isNotEmpty()) {
-                                                parts.joinToString(", ")
-                                            } else ""
-                                        } else ""
-                                    } else ""
-                                } else ""
-                             }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            ""
-                        }
-                    }
-                    if (nominatimLabel.isNotBlank()) {
-                        label = nominatimLabel
-                    }
-                }
+                label = reverseGeocodeWithFallback(lat, lng)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            
+
             if (label.isBlank()) {
                 label = "Lat: ${"%.3f".format(java.util.Locale.US, lat)}, Lon: ${"%.3f".format(java.util.Locale.US, lng)}"
             }
@@ -738,84 +851,15 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             onResult(cached)
             return
         }
-        
+
         viewModelScope.launch {
             var label = ""
             try {
-                // 1. Try native Geocoder
-                val nativeAddress = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    try {
-                        val geocoder = android.location.Geocoder(getApplication(), java.util.Locale.getDefault())
-                        @Suppress("DEPRECATION")
-                        geocoder.getFromLocation(lat, lng, 1)?.firstOrNull()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        null
-                    }
-                }
-                
-                if (nativeAddress != null) {
-                    val city = (nativeAddress.locality ?: nativeAddress.subAdminArea ?: nativeAddress.subLocality ?: "").trim()
-                    val state = (nativeAddress.adminArea ?: "").trim()
-                    val countryName = (nativeAddress.countryName ?: "").trim()
-                    
-                    val parts = listOf(city, state, countryName).filter { it.isNotBlank() }
-                    if (parts.isNotEmpty()) {
-                        label = parts.joinToString(", ")
-                    }
-                }
-                
-                // 2. Try Nominatim fallback if native geocoder failed or returned empty
-                if (label.isBlank()) {
-                    val nominatimLabel = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                        try {
-                            val url = "https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=json&accept-language=en"
-                            val client = okhttp3.OkHttpClient()
-                            val request = okhttp3.Request.Builder()
-                                .url(url)
-                                .header("User-Agent", "SenseBoxFinderApp/1.0 (contact: nicolai.roediger@gmail.com)")
-                                .build()
-                            client.newCall(request).execute().use { response ->
-                                if (response.isSuccessful) {
-                                    val body = response.body.string()
-                                    if (body.isNotBlank()) {
-                                        val json = org.json.JSONObject(body)
-                                        val addressObj = json.optJSONObject("address")
-                                        if (addressObj != null) {
-                                            val city = addressObj.optString("city", "").ifBlank {
-                                                addressObj.optString("town", "").ifBlank {
-                                                    addressObj.optString("village", "").ifBlank {
-                                                        addressObj.optString("suburb", "").ifBlank {
-                                                            addressObj.optString("county", "").ifBlank {
-                                                                addressObj.optString("municipality", "")
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }.trim()
-                                            val state = addressObj.optString("state", "").trim()
-                                            val country = addressObj.optString("country", "").trim()
-                                            val parts = listOf(city, state, country).filter { it.isNotBlank() }
-                                            if (parts.isNotEmpty()) {
-                                                parts.joinToString(", ")
-                                            } else ""
-                                        } else ""
-                                    } else ""
-                                } else ""
-                             }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            ""
-                        }
-                    }
-                    if (nominatimLabel.isNotBlank()) {
-                        label = nominatimLabel
-                    }
-                }
+                label = reverseGeocodeWithFallback(lat, lng, fullAddress = true)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            
+
             if (label.isBlank()) {
                 label = "Lat: ${"%.3f".format(java.util.Locale.US, lat)}, Lon: ${"%.3f".format(java.util.Locale.US, lng)}"
             }
@@ -827,7 +871,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     private fun filterBoxes(
         rawList: List<SenseBox>,
         exposure: ExposureFilter,
-        lastHours: Int,
+        lastMinutes: Int,
         radiusKm: Int
     ): List<SenseBox> {
         val now = java.util.Date()
@@ -855,9 +899,9 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 }
             }
 
-            // 3. Last updated filter (slider: 1..168, 169 is All Time)
-            if (lastHours < 169) {
-                val maxAgeMs = lastHours * 60 * 60 * 1000L
+            // 3. Last updated filter (999_999 is "All Time")
+            if (lastMinutes < 999_999) {
+                val maxAgeMs = lastMinutes * 60 * 1000L
                 val lastDate = getBoxLastUpdatedDate(box)
                 if (lastDate == null) {
                     false
@@ -882,19 +926,10 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                     val lng = coords[0]
                     val lat = coords[1]
                     try {
-                        val geocoder = android.location.Geocoder(getApplication(), java.util.Locale.getDefault())
-                        @Suppress("DEPRECATION")
-                        val addresses = geocoder.getFromLocation(lat, lng, 1)
-                        if (!addresses.isNullOrEmpty()) {
-                            val addr = addresses[0]
-                            val city = addr.locality ?: addr.subAdminArea ?: addr.subLocality
-                            val state = addr.adminArea
-                            val country = addr.countryName
-                            val parts = listOfNotNull(city, state, country).filter { it.isNotBlank() }
-                            if (parts.isNotEmpty()) {
-                                currentMap[box.id] = parts.joinToString(", ")
-                                mapChanged = true
-                            }
+                        val label = reverseGeocodeWithFallback(lat, lng)
+                        if (label.isNotBlank()) {
+                            currentMap[box.id] = label
+                            mapChanged = true
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -911,10 +946,11 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             _errorMessage.value = null
 
-            // If we are selecting a new/different box, reset selectedBox if not matches
+            // If we are selecting a new/different box, reset selectedBox and clear detail-screen cache
             if (_selectedBox.value?.id != boxId) {
                 _selectedBox.value = null
                 _cachedSensors.value = emptyList()
+                clearDetailScreenCache()
             }
 
             // 1. Try to instantly set _selectedBox from raw discovered list if it exists
@@ -1181,7 +1217,10 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun getCachedSensorsFlow(boxId: String): kotlinx.coroutines.flow.Flow<List<SensorCacheEntity>> {
-        return repository.getCachedSensorsFlow(boxId)
+        return repository.getCachedSensorsFlow(boxId).combine(aqiSystem) { list: List<SensorCacheEntity>, system: AqiSystem ->
+            AqiCalculator.synthesizeVirtualSensors(list, system, boxId)
+                .sortedWith(compareBy({ SensorSortKey.of(it.sensorTitle) }, { it.sensorTitle }))
+        }
     }
 
     fun updateDashboardSensors(boxId: String, sensorIds: List<String>) {
@@ -1205,7 +1244,40 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     }
 
     suspend fun getSensorData(boxId: String, sensorId: String, limit: Int = 20): List<de.nichu42.boxviewer.data.api.Measurement> {
+        if (sensorId == "virtual_aqi") {
+            val sensors = repository.getCachedSensors(boxId)
+            val pm25 = sensors.firstOrNull { 
+                val title = it.sensorTitle.lowercase()
+                title.contains("pm2.5") || title.contains("pm25") || (it.sensorUnit?.contains("g/m") == true && !title.contains("pm10"))
+            }
+            val pm10 = sensors.firstOrNull { 
+                val title = it.sensorTitle.lowercase()
+                title.contains("pm10") || (it.sensorUnit?.contains("g/m") == true && title.contains("pm10"))
+            }
+            
+            val targetSensor = pm25 ?: pm10 ?: return emptyList()
+            return repository.getSensorData(boxId, targetSensor.sensorId, limit)
+        }
         return repository.getSensorData(boxId, sensorId, limit)
+    }
+
+    fun calculateInstantCastForBox(boxId: String, value: Double?): AqiResult {
+        // Access the already-loaded in-memory sensor list synchronously — no blocking DB call needed.
+        val hasPm25 = _cachedSensors.value.any {
+            val title = it.sensorTitle.lowercase()
+            title.contains("pm2.5") || title.contains("pm25") || (it.sensorUnit?.contains("g/m") == true && !title.contains("pm10"))
+        }
+        val pmType = if (hasPm25) "pm2.5" else "pm10"
+        return AqiCalculator.calculateInstantCast(value, pmType, aqiSystem.value)
+    }
+
+    fun calculateNowCastForBox(@Suppress("UNUSED_PARAMETER") boxId: String, values: List<Double>): AqiResult {
+        val hasPm25 = _cachedSensors.value.any {
+            val title = it.sensorTitle.lowercase()
+            title.contains("pm2.5") || title.contains("pm25") || (it.sensorUnit?.contains("g/m") == true && !title.contains("pm10"))
+        }
+        val pmType = if (hasPm25) "pm2.5" else "pm10"
+        return AqiCalculator.calculateNowCast(values, pmType, aqiSystem.value)
     }
 
     class Factory(private val application: Application) : ViewModelProvider.Factory {

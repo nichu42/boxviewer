@@ -60,6 +60,10 @@ fun DiscoveryScreen(
     val hasSearchBeenDone by viewModel.hasSearchBeenDone.collectAsStateWithLifecycle()
     val searchRadiusUsed by viewModel.searchRadiusUsed.collectAsStateWithLifecycle()
     val isLocationSearch by viewModel.isLocationSearch.collectAsStateWithLifecycle()
+    val lastUpdatedMinutes by viewModel.lastUpdatedMinutes.collectAsStateWithLifecycle()
+    val lastSearchedCoords by viewModel.lastSearchedCoords.collectAsStateWithLifecycle()
+
+    var visibleLimit by rememberSaveable(discoveredBoxes) { mutableStateOf(5) }
 
     var searchQuery by rememberSaveable { mutableStateOf("") }
     
@@ -463,7 +467,6 @@ fun DiscoveryScreen(
                                 Spacer(modifier = Modifier.height(6.dp))
                                 
                                 // Last Updated Slider
-                                val lastUpdatedHours by viewModel.lastUpdatedHours.collectAsStateWithLifecycle()
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -475,19 +478,19 @@ fun DiscoveryScreen(
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
-                                    val hoursText = when {
-                                        lastUpdatedHours == 1 -> "Last 1 hour"
-                                        lastUpdatedHours < 24 -> "Last $lastUpdatedHours hours"
-                                        lastUpdatedHours == 24 -> "Last 24 hours (1 day)"
-                                        lastUpdatedHours < 168 -> {
-                                            val days = lastUpdatedHours / 24
-                                            val remainingHours = lastUpdatedHours % 24
-                                            if (remainingHours > 0) "Last $days days $remainingHours hours" else "Last $days days"
+                                    val minutesText = when {
+                                        lastUpdatedMinutes == 15 -> "Last 15 minutes"
+                                        lastUpdatedMinutes == 30 -> "Last 30 minutes"
+                                        lastUpdatedMinutes == 60 -> "Last 1 hour"
+                                        lastUpdatedMinutes < 1440 -> {
+                                            val hours = lastUpdatedMinutes / 60
+                                            "Last $hours hours"
                                         }
+                                        lastUpdatedMinutes == 1440 -> "Last 24 hours (1 day)"
                                         else -> "All Time"
                                     }
                                     Text(
-                                        text = hoursText,
+                                        text = minutesText,
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.primary
@@ -497,20 +500,20 @@ fun DiscoveryScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    val lastUpdatedSteps = listOf(1, 3, 6, 12, 24, 169)
-                                    val currentStepIndex = remember(lastUpdatedHours) {
-                                        val index = lastUpdatedSteps.indexOf(lastUpdatedHours)
-                                        if (index != -1) index else 0
+                                    val lastUpdatedSteps = listOf(15, 30, 60, 180, 360, 720, 1440, 999999)
+                                    val currentStepIndex = remember(lastUpdatedMinutes) {
+                                        val index = lastUpdatedSteps.indexOf(lastUpdatedMinutes)
+                                        if (index != -1) index else 2
                                     }
-                                    Text("1 h", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("15 m", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     Slider(
                                         value = currentStepIndex.toFloat(),
                                         onValueChange = { indexFloat ->
-                                            val idx = indexFloat.toInt().coerceIn(0, lastUpdatedSteps.size - 1)
-                                            viewModel.setLastUpdatedHours(lastUpdatedSteps[idx])
+                                            val idx = indexFloat.toInt().coerceIn(0, lastUpdatedSteps.lastIndex)
+                                            viewModel.setLastUpdatedMinutes(lastUpdatedSteps[idx])
                                         },
-                                        valueRange = 0f..5f,
-                                        steps = 4,
+                                        valueRange = 0f..lastUpdatedSteps.lastIndex.toFloat(),
+                                        steps = lastUpdatedSteps.lastIndex - 1,
                                         modifier = Modifier
                                             .weight(1f)
                                             .padding(horizontal = 8.dp)
@@ -519,49 +522,62 @@ fun DiscoveryScreen(
                                 }
 
                                 // Search Radius Slider Row (Shown for any search with coordinates to search around)
-                                val lastSearchedCoords by viewModel.lastSearchedCoords.collectAsStateWithLifecycle()
-                                
                                 if (lastSearchedCoords != null) {
                                     Spacer(modifier = Modifier.height(10.dp))
                                     val searchRadiusKm by viewModel.searchRadiusKm.collectAsStateWithLifecycle()
-                                    
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = "Search Radius",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                        Text(
-                                            text = "$searchRadiusKm km",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
+                                     
+                                    val radiusSteps = listOf(2, 5, 10, 25, 50, 75, 100, 250)
+                                    val currentRadiusIdx = remember(searchRadiusKm) {
+                                         radiusSteps.mapIndexed { index, value -> index to kotlin.math.abs(value - searchRadiusKm) }
+                                             .minByOrNull { it.second }?.first ?: 0
+                                    }
+                                    var sliderIndex by remember(currentRadiusIdx) {
+                                         mutableStateOf(currentRadiusIdx.toFloat())
+                                    }
+                                    val displayRadius = remember(sliderIndex) {
+                                         radiusSteps[(sliderIndex + 0.5f).toInt().coerceIn(0, radiusSteps.lastIndex)]
                                     }
 
                                     Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text("1 km", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        Slider(
-                                            value = searchRadiusKm.toFloat(),
-                                            onValueChange = { viewModel.setSearchRadiusKm(it.toInt()) },
-                                            valueRange = 1f..1000f,
-                                            onValueChangeFinished = {
-                                                viewModel.updateRadiusAndQuery(searchRadiusKm, isLocationSearch)
-                                            },
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .padding(horizontal = 8.dp)
-                                        )
-                                        Text("1000 km", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    }
+                                         modifier = Modifier.fillMaxWidth(),
+                                         horizontalArrangement = Arrangement.SpaceBetween,
+                                         verticalAlignment = Alignment.CenterVertically
+                                     ) {
+                                         Text(
+                                             text = "Search Radius",
+                                             style = MaterialTheme.typography.labelSmall,
+                                             fontWeight = FontWeight.Bold,
+                                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                                         )
+                                         Text(
+                                             text = "$displayRadius km",
+                                             style = MaterialTheme.typography.labelSmall,
+                                             fontWeight = FontWeight.Bold,
+                                             color = MaterialTheme.colorScheme.primary
+                                         )
+                                     }
+
+                                     Row(
+                                         verticalAlignment = Alignment.CenterVertically,
+                                         modifier = Modifier.fillMaxWidth()
+                                     ) {
+                                         Text("2 km", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                         Slider(
+                                             value = sliderIndex,
+                                             onValueChange = { sliderIndex = it },
+                                             valueRange = 0f..(radiusSteps.size - 1).toFloat(),
+                                             steps = radiusSteps.size - 2,
+                                             onValueChangeFinished = {
+                                                 val chosenRadius = radiusSteps[(sliderIndex + 0.5f).toInt().coerceIn(0, radiusSteps.lastIndex)]
+                                                 viewModel.setSearchRadiusKm(chosenRadius)
+                                                 viewModel.updateRadiusAndQuery(chosenRadius, isLocationSearch)
+                                             },
+                                             modifier = Modifier
+                                                 .weight(1f)
+                                                 .padding(horizontal = 8.dp)
+                                         )
+                                         Text("250 km", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                     }
                                 }
                             }
                         }
@@ -651,6 +667,9 @@ fun DiscoveryScreen(
                     }
                 }
             } else {
+                val visibleBoxes = remember(discoveredBoxes, visibleLimit) {
+                    discoveredBoxes.take(visibleLimit)
+                }
                 LazyColumn(
                     modifier = Modifier
                         .weight(1f)
@@ -719,15 +738,29 @@ fun DiscoveryScreen(
                         }
                     }
 
-                    items(discoveredBoxes, key = { it.id }) { box ->
+                    items(visibleBoxes, key = { it.id }) { box ->
                         val isFav = isFavoritedBoxId.contains(box.id)
                         val resolvedLoc = boxLocations[box.id]
                         val lastUpdatedText = remember(box) { viewModel.formatLastUpdated(box) }
+                        val hasOutdated = remember(box, lastUpdatedMinutes) {
+                            viewModel.hasOutdatedSensors(box, lastUpdatedMinutes)
+                        }
+                        val distanceKm = remember(box, lastSearchedCoords) {
+                            val ref = lastSearchedCoords
+                            val boxCoords = box.currentLocation?.coordinates
+                            if (ref != null && boxCoords != null && boxCoords.size >= 2) {
+                                viewModel.calculateDistanceKm(ref.second, ref.first, boxCoords[1], boxCoords[0])
+                            } else {
+                                null
+                            }
+                        }
                         DiscoveredBoxCard(
                             box = box,
                             resolvedLocation = resolvedLoc,
                             lastUpdatedText = lastUpdatedText,
                             isFavorite = isFav,
+                            hasOutdatedSensors = hasOutdated,
+                            distanceKm = distanceKm,
                             onToggleFavorite = {
                                 viewModel.toggleFavorite(box)
                                 if (!isFav) {
@@ -736,6 +769,30 @@ fun DiscoveryScreen(
                             },
                             onClick = { onBoxSelected(box.id) }
                         )
+                    }
+
+                    if (discoveredBoxes.size > visibleLimit) {
+                        item {
+                            val remaining = discoveredBoxes.size - visibleLimit
+                            OutlinedButton(
+                                onClick = { visibleLimit += 5 },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ExpandMore,
+                                    contentDescription = "Show more",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Show More ($remaining remaining)",
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -749,6 +806,8 @@ fun DiscoveredBoxCard(
     resolvedLocation: String?,
     lastUpdatedText: String,
     isFavorite: Boolean,
+    hasOutdatedSensors: Boolean,
+    distanceKm: Double? = null,
     onToggleFavorite: () -> Unit,
     onClick: () -> Unit
 ) {
@@ -791,7 +850,7 @@ fun DiscoveredBoxCard(
                     }
                 }
                 
-                // Show Geocoded Location
+                // Show Geocoded Location & Distance
                 if (!resolvedLocation.isNullOrEmpty()) {
                     Row(
                         modifier = Modifier.padding(top = 2.dp),
@@ -810,19 +869,45 @@ fun DiscoveredBoxCard(
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary,
-                            maxLines = 1
+                            maxLines = 1,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
+                        if (distanceKm != null) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "(${String.format(Locale.US, "%.1f", distanceKm)} km away)",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
                     }
                 } else {
                     box.currentLocation?.let { loc ->
                         val latStr = String.format(Locale.US, "%.4f", loc.latitude)
                         val lngStr = String.format(Locale.US, "%.4f", loc.longitude)
-                        Text(
-                            text = "Coords: $latStr, $lngStr",
-                            style = MaterialTheme.typography.bodySmall,
-                            fontSize = 10.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                        )
+                        Row(
+                            modifier = Modifier.padding(top = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Coords: $latStr, $lngStr",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            )
+                            if (distanceKm != null) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "(${String.format(Locale.US, "%.1f", distanceKm)} km away)",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -844,6 +929,23 @@ fun DiscoveredBoxCard(
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    if (hasOutdatedSensors) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Some metrics outdated",
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Some metrics outdated",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
 
                 box.description?.let { desc ->

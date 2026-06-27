@@ -32,7 +32,9 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 *   **🔍 Smart Discovery Engine**: Locate public senseBoxes from the openSenseMap community using direct search by name/ID, location address auto-complete, or on-demand GPS discovery.
 *   **📈 Rich Telemetry Analysis**: Deep telemetry streams visualization including units, last updated timestamps, coordinates, station type, and exposure type (indoor vs. outdoor).
 *   **🔋 Battery & API-Friendly**: Seamless local SQLite caching (`SensorCacheEntity`) and awake-on-unlock widget refresh logic ensure you get fresh data without draining your battery or hammering openSenseMap servers.
-*   **📱 Glanceable Home Widgets**: Customize home screen widgets featuring Material Design 3 theme colors to monitor your favorite senseBox metrics. Supports text & icon scaling up to 200%, toggling detail styles (Full Details, Value & Unit, Value Only), and direct home-screen reconfiguration on Android 12+. Also includes full localization and RTL layout rendering support.
+*   **🌬️ Air Quality Index Engine**: Six international AQI standards (US EPA, UK DAQI, EU EAQI, Canada AQHI, India, China) with a virtual synthesized sensor and 12-hour NowCast averaging computed locally from cached openSenseMap data.
+*   **🌡️ Local Unit Conversion**: Per-sensor unit switching for temperature (°C/°F/K), pressure (hPa/mbar/Pa/inHg/mmHg), and wind (m/s/km/h/mph/kn) performed entirely on-device.
+*   **📱 Glanceable Home Widgets**: Customize home screen widgets featuring Material Design 3 theme colors to monitor your favorite senseBox metrics. Supports text & icon scaling up to 200%, toggling detail styles (Full Details, Value & Unit, Value Only), conditional formatting, AQI display modes, and direct home-screen reconfiguration on Android 12+. 
 *   **🔗 Quick Sharing & Deep Linking**: Generate local QR codes to share senseBox stations. Recipients scan the code or open a sharing web link to view the station directly inside the BoxViewer app.
 *   **🛠️ Local API Debug Logging**: Opt-in to capture raw API requests, responses, and Moshi parsing results in a JSON Lines (`.jsonl`) file stored locally. Copy or share logs via native sheets to diagnose errors easily.
 
@@ -99,6 +101,25 @@ openSenseMap is completely free to use and relies heavily on community contribut
 *   **Explore**: [opensensemap.org](https://opensensemap.org)
 *   **Build**: [sensebox.de](https://sensebox.de)
 *   **Donate**: [Donate via Betterplace](https://www.betterplace.org/en/projects/89947-opensensemap-org-the-free-map-for-environmental-data)
+
+---
+
+## 🍃 Air Quality Index (AQI) Integration
+
+BoxViewer features a built-in Air Quality Index engine that supports six major international standards:
+1. **US EPA AQI**: 0–500 numerical scale (United States standard)
+2. **UK DAQI (DEFRA)**: 1–10 numerical scale (United Kingdom standard)
+3. **European EAQI**: Qualitative severity bands (European Union standard)
+4. **Canada AQHI**: 1–10+ numerical scale (Canadian PM2.5-only risk indicator)
+5. **India AQI**: 0–500 numerical scale (Indian standard)
+6. **China AQI**: 0–500 numerical scale (Chinese HJ 633-2012 standard)
+
+### ⚙️ How it Works
+
+*   **Consolidated Virtual Sensor**: If a senseBox measures particulate matter (PM2.5 and/or PM10), BoxViewer generates a local virtual sensor titled **"Air Quality Index (Instant)"**. If both PM2.5 and PM10 are present, the index automatically reports the worst-case (maximum) score of the two sub-indices.
+*   **InstantCast**: The live virtual sensor value displayed on the dashboard cards and home screen widgets represents the **InstantCast** (instantaneous concentration converted directly to the selected AQI standard).
+*   **NowCast**: When expanding a detailed sensor card, BoxViewer pulls up to 12 hours of historical readings and applies the official **NowCast** algorithm (a weighted rolling average designed by the EPA to smooth out short-term noise and spikes) to display a true 12-hour AQI NowCast banner.
+*   **Customization**: You can switch between the six AQI standards under the **AQI Standard** setting.
 
 ---
 

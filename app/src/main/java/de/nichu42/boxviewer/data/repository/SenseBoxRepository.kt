@@ -4,6 +4,9 @@ import de.nichu42.boxviewer.data.api.RetrofitClient
 import de.nichu42.boxviewer.data.api.SenseBox
 import de.nichu42.boxviewer.data.db.*
 import de.nichu42.boxviewer.util.ApiLogger
+import de.nichu42.boxviewer.util.AqiCalculator
+import de.nichu42.boxviewer.util.AqiSystem
+import de.nichu42.boxviewer.util.SensorSortKey
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.Dispatchers
@@ -87,9 +90,9 @@ class SenseBoxRepository(db: SenseBoxDatabase) {
         }
         
         // Cache sensors
-        val caches = box.sensors?.map { sensor ->
+        val caches = box.sensors?.filter { !it.id.isNullOrEmpty() }?.map { sensor ->
             SensorCacheEntity(
-                sensorId = sensor.id,
+                sensorId = sensor.id!!,
                 boxId = box.id,
                 sensorTitle = sensor.title,
                 sensorUnit = sensor.unit,
@@ -135,9 +138,9 @@ class SenseBoxRepository(db: SenseBoxDatabase) {
             api.getBox(boxId)
         }
 
-        val caches = box.sensors?.map { sensor ->
+        val caches = box.sensors?.filter { !it.id.isNullOrEmpty() }?.map { sensor ->
             SensorCacheEntity(
-                sensorId = sensor.id,
+                sensorId = sensor.id!!,
                 boxId = box.id,
                 sensorTitle = sensor.title,
                 sensorUnit = sensor.unit,
@@ -156,23 +159,9 @@ class SenseBoxRepository(db: SenseBoxDatabase) {
     }
 
     suspend fun favoriteBox(box: SenseBox) = withContext(Dispatchers.IO) {
-        // Pre-select all available sensors for the dashboard by default
-        val allSensorIds = box.sensors?.joinToString(",") { it.id }
-        
-        val entity = SavedBoxEntity(
-            boxId = box.id,
-            name = box.name,
-            description = box.description,
-            exposure = box.exposure,
-            latitude = box.currentLocation?.latitude ?: 0.0,
-            longitude = box.currentLocation?.longitude ?: 0.0,
-            dashboardSensorIds = allSensorIds
-        )
-        savedBoxDao.insertSavedBox(entity)
-
-        val caches = box.sensors?.map { sensor ->
+        val caches = box.sensors?.filter { !it.id.isNullOrEmpty() }?.map { sensor ->
             SensorCacheEntity(
-                sensorId = sensor.id,
+                sensorId = sensor.id!!,
                 boxId = box.id,
                 sensorTitle = sensor.title,
                 sensorUnit = sensor.unit,
@@ -186,6 +175,23 @@ class SenseBoxRepository(db: SenseBoxDatabase) {
         if (caches.isNotEmpty()) {
             sensorCacheDao.insertSensors(caches)
         }
+
+        // Synthesize the virtual AQI sensor (if PM data is present) and sort into canonical order
+        // so newly-added boxes show Temperature → Humidity → PM10 → PM2.5 → AQI → Pressure → Wind → other.
+        val synthesized = AqiCalculator.synthesizeVirtualSensors(caches, AqiSystem.US_EPA, box.id)
+            .sortedWith(compareBy({ SensorSortKey.of(it.sensorTitle) }, { it.sensorTitle }))
+        val allSensorIds = synthesized.map { it.sensorId }.joinToString(",")
+
+        val entity = SavedBoxEntity(
+            boxId = box.id,
+            name = box.name,
+            description = box.description,
+            exposure = box.exposure,
+            latitude = box.currentLocation?.latitude ?: 0.0,
+            longitude = box.currentLocation?.longitude ?: 0.0,
+            dashboardSensorIds = allSensorIds.ifEmpty { null }
+        )
+        savedBoxDao.insertSavedBox(entity)
     }
 
     suspend fun unfavoriteBox(boxId: String) = withContext(Dispatchers.IO) {
@@ -254,6 +260,13 @@ class SenseBoxRepository(db: SenseBoxDatabase) {
             .toString()
         logApiCall(url) {
             api.getSensorData(boxId, sensorId, limit)
+        }
+    }
+
+    suspend fun getStats(human: Boolean = true): List<String> = withContext(Dispatchers.IO) {
+        val url = "https://api.opensensemap.org/stats?human=$human"
+        logApiCall(url) {
+            api.getStats(human)
         }
     }
 

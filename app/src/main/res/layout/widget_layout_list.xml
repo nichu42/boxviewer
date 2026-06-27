@@ -78,234 +78,264 @@
         android:gravity="center_vertical">
 
         <!-- Content Row 1 -->
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/row_1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/sensor_icon_1"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginEnd="8dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 android:src="@drawable/ic_sensor_generic"
                 android:contentDescription="@string/widget_sensor_type" />
-
-            <TextView
-                android:id="@+id/sensor_title_1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/widget_placeholder_temperature"
-                android:textColor="#E2E8F0"
-                android:textSize="11sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/sensor_value_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:text="@string/widget_no_value"
                 android:textColor="#38BDF8"
                 android:textSize="11sp"
                 android:textStyle="bold" />
-        </LinearLayout>
+
+            <TextView
+                android:id="@+id/sensor_title_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/sensor_icon_1"
+                android:layout_toStartOf="@id/sensor_value_1"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/widget_placeholder_temperature"
+                android:textColor="#E2E8F0"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </RelativeLayout>
 
         <!-- Content Row 2 -->
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/row_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4.5dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_marginTop="4.5dp">
 
             <ImageView
                 android:id="@+id/sensor_icon_2"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginEnd="8dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 android:src="@drawable/ic_sensor_generic"
                 android:contentDescription="@string/widget_sensor_type" />
-
-            <TextView
-                android:id="@+id/sensor_title_2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/widget_placeholder_humidity"
-                android:textColor="#E2E8F0"
-                android:textSize="11sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/sensor_value_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:text="@string/widget_no_value"
                 android:textColor="#F43F5E"
                 android:textSize="11sp"
                 android:textStyle="bold" />
-        </LinearLayout>
+
+            <TextView
+                android:id="@+id/sensor_title_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/sensor_icon_2"
+                android:layout_toStartOf="@id/sensor_value_2"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/widget_placeholder_humidity"
+                android:textColor="#E2E8F0"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </RelativeLayout>
 
         <!-- Content Row 3 -->
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/row_3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4.5dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_marginTop="4.5dp">
 
             <ImageView
                 android:id="@+id/sensor_icon_3"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginEnd="8dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 android:src="@drawable/ic_sensor_generic"
                 android:contentDescription="@string/widget_sensor_type" />
-
-            <TextView
-                android:id="@+id/sensor_title_3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/widget_placeholder_illumination"
-                android:textColor="#E2E8F0"
-                android:textSize="11sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/sensor_value_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:text="@string/widget_no_value"
                 android:textColor="#10B981"
                 android:textSize="11sp"
                 android:textStyle="bold" />
-        </LinearLayout>
+
+            <TextView
+                android:id="@+id/sensor_title_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/sensor_icon_3"
+                android:layout_toStartOf="@id/sensor_value_3"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/widget_placeholder_illumination"
+                android:textColor="#E2E8F0"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </RelativeLayout>
 
         <!-- Content Row 4 -->
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/row_4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4.5dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
             android:visibility="gone">
 
             <ImageView
                 android:id="@+id/sensor_icon_4"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginEnd="8dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 android:src="@drawable/ic_sensor_generic"
                 android:contentDescription="@string/widget_sensor_type" />
-
-            <TextView
-                android:id="@+id/sensor_title_4"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/widget_placeholder_pm25"
-                android:textColor="#E2E8F0"
-                android:textSize="11sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/sensor_value_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:text="@string/widget_no_value"
                 android:textColor="#F59E0B"
                 android:textSize="11sp"
                 android:textStyle="bold" />
-        </LinearLayout>
+
+            <TextView
+                android:id="@+id/sensor_title_4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/sensor_icon_4"
+                android:layout_toStartOf="@id/sensor_value_4"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/widget_placeholder_pm25"
+                android:textColor="#E2E8F0"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </RelativeLayout>
 
         <!-- Content Row 5 -->
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/row_5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4.5dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
             android:visibility="gone">
 
             <ImageView
                 android:id="@+id/sensor_icon_5"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginEnd="8dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 android:src="@drawable/ic_sensor_generic"
                 android:contentDescription="@string/widget_sensor_type" />
-
-            <TextView
-                android:id="@+id/sensor_title_5"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/widget_placeholder_pm10"
-                android:textColor="#E2E8F0"
-                android:textSize="11sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/sensor_value_5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:text="@string/widget_no_value"
                 android:textColor="#EC4899"
                 android:textSize="11sp"
                 android:textStyle="bold" />
-        </LinearLayout>
+
+            <TextView
+                android:id="@+id/sensor_title_5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/sensor_icon_5"
+                android:layout_toStartOf="@id/sensor_value_5"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/widget_placeholder_pm10"
+                android:textColor="#E2E8F0"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </RelativeLayout>
 
         <!-- Content Row 6 -->
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/row_6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4.5dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
             android:visibility="gone">
 
             <ImageView
                 android:id="@+id/sensor_icon_6"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginEnd="8dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
                 android:src="@drawable/ic_sensor_generic"
                 android:contentDescription="@string/widget_sensor_type" />
-
-            <TextView
-                android:id="@+id/sensor_title_6"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/widget_placeholder_pressure"
-                android:textColor="#E2E8F0"
-                android:textSize="11sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/sensor_value_6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:text="@string/widget_no_value"
                 android:textColor="#8B5CF6"
                 android:textSize="11sp"
                 android:textStyle="bold" />
-        </LinearLayout>
+
+            <TextView
+                android:id="@+id/sensor_title_6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/sensor_icon_6"
+                android:layout_toStartOf="@id/sensor_value_6"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/widget_placeholder_pressure"
+                android:textColor="#E2E8F0"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </RelativeLayout>
     </LinearLayout>
 
 </RelativeLayout>

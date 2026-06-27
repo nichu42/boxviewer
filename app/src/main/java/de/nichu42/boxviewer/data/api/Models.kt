@@ -33,7 +33,7 @@ data class CurrentLocation(
 
 @JsonClass(generateAdapter = true)
 data class Sensor(
-    @param:Json(name = "_id") val id: String,
+    @param:Json(name = "_id") val id: String?,
     val title: String,
     val unit: String?,
     val sensorType: String?,

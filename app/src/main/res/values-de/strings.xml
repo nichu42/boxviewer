@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">BoxViewer</string>
+
+    <string name="widget_updated_just_now">Gerade aktualisiert</string>
+    <string name="widget_refresh">Widget aktualisieren</string>
+    <string name="widget_configure">Widget konfigurieren</string>
+    <string name="widget_sensor_type">Sensortyp</string>
+    <string name="widget_sensor_category_icon">Sensorkategorie-Symbol</string>
+    <string name="widget_select_sensor">Sensor auswählen</string>
+</resources>

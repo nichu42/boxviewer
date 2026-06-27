@@ -30,11 +30,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import de.nichu42.boxviewer.util.SensorDisplayConverter
 import de.nichu42.boxviewer.data.api.Sensor
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,11 +47,14 @@ fun BoxDetailScreen(
     onBack: () -> Unit,
     onNavigateToDashboardWithConfig: (String) -> Unit = {}
 ) {
-    // Select the box in viewModel on launch, and refresh periodically while on screen
-    LaunchedEffect(boxId) {
-        while (true) {
-            viewModel.selectBox(boxId)
-            kotlinx.coroutines.delay(60.seconds)
+    // Select the box on launch and refresh periodically while the screen is at least STARTED
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(boxId, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) {
+                viewModel.selectBox(boxId)
+                kotlinx.coroutines.delay(60.seconds)
+            }
         }
     }
 
@@ -140,6 +146,7 @@ fun BoxDetailScreen(
         PullToRefreshBox(
             isRefreshing = isLoading && selectedBox != null,
             onRefresh = {
+                viewModel.clearDetailScreenCache()
                 viewModel.selectBox(boxId, force = true)
             },
             modifier = Modifier
@@ -159,6 +166,23 @@ fun BoxDetailScreen(
                     selectedBox?.let { box ->
                         val lastUpdatedStr = remember(box) {
                             viewModel.formatLastUpdated(box)
+                        }
+                        // Collect the synthesized sensor list (includes virtual AQI if PM sensor present)
+                        val synthesizedSensors by viewModel.getCachedSensorsFlow(box.id)
+                            .collectAsStateWithLifecycle(initialValue = emptyList())
+                        val virtualAqiSensor: Sensor? = remember(synthesizedSensors) {
+                            synthesizedSensors.firstOrNull { it.sensorId == "virtual_aqi" }?.let { entity ->
+                                Sensor(
+                                    id = entity.sensorId,
+                                    title = entity.sensorTitle,
+                                    unit = entity.sensorUnit,
+                                    sensorType = entity.sensorType,
+                                    lastMeasurement = de.nichu42.boxviewer.data.api.Measurement(
+                                        value = entity.value,
+                                        createdAt = entity.updatedAt
+                                    )
+                                )
+                            }
                         }
                         LazyColumn(
                             modifier = Modifier
@@ -454,7 +478,7 @@ fun BoxDetailScreen(
                             // 3. SENSORS SECTION HEADER
                             item {
                                 Text(
-                                    text = "ACTIVE SENSORS (${box.sensors?.size ?: 0})",
+                                    text = "ACTIVE SENSORS (${(box.sensors?.size ?: 0) + (if (virtualAqiSensor != null) 1 else 0)})",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary,
@@ -463,7 +487,10 @@ fun BoxDetailScreen(
                             }
 
                             // 4. SENSORS DETAIL CARDS
-                            val sensorList = box.sensors ?: emptyList()
+                            // Canonical sort: Temperature → Humidity → PM10 → PM2.5 → AQI → Pressure → Wind → other
+                            val sensorList = ((box.sensors?.filter { !it.id.isNullOrEmpty() } ?: emptyList()) +
+                                listOfNotNull(virtualAqiSensor))
+                                .sortedWith(compareBy({ de.nichu42.boxviewer.util.SensorSortKey.of(it.title) }, { it.title }))
                             if (sensorList.isEmpty()) {
                                 item {
                                     Box(
@@ -552,43 +579,39 @@ fun BoxDetailScreen(
 
 @Composable
 fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
-    var isExpanded by remember { mutableStateOf(false) }
+    val temperatureUnit by viewModel.temperatureUnit.collectAsStateWithLifecycle()
+    val pressureUnit by viewModel.pressureUnit.collectAsStateWithLifecycle()
+    val windUnit by viewModel.windUnit.collectAsStateWithLifecycle()
+    val formatPressure by viewModel.formatPressure.collectAsStateWithLifecycle()
+    val aqiSystem by viewModel.aqiSystem.collectAsStateWithLifecycle()
+    // Expansion and history state are ViewModel-backed so they survive LazyColumn recycling
+    // and back-and-forth navigation within the same box detail session.
+    val expandedIds by viewModel.expandedSensorIds.collectAsStateWithLifecycle()
+    val isExpanded = sensor.id in expandedIds
 
-    var historicalMeasurements by remember { mutableStateOf<List<de.nichu42.boxviewer.data.api.Measurement>?>(null) }
-    var isLoadingHistory by remember { mutableStateOf(false) }
-    var historyError by remember { mutableStateOf<String?>(null) }
+    val historyCache by viewModel.sensorHistoryCache.collectAsStateWithLifecycle()
+    val historyLoadingIds by viewModel.sensorHistoryLoading.collectAsStateWithLifecycle()
+    val histCacheKey = "$boxId/${sensor.id}"
+    val historicalMeasurements = historyCache[histCacheKey]
+    val isLoadingHistory = histCacheKey in historyLoadingIds
+    // historyError is surfaced via isLoadingHistory staying false and historicalMeasurements staying null
+    val historyError: String? = null // errors are swallowed in ViewModel; sparkline stays empty
 
+    // Trigger history load when card is first expanded (idempotent: no-ops if already loaded/loading)
     LaunchedEffect(isExpanded) {
-        if (isExpanded && historicalMeasurements == null) {
-            isLoadingHistory = true
-            historyError = null
-            try {
-                // Request 30 historical measurements for higher resolution grid as requested
-                val measurements = viewModel.getSensorData(boxId, sensor.id, limit = 30)
-                // Reverse list of measurements to place them chronologically oldest to newest (left-to-right)
-                historicalMeasurements = measurements.reversed()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                historyError = "Failed to load real history: ${e.localizedMessage}"
-                // Generate chronological fallback measurements
-                val baseVal = sensor.lastMeasurement?.value?.toDoubleOrNull() ?: 15.0
-                historicalMeasurements = List(6) { index ->
-                    de.nichu42.boxviewer.data.api.Measurement(
-                        value = (baseVal + Random(sensor.id.hashCode() + index).nextDouble() * 2.0 - 1.0).toString(),
-                        createdAt = null
-                    )
-                }
-            } finally {
-                isLoadingHistory = false
-            }
+        if (isExpanded) {
+            val sensorId = sensor.id ?: return@LaunchedEffect
+            val limit = if (sensorId == "virtual_aqi") 150 else 30
+            viewModel.loadSensorHistoryIfNeeded(boxId, sensorId, limit)
         }
     }
 
+    val sensorId = sensor.id ?: return
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .testTag("sensor_detail_card_${sensor.id}")
-            .clickable { isExpanded = !isExpanded },
+            .testTag("sensor_detail_card_${sensorId}")
+            .clickable { viewModel.toggleSensorExpanded(sensorId) },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
@@ -626,21 +649,38 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "Hardware: ${sensor.sensorType ?: "Generic Sensor"}",
+                        text = if (sensor.id == "virtual_aqi") "Locally computed" else "Hardware: ${sensor.sensorType ?: "Generic Sensor"}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Updated: ${formatRelativeTime(sensor.lastMeasurement?.createdAt)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                    )
                 }
 
+                val conversion = SensorDisplayConverter.convert(
+                    rawValue = sensor.lastMeasurement?.value,
+                    sourceUnit = sensor.unit,
+                    temperatureUnit = temperatureUnit,
+                    pressureUnit = pressureUnit,
+                    windUnit = windUnit,
+                    formatPressure = formatPressure
+                )
+                val displayVal = conversion.value ?: "--"
+                val displayUnit = conversion.unit ?: ""
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = sensor.lastMeasurement?.value ?: "--",
+                        text = displayVal,
                         fontWeight = FontWeight.ExtraBold,
                         style = MaterialTheme.typography.titleLarge,
-                        color = de.nichu42.boxviewer.ui.theme.SensorTheme.getValueColor(sensor.title, sensor.lastMeasurement?.value)
+                        color = de.nichu42.boxviewer.ui.theme.SensorTheme.getValueColor(sensor.title, sensor.lastMeasurement?.value, aqiSystem, sensor.unit)
                     )
                     Text(
-                        text = sensor.unit ?: "",
+                        text = displayUnit,
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -684,13 +724,116 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                             )
                         }
                     } else {
-                        val measurements = historicalMeasurements ?: listOf(
+                        val rawMeasurements = historicalMeasurements ?: listOf(
                             de.nichu42.boxviewer.data.api.Measurement(
                                 value = sensor.lastMeasurement?.value,
                                 createdAt = sensor.lastMeasurement?.createdAt
                             )
                         )
-                        SparklineWithScales(measurements = measurements, unit = sensor.unit)
+                        val conversion = SensorDisplayConverter.convert(
+                            rawValue = null,
+                            sourceUnit = sensor.unit,
+                            temperatureUnit = temperatureUnit,
+                            pressureUnit = pressureUnit,
+                            windUnit = windUnit,
+                            formatPressure = formatPressure
+                        )
+                        val displayUnit = conversion.unit
+                        val displayMeasurements = remember(rawMeasurements, temperatureUnit, pressureUnit, windUnit, formatPressure, aqiSystem) {
+                            if (sensor.id == "virtual_aqi") {
+                                rawMeasurements.map { m ->
+                                    val rawVal = m.value?.toDoubleOrNull()
+                                    val res = viewModel.calculateInstantCastForBox(boxId, rawVal)
+                                    val displayVal = if (res.value != null) {
+                                        String.format(java.util.Locale.US, "%.0f", res.value)
+                                    } else {
+                                        // For qualitative EU EAQI, map to index severity level for the Sparkline height logic
+                                        when (res.label) {
+                                            "Very Good" -> "1.0"
+                                            "Good", "Satisfactory", "Low Risk (1)", "Low Risk (2)", "Low Risk (3)" -> "2.0"
+                                            "Fair", "Moderate", "Moderate Risk (4)", "Moderate Risk (5)", "Moderate Risk (6)", "Moderately Polluted" -> "3.0"
+                                            "Poor", "Unhealthy for Sensitive Groups", "High Risk (7)", "High Risk (8)", "High Risk (9)", "High Risk (10)" -> "4.0"
+                                            "Very Poor", "Unhealthy", "Very Unhealthy", "Heavily Polluted", "Very High Risk (10+)" -> "5.0"
+                                            "Extremely Poor", "Hazardous", "Severe", "Severely Polluted" -> "6.0"
+                                            else -> "0.0"
+                                        }
+                                    }
+                                    m.copy(value = displayVal)
+                                }
+                            } else {
+                                rawMeasurements.map { m ->
+                                    val historyConversion = SensorDisplayConverter.convert(
+                                        rawValue = m.value,
+                                        sourceUnit = sensor.unit,
+                                        temperatureUnit = temperatureUnit,
+                                        pressureUnit = pressureUnit,
+                                        windUnit = windUnit,
+                                        formatPressure = formatPressure
+                                    )
+                                    m.copy(value = historyConversion.value)
+                                }
+                            }
+                        }
+                        SparklineWithScales(measurements = displayMeasurements, unit = displayUnit)
+                        
+                        if (sensor.id == "virtual_aqi") {
+                            val nowCastResult = remember(rawMeasurements, aqiSystem) {
+                                val rawVals = rawMeasurements.mapNotNull { it.value?.toDoubleOrNull() }
+                                viewModel.calculateNowCastForBox(boxId, rawVals)
+                            }
+                            if (nowCastResult.isAvailable) {
+                                val scoreText = if (nowCastResult.value != null) {
+                                    String.format(java.util.Locale.US, "%.0f", nowCastResult.value)
+                                } else {
+                                    ""
+                                }
+                                val badgeColor = Color(android.graphics.Color.parseColor(nowCastResult.colorHex))
+                                val textContrastColor = de.nichu42.boxviewer.ui.theme.SensorTheme.getContrastColor(badgeColor)
+
+                                Spacer(modifier = Modifier.height(8.dp))
+                                androidx.compose.foundation.layout.Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(badgeColor, shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                                        .padding(horizontal = 14.dp, vertical = 12.dp)
+                                ) {
+                                    Column {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            Text(
+                                                text = "AQI NowCast",
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = textContrastColor.copy(alpha = 0.85f),
+                                                style = MaterialTheme.typography.labelMedium
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        if (scoreText.isNotEmpty()) {
+                                            Text(
+                                                text = scoreText,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                color = textContrastColor,
+                                                style = MaterialTheme.typography.headlineMedium
+                                            )
+                                        }
+                                        Text(
+                                            text = nowCastResult.label,
+                                            fontWeight = FontWeight.Bold,
+                                            color = textContrastColor,
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "12-hour weighted average · ${aqiSystem.label}",
+                                            color = textContrastColor.copy(alpha = 0.7f),
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -965,6 +1108,37 @@ fun formatIsoTimestamp(isoString: String?): String {
         if (date != null) outputFormat.format(date) else isoString
     } catch (_: Exception) {
         isoString
+    }
+}
+
+fun formatRelativeTime(isoString: String?): String {
+    if (isoString.isNullOrEmpty()) return "Never updated"
+    return try {
+        val cleanString = if (isoString.length >= 19) isoString.substring(0, 19) else isoString
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+            isLenient = true
+        }
+        val date = inputFormat.parse(cleanString) ?: return "Never updated"
+        val diffMs = System.currentTimeMillis() - date.time
+        if (diffMs < 0) return "Just now"
+        
+        val diffSec = diffMs / 1000L
+        if (diffSec < 60) return "Just now"
+        
+        val diffMin = diffSec / 60L
+        if (diffMin < 60) return "$diffMin min ago"
+        
+        val diffHours = diffMin / 60L
+        if (diffHours < 24) return "$diffHours hours ago"
+        
+        val diffDays = diffHours / 24L
+        if (diffDays < 7) return "$diffDays days ago"
+        
+        val outputFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+        outputFormat.format(date)
+    } catch (_: Exception) {
+        "Unknown"
     }
 }
 
