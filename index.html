@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none';">
     <title>BoxViewer | senseBox Sharing</title>
 
     <link rel="icon" type="image/webp" href="logo.webp">
+    <link rel="stylesheet" href="styles.css">
 
     <!-- Open Graph Metadata for Social Previews -->
     <meta property="og:title" content="BoxViewer - senseBox Sharing">
@@ -14,7 +15,6 @@
     <meta property="og:image" content="https://nichu42.codeberg.page/BoxViewer/logo.webp">
     <meta property="og:type" content="website">
 
-    <style>
         :root {
             --bg-color: #f8fafc;
             --card-bg: rgba(255, 255, 255, 0.75);
@@ -306,7 +306,6 @@
             text-decoration: underline;
         }
 
-    </style>
 </head>
 <body>
     <div class="ambient-glow glow-1"></div>
@@ -318,11 +317,11 @@
                 <div class="logo-glow"></div>
                 <img src="logo.webp" alt="BoxViewer Logo" class="logo">
             </div>
-            
+
             <h1>BoxViewer for openSenseMap</h1>
-            
+
             <div class="spinner" id="loading-spinner"></div>
-            
+
             <p id="status-text">BoxViewer is a beautiful, tracking-free Android companion client. Loading shared senseBox station...</p>
 
             <a href="https://codeberg.org/nichu42/BoxViewer" class="btn" id="action-btn">Get BoxViewer on Codeberg</a>
@@ -343,52 +342,6 @@
         </main>
     </div>
 
-    <script>
-        (function() {
-            const params = new URLSearchParams(window.location.search);
-            const boxId = params.get('id');
-            const heading = document.querySelector('h1');
-            const statusText = document.getElementById('status-text');
-            const actionBtn = document.getElementById('action-btn');
-            const spinner = document.getElementById('loading-spinner');
-
-            if (boxId) {
-                // Validate if it is a 24-character hexadecimal MongoDB ObjectId
-                if (/^[0-9a-fA-F]{24}$/.test(boxId)) {
-                    spinner.style.display = "block";
-                    heading.textContent = "Opening senseBox Station";
-                    statusText.textContent = "We are attempting to open this environmental sensor station directly inside the BoxViewer app...";
-                    actionBtn.textContent = "Open in BoxViewer";
-                    
-                    const deepLink = `boxviewer://box/${boxId}`;
-                    actionBtn.href = deepLink;
-
-                    // Try to redirect immediately
-                    window.location.href = deepLink;
-
-                    // Fallback for browsers that don't redirect automatically
-                    setTimeout(() => {
-                        spinner.style.display = "none";
-                        statusText.textContent = "If the station did not open automatically, tap the button below to launch the app. If you don't have BoxViewer installed, you can download the open-source client from Codeberg.";
-                        actionBtn.textContent = "Open in App";
-                        
-                        const installContainer = document.createElement('div');
-                        installContainer.innerHTML = '<a href="https://codeberg.org/nichu42/BoxViewer" class="install-link">Get BoxViewer on Codeberg &rarr;</a>';
-                        actionBtn.parentNode.insertBefore(installContainer, actionBtn.nextSibling);
-                    }, 2500);
-                } else {
-                    heading.textContent = "Invalid Station Link";
-                    statusText.textContent = "The senseBox ID provided in this URL is invalid or malformed. Please verify that you have copied the correct sharing link from your device.";
-                    actionBtn.textContent = "Visit Codeberg Project";
-                    actionBtn.href = "https://codeberg.org/nichu42/BoxViewer";
-                }
-            } else {
-                heading.textContent = "BoxViewer for openSenseMap";
-                statusText.textContent = "BoxViewer is a beautiful, tracking-free Android companion client for the openSenseMap community. This sharing page helps you open community weather stations and DIY senseBoxes directly in the app.";
-                actionBtn.textContent = "Get BoxViewer on Codeberg";
-                actionBtn.href = "https://codeberg.org/nichu42/BoxViewer";
-            }
-        })();
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>

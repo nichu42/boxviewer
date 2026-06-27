@@ -1,5 +1,6 @@
 [
   {
+    "_comment": "Two fingerprints are intentionally listed: the first is the Android debug signing key, the second is the release/upload signing key used for Codeberg builds.",
     "relation": [
       "delegate_permission/common.handle_all_urls"
     ],
