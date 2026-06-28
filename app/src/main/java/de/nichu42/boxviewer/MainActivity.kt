@@ -45,7 +45,6 @@ import de.nichu42.boxviewer.data.db.DB_VERSION
 import de.nichu42.boxviewer.ui.SenseBoxViewModel
 import de.nichu42.boxviewer.ui.theme.MyApplicationTheme
 import de.nichu42.boxviewer.util.ApiLogger
-import de.nichu42.boxviewer.data.db.SenseBoxDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainActivity : ComponentActivity() {
@@ -171,91 +170,98 @@ class MainActivity : ComponentActivity() {
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
                         val currentRoute = navBackStackEntry?.destination?.route
 
-                        // Only render Bottom Navigation rails on root tabs (not on detailed views)
-                        if (currentRoute == "dashboard" || currentRoute == "discovery" || currentRoute == "settings" || currentRoute == "about") {
-                            NavigationBar(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            ) {
-                                NavigationBarItem(
-                                    icon = { Icon(Icons.Default.Home, contentDescription = "Dashboard") },
-                                    label = { Text("My senseBoxes", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
-                                    selected = currentRoute == "dashboard",
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-                                    ),
-                                    onClick = {
-                                        if (currentRoute != "dashboard") {
-                                            navController.navigate("dashboard") {
-                                                popUpTo("dashboard") { inclusive = true }
-                                            }
+                        // Map every route (including sub-screens) to its parent tab
+                        val activeTab = when (currentRoute) {
+                            "dashboard", "detail/{boxId}", "add/{boxId}" -> "dashboard"
+                            "discovery" -> "discovery"
+                            "settings", "aqi_info" -> "settings"
+                            "about", "license", "third_party_licenses" -> "about"
+                            else -> null
+                        }
+
+                        NavigationBar(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ) {
+                            NavigationBarItem(
+                                icon = { Icon(Icons.Default.Home, contentDescription = "Dashboard") },
+                                label = { Text("Home", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                selected = activeTab == "dashboard",
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+                                ),
+                                onClick = {
+                                    if (currentRoute != "dashboard") {
+                                        navController.navigate("dashboard") {
+                                            popUpTo("dashboard") { inclusive = true }
                                         }
                                     }
-                                )
-                                NavigationBarItem(
-                                    icon = { Icon(Icons.Default.Search, contentDescription = "Discover") },
-                                    label = { Text("Discover", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
-                                    selected = currentRoute == "discovery",
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-                                    ),
-                                    onClick = {
-                                        if (currentRoute != "discovery") {
-                                            navController.navigate("discovery") {
-                                                popUpTo("dashboard")
-                                            }
+                                }
+                            )
+                            NavigationBarItem(
+                                icon = { Icon(Icons.Default.Search, contentDescription = "Discover") },
+                                label = { Text("Discover", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                selected = activeTab == "discovery",
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+                                ),
+                                onClick = {
+                                    if (currentRoute != "discovery") {
+                                        navController.navigate("discovery") {
+                                            popUpTo("dashboard")
                                         }
                                     }
-                                )
-                                NavigationBarItem(
-                                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                                    label = { Text("Settings", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
-                                    selected = currentRoute == "settings",
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-                                    ),
-                                    onClick = {
-                                        if (currentRoute != "settings") {
-                                            navController.navigate("settings") {
-                                                popUpTo("dashboard")
-                                            }
+                                }
+                            )
+                            NavigationBarItem(
+                                icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                                label = { Text("Settings", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                selected = activeTab == "settings",
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+                                ),
+                                onClick = {
+                                    if (currentRoute != "settings") {
+                                        navController.navigate("settings") {
+                                            popUpTo("dashboard")
                                         }
                                     }
-                                )
-                                NavigationBarItem(
-                                    icon = { Icon(Icons.Default.Info, contentDescription = "About") },
-                                    label = { Text("About", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
-                                    selected = currentRoute == "about",
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-                                    ),
-                                    onClick = {
-                                        if (currentRoute != "about") {
-                                            navController.navigate("about") {
-                                                popUpTo("dashboard")
-                                            }
+                                }
+                            )
+                            NavigationBarItem(
+                                icon = { Icon(Icons.Default.Info, contentDescription = "About") },
+                                label = { Text("About", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                selected = activeTab == "about",
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+                                ),
+                                onClick = {
+                                    if (currentRoute != "about") {
+                                        navController.navigate("about") {
+                                            popUpTo("dashboard")
                                         }
                                     }
-                                )
-                            }
+                                }
+                            )
                         }
                     }
+
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,

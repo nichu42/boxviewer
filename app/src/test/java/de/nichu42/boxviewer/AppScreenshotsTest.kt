@@ -40,7 +40,7 @@ class AppScreenshotsTest {
   fun setUp() {
     app = ApplicationProvider.getApplicationContext()
     db = SenseBoxDatabase.getDatabase(app)
-    repository = SenseBoxRepository(db)
+    repository = SenseBoxRepository(app, db)
     
     // Clear and populate mock data before tests
     runBlocking(kotlinx.coroutines.Dispatchers.IO) {

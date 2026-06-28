@@ -19,6 +19,7 @@ import de.nichu42.boxviewer.util.SensorDisplayConverter
 import de.nichu42.boxviewer.util.SensorValueColorResolver
 import de.nichu42.boxviewer.util.AqiSystem
 import de.nichu42.boxviewer.util.AqiCalculator
+import android.os.Bundle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,7 +39,7 @@ private data class WidgetSensorDisplay(
     val aqiLabel: String? = null
 )
 
-class SenseBoxWidgetProvider : AppWidgetProvider() {
+open class SenseBoxWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         // Build the update stream for each widget on bootstrap
@@ -47,13 +48,23 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
         }
     }
 
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle
+    ) {
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
+        updateWidgetAsync(context, appWidgetManager, appWidgetId)
+    }
+
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         val db = SenseBoxDatabase.getDatabase(context)
-        val repository = SenseBoxRepository(db)
+        val repository = SenseBoxRepository(context, db)
         CoroutineScope(Dispatchers.IO).launch {
             for (appWidgetId in appWidgetIds) {
                 repository.deleteWidgetConfig(appWidgetId)
-                cancelAlarm(context, appWidgetId)
+                cancelAlarm(context, appWidgetId, this@SenseBoxWidgetProvider.javaClass)
             }
         }
     }
@@ -69,8 +80,16 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                     updateWidgetByFetchingAsync(context, appWidgetManager, appWidgetId, force = force)
                 }
             }
-            Intent.ACTION_USER_PRESENT, Intent.ACTION_SCREEN_ON -> {
+            // ACTION_SCREEN_ON cannot be delivered to manifest-declared receivers; only
+            // ACTION_USER_PRESENT (device unlocked) reliably triggers here.
+            Intent.ACTION_USER_PRESENT -> {
                 updateAllWidgets(context, force = true)
+            }
+            Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> {
+                // AlarmManager alarms don't survive reboots or APK updates.
+                // Re-schedule every widget's repeating alarm from its saved config,
+                // then update the UI immediately from cache (no network hit on boot).
+                rescheduleAllAlarms(context)
             }
         }
     }
@@ -86,9 +105,24 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
             return luminance > 0.5
         }
 
+        private fun getProviderClassForWidget(context: Context, appWidgetId: Int): Class<*> {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val info = appWidgetManager.getAppWidgetInfo(appWidgetId)
+            return if (info != null) {
+                try {
+                    Class.forName(info.provider.className)
+                } catch (e: Exception) {
+                    SenseBoxWidgetProvider::class.java
+                }
+            } else {
+                SenseBoxWidgetProvider::class.java
+            }
+        }
+
         fun scheduleAlarm(context: Context, appWidgetId: Int, intervalMinutes: Int) {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, SenseBoxWidgetProvider::class.java).apply {
+            val providerClass = getProviderClassForWidget(context, appWidgetId)
+            val intent = Intent(context, providerClass).apply {
                 action = ACTION_REFRESH_WIDGET
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             }
@@ -99,19 +133,24 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-            val triggerTime = SystemClock.elapsedRealtime() + intervalMinutes * 60 * 1000
+            val intervalMs = intervalMinutes * 60 * 1000L
+            val triggerTime = SystemClock.elapsedRealtime() + intervalMs
             alarmManager.setInexactRepeating(
                 AlarmManager.ELAPSED_REALTIME,
                 triggerTime,
-                intervalMinutes * 60 * 1000L,
+                intervalMs,
                 pendingIntent
             )
         }
 
-        fun cancelAlarm(context: Context, appWidgetId: Int) {
+        fun cancelAlarm(context: Context, appWidgetId: Int, providerClass: Class<*>? = null) {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, SenseBoxWidgetProvider::class.java).apply {
+            val targetClass = providerClass ?: getProviderClassForWidget(context, appWidgetId)
+            // Intent must exactly match the one created in scheduleAlarm (same action + extras)
+            // so that FLAG_NO_CREATE can locate the existing PendingIntent.
+            val intent = Intent(context, targetClass).apply {
                 action = ACTION_REFRESH_WIDGET
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             }
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
@@ -127,7 +166,7 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
 
         fun updateWidgetAsync(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
             val db = SenseBoxDatabase.getDatabase(context)
-            val repository = SenseBoxRepository(db)
+            val repository = SenseBoxRepository(context, db)
             CoroutineScope(Dispatchers.IO).launch {
                 val config = repository.getWidgetConfig(appWidgetId) ?: return@launch
                 val cachedSensors = repository.getCachedSensors(config.boxId)
@@ -140,23 +179,63 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
             }
         }
 
+        fun rescheduleAllAlarms(context: Context) {
+            val db = SenseBoxDatabase.getDatabase(context)
+            val repository = SenseBoxRepository(context, db)
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            
+            val providers = listOf(
+                SenseBoxWidgetProvider::class.java,
+                SenseBoxWidgetProviderSmall::class.java,
+                SenseBoxWidgetProviderLarge::class.java
+            )
+            val activeWidgetIds = providers.flatMap { provider ->
+                appWidgetManager.getAppWidgetIds(ComponentName(context, provider))?.toList() ?: emptyList()
+            }.toSet()
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val allConfigs = repository.getAllWidgetConfigs()
+                for (config in allConfigs) {
+                    if (config.widgetId in activeWidgetIds) {
+                        // Widget is still on the home screen — reschedule its alarm and redraw from cache.
+                        scheduleAlarm(context, config.widgetId, config.refreshIntervalMinutes)
+                        updateWidgetAsync(context, appWidgetManager, config.widgetId)
+                    } else {
+                        // Config exists in DB but widget is no longer active — clean up the orphan.
+                        repository.deleteWidgetConfig(config.widgetId)
+                    }
+                }
+            }
+        }
+
         fun updateAllWidgets(context: Context, force: Boolean = false) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
-            val componentName = ComponentName(context, SenseBoxWidgetProvider::class.java)
-            val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
-            if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
-                for (appWidgetId in appWidgetIds) {
-                    updateWidgetByFetchingAsync(context, appWidgetManager, appWidgetId, force = force)
+            val providers = listOf(
+                SenseBoxWidgetProvider::class.java,
+                SenseBoxWidgetProviderSmall::class.java,
+                SenseBoxWidgetProviderLarge::class.java
+            )
+            for (provider in providers) {
+                val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, provider))
+                if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
+                    for (appWidgetId in appWidgetIds) {
+                        updateWidgetByFetchingAsync(context, appWidgetManager, appWidgetId, force = force)
+                    }
                 }
             }
         }
 
         fun updateWidgetByFetchingAsync(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, force: Boolean = false) {
             val db = SenseBoxDatabase.getDatabase(context)
-            val repository = SenseBoxRepository(db)
+            val repository = SenseBoxRepository(context, db)
             CoroutineScope(Dispatchers.IO).launch {
-                val config = repository.getWidgetConfig(appWidgetId) ?: return@launch
-                
+                val config = repository.getWidgetConfig(appWidgetId) ?: run {
+                    // No config means this widget was deleted while the old buggy cancelAlarm
+                    // left the alarm behind. Cancel it now so the ghost alarm self-destructs.
+                    cancelAlarm(context, appWidgetId)
+                    return@launch
+                }
+
                 // Keep things battery friendly: skip network fetches when the screen is off (non-interactive).
                 // Wake-time forced refreshes (force = true) bypass this check so they don't silently skip
                 // on devices where isInteractive lags behind ACTION_SCREEN_ON / ACTION_USER_PRESENT.
@@ -179,6 +258,11 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                     return@launch
                 }
 
+                // Show spinner/loader immediately
+                val startCachedSensors = repository.getCachedSensors(config.boxId)
+                val loadingViews = buildRemoteViews(context, config, startCachedSensors, isLoading = true)
+                appWidgetManager.updateAppWidget(appWidgetId, loadingViews)
+
                 try {
                     // Fetch latest sensor values
                     repository.fetchAndSyncBox(config.boxId)
@@ -189,13 +273,13 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
 
                     val cachedSensors = repository.getCachedSensors(config.boxId)
 
-                    val views = buildRemoteViews(context, updatedConfig, cachedSensors)
+                    val views = buildRemoteViews(context, updatedConfig, cachedSensors, isLoading = false)
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 } catch (e: Exception) {
                     e.printStackTrace()
                     // Re-draw in case network fails with what is cached
                     val cachedSensors = repository.getCachedSensors(config.boxId)
-                    val views = buildRemoteViews(context, config, cachedSensors)
+                    val views = buildRemoteViews(context, config, cachedSensors, isLoading = false)
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
             }
@@ -204,7 +288,8 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
         private fun buildRemoteViews(
             context: Context,
             config: de.nichu42.boxviewer.data.db.WidgetConfigEntity,
-            sensors: List<de.nichu42.boxviewer.data.db.SensorCacheEntity>
+            sensors: List<de.nichu42.boxviewer.data.db.SensorCacheEntity>,
+            isLoading: Boolean = false
         ): RemoteViews {
             val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
             val oldFahrenheit = prefs.getBoolean("use_fahrenheit", false)
@@ -240,13 +325,30 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                 }
             }
 
-            val isMetricMode = config.visualizationType == "GRID" // LIST or GRID (Metric)
-            val layoutId = if (isMetricMode) R.layout.widget_layout_metric else R.layout.widget_layout_list
+            // Retrieve options for responsive size adaptations
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val options = appWidgetManager.getAppWidgetOptions(config.widgetId)
+            val minWidth = options?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH) ?: 0
+            val minHeight = options?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT) ?: 0
+
+            val actualIsMetricMode = if (minHeight in 1..74) {
+                // Too short to display a list, dynamically adapt by forcing metric highlight
+                true
+            } else {
+                config.visualizationType == "GRID"
+            }
+
+            val layoutId = if (actualIsMetricMode) R.layout.widget_layout_metric else R.layout.widget_layout_list
             val views = RemoteViews(context.packageName, layoutId)
 
-            // Setup box details
+            // Setup box details with size-dependent visibility constraints
+            val showBoxName = config.showBoxName && (minWidth == 0 || minWidth >= 120)
+            val showUpdateTime = config.showUpdateTime && (minWidth == 0 || minWidth >= 160)
+            val showRefreshButton = config.showRefreshButton && (minWidth == 0 || minWidth >= 140)
+            val showConfigButton = config.showConfigButton && (minWidth == 0 || minWidth >= 140)
+
             views.setTextViewText(R.id.widget_box_name, config.boxName)
-            views.setViewVisibility(R.id.widget_box_name, if (config.showBoxName) View.VISIBLE else View.GONE)
+            views.setViewVisibility(R.id.widget_box_name, if (showBoxName) View.VISIBLE else View.GONE)
 
             // Format date string
             val updatedString = if (config.lastFetchedTime > 0) {
@@ -256,14 +358,20 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                 "Updated --:--"
             }
             views.setTextViewText(R.id.widget_update_time, updatedString)
-            views.setViewVisibility(R.id.widget_update_time, if (config.showUpdateTime) View.VISIBLE else View.GONE)
+            views.setViewVisibility(R.id.widget_update_time, if (showUpdateTime) View.VISIBLE else View.GONE)
 
             val textScale = config.textScale
             views.setTextViewTextSize(R.id.widget_box_name, android.util.TypedValue.COMPLEX_UNIT_SP, 13f * textScale)
             views.setTextViewTextSize(R.id.widget_update_time, android.util.TypedValue.COMPLEX_UNIT_SP, 9f * textScale)
 
-            views.setViewVisibility(R.id.widget_refresh_button, if (config.showRefreshButton) View.VISIBLE else View.GONE)
-            views.setViewVisibility(R.id.widget_settings_button, if (config.showConfigButton) View.VISIBLE else View.GONE)
+            if (isLoading) {
+                views.setViewVisibility(R.id.widget_refresh_button, View.GONE)
+                views.setViewVisibility(R.id.widget_loading_spinner, if (minWidth == 0 || minWidth >= 140) View.VISIBLE else View.GONE)
+            } else {
+                views.setViewVisibility(R.id.widget_refresh_button, if (showRefreshButton) View.VISIBLE else View.GONE)
+                views.setViewVisibility(R.id.widget_loading_spinner, View.GONE)
+            }
+            views.setViewVisibility(R.id.widget_settings_button, if (showConfigButton) View.VISIBLE else View.GONE)
 
             // Theme indices background colors (modern, material palettes).
             // Handles backward-compatibility for values < 10, or treats them as ARGB colors directly.
@@ -291,19 +399,35 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
             val textColor = if (isLight) 0xFF0F172A.toInt() else 0xFFF8FAFC.toInt()
             val subTextColor = if (isLight) 0xFF475569.toInt() else 0xFF94A3B8.toInt()
             val iconColor = if (isLight) 0xFF0F172A.toInt() else 0xFFF8FAFC.toInt()
-            val innerBgOverlay = if (isLight) 0x0A000000 else 0x1AFFFFFF
+
+            // Check if outer background is fully transparent (alpha == 0)
+            val alpha = (themeColor shr 24) and 0xFF
+            val innerBgOverlay = if (alpha == 0) {
+                0x00000000
+            } else if (isLight) {
+                0x0A000000
+            } else {
+                0x1AFFFFFF
+            }
 
             // Apply global colors to header
             views.setTextColor(R.id.widget_box_name, textColor)
             views.setTextColor(R.id.widget_update_time, subTextColor)
             views.setInt(R.id.widget_refresh_button, "setColorFilter", iconColor)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                views.setColorStateList(
+                    R.id.widget_loading_spinner,
+                    "setIndeterminateTintList",
+                    android.content.res.ColorStateList.valueOf(iconColor)
+                )
+            }
             views.setInt(R.id.widget_settings_button, "setColorFilter", iconColor)
             views.setInt(R.id.widget_values_container, "setBackgroundColor", innerBgOverlay)
 
             // Split dynamic config sensor elements
             val selectedIdsList = config.sensorIdsString.split(",").filter { it.isNotEmpty() }
 
-            if (isMetricMode) {
+            if (actualIsMetricMode) {
                 val targetSensor = if (selectedIdsList.isNotEmpty()) {
                     displaySensors.find { it.sensorId == selectedIdsList.first() } ?: displaySensors.firstOrNull()
                 } else {
@@ -382,14 +506,24 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
                     views.setTextColor(R.id.big_sensor_value, 0xFF38BDF8.toInt())
                 }
             } else {
+                val maxRows = if (minHeight > 0) {
+                    when {
+                        minHeight < 120 -> 3
+                        minHeight < 180 -> 4
+                        else -> 6
+                    }
+                } else {
+                    6
+                }
+
                 val listToDisplay = if (selectedIdsList.isNotEmpty()) {
                     val matched = mutableListOf<WidgetSensorDisplay>()
                     for (selectedId in selectedIdsList) {
                         displaySensors.find { it.sensorId == selectedId }?.let { matched.add(it) }
                     }
-                    matched.take(6)
+                    matched.take(maxRows)
                 } else {
-                    displaySensors.take(6)
+                    displaySensors.take(maxRows)
                 }
 
                 val titles = listOf(
@@ -411,7 +545,7 @@ class SenseBoxWidgetProvider : AppWidgetProvider() {
 
                 for (i in 0 until 6) {
                     val sensor = listToDisplay.getOrNull(i)
-                    if (sensor != null) {
+                    if (sensor != null && i < maxRows) {
                         views.setViewVisibility(rows[i], View.VISIBLE)
                         
                         val showLabel = config.metricDisplayMode == "LABEL_VALUE_UNIT"

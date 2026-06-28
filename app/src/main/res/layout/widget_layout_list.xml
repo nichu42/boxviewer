@@ -49,6 +49,16 @@
             android:contentDescription="@string/widget_refresh"
             android:background="?android:attr/selectableItemBackgroundBorderless" />
 
+        <ProgressBar
+            android:id="@+id/widget_loading_spinner"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="4dp"
+            android:padding="4dp"
+            android:visibility="gone"
+            style="?android:attr/progressBarStyleSmall"
+            android:indeterminate="true" />
+
         <ImageView
             android:id="@+id/widget_settings_button"
             android:layout_width="26dp"

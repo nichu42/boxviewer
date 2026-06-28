@@ -137,6 +137,15 @@ fun WidgetConfigScreen(
                 selectedBox = list.first()
                 widgetColor = Color(0xFF0F172A)
                 hexInputText = "0F172A"
+                
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val info = appWidgetManager.getAppWidgetInfo(appWidgetId)
+                val providerClass = info?.provider?.className ?: ""
+                visualizationType = if (providerClass.contains("Small")) {
+                    "GRID"
+                } else {
+                    "LIST"
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()

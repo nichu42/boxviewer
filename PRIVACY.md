@@ -21,7 +21,7 @@ Stuttgarter Str. 106
 Germany  
 
 ### Contact & Support:
-* **Email:** admin@42bit.email
+* **Email:** nichu42@42bit.email
 * **Phone:** +49 1579 2516692 (urgent legal issues only)
 * **Fax:** +49 6181 254505
 * **Support & Issue Tracker:** [https://codeberg.org/nichu42/BoxViewer/issues](https://codeberg.org/nichu42/BoxViewer/issues)
@@ -49,9 +49,13 @@ BoxViewer does **not** collect, store, or transmit any personal information, usa
 To provide its core functionality, BoxViewer communicates with the official **openSenseMap API**:
 * **API Host:** `https://api.opensensemap.org`
 * **Purpose:** To fetch public senseBox configurations, metadata, and current sensor measurements.
+* **Privacy Policy:** [https://opensensemap.org/privacy](https://opensensemap.org/privacy)
 
 **Geocoding Services — the only non-openSenseMap connections:**
 For address search (text → coordinates) and reverse location labels (coordinates → city/country), the app may contact the geocoding services described under "Location Data" below. These calls are triggered only by explicit user action and are not used for tracking, analytics, or advertising. BoxViewer does not intentionally contact Google; however, on stock Android devices the native `Geocoder` backend is typically provided by Google.
+
+**IP Address Disclosure:**
+Whenever BoxViewer connects to any external service — including openSenseMap, the geocoding services listed below, and the Codeberg Pages website described in Section 5 — your device's IP address is transmitted as part of the network request. Under the GDPR, IP addresses are generally considered personal data. The respective service operator processes this data for technical delivery and may log it in accordance with their own privacy policy. No telemetry, analytics, or identifiers are sent by BoxViewer.
 
 ### 3. Location Data
 When you grant location permissions to BoxViewer:
@@ -63,8 +67,11 @@ When you grant location permissions to BoxViewer:
 #### Address Search & Location Labels
 For address search (text → coordinates) and reverse location labels (coordinates → city/country), the app may contact:
 * The native Android `android.location.Geocoder`. Its backend is determined by your device/ROM (on stock Android this is typically Google; on de-Googled ROMs it may be a different provider or unavailable).
-* A public OpenStreetMap-based geocoder (such as **Nominatim** or **Photon**) as a fallback when the native geocoder returns no results.
-Only the requested address or coordinate is transmitted. No telemetry, analytics, or identifiers are sent.
+* A public OpenStreetMap-based geocoder as a fallback when the native geocoder returns no results. The primary fallback is **Photon**; **Nominatim** is used only if Photon is unavailable or returns no results.
+  * **Photon** ([https://photon.komoot.io](https://photon.komoot.io)), operated by komoot GmbH, Berlin, Germany. Privacy policy: [https://www.komoot.com/privacy](https://www.komoot.com/privacy)
+  * **Nominatim** ([https://nominatim.openstreetmap.org](https://nominatim.openstreetmap.org)), operated by the OpenStreetMap Foundation. Privacy policy: [https://osmfoundation.org/wiki/Privacy_Policy](https://osmfoundation.org/wiki/Privacy_Policy)
+
+Only the requested address or coordinate is transmitted to geocoding services. No telemetry, analytics, or identifiers are sent.
 
 ### 4. Local SQLite Storage
 The app stores your preferences, bookmarked senseBoxes, and cached sensor data locally on your device in a secure SQLite database. 
@@ -86,7 +93,7 @@ Stuttgarter Str. 106
 70736 Fellbach  
 Germany  
 
-* **Email:** admin@42bit.email
+* **Email:** nichu42@42bit.email
 * **Code Repository & Support:** [https://codeberg.org/nichu42/BoxViewer](https://codeberg.org/nichu42/BoxViewer)
 
 If you have any questions or feedback regarding this policy, feel free to open an issue on the repository.
@@ -107,7 +114,7 @@ Stuttgarter Str. 106
 Deutschland  
 
 ### Kontakt & Support:
-* **E-Mail:** admin@42bit.email
+* **E-Mail:** nichu42@42bit.email
 * **Telefon:** +49 1579 2516692 (nur für dringende rechtliche Angelegenheiten)
 * **Fax:** +49 6181 254505
 * **Support & Fehlerberichte:** [https://codeberg.org/nichu42/BoxViewer/issues](https://codeberg.org/nichu42/BoxViewer/issues)
@@ -135,9 +142,13 @@ BoxViewer erhebt, speichert oder übermittelt keine personenbezogenen Daten, Nut
 Zur Bereitstellung der Kernfunktionalitäten kommuniziert BoxViewer mit der offiziellen **openSenseMap-API**:
 * **API-Host:** `https://api.opensensemap.org`
 * **Zweck:** Abrufen öffentlicher senseBox-Konfigurationen, Metadaten und aktueller Sensormesswerte.
+* **Datenschutzerklärung:** [https://opensensemap.org/privacy](https://opensensemap.org/privacy)
 
 **Geocoding-Dienste — die einzigen nicht-openSenseMap-Verbindungen:**
 Für die Adresssuche (Text → Koordinaten) und die Umkehrung von Ortsbezeichnungen (Koordinaten → Stadt/Land) kann die App die unter "Standortdaten" beschriebenen Geocoding-Dienste kontaktieren. Diese Aufrufe werden nur durch ausdrückliche Benutzeraktion ausgelöst und nicht für Tracking, Analyse oder Werbung verwendet. BoxViewer kontaktiert Google nicht bewusst; auf Standard-Android-Geräten wird der native `Geocoder`-Backend jedoch in der Regel von Google bereitgestellt.
+
+**IP-Adresse:**
+Wann immer BoxViewer eine Verbindung zu einem externen Dienst herstellt — einschließlich openSenseMap, der unten aufgeführten Geocoding-Dienste und der in Abschnitt 5 beschriebenen Codeberg-Pages-Webseite — wird die IP-Adresse Ihres Geräts im Rahmen der Netzwerkanfrage übertragen. Nach der DSGVO wird eine IP-Adresse in der Regel als personenbezogenes Datum betrachtet. Der jeweilige Dienstbetreiber verarbeitet diese Daten zur technischen Bereitstellung und kann sie gemäß seiner eigenen Datenschutzerklärung protokollieren. BoxViewer selbst übermittelt keine Telemetrie-, Analyse- oder Identifikationsdaten.
 
 ### 3. Standortdaten
 Wenn Sie BoxViewer die Freigabe des Standorts erlauben:
@@ -149,8 +160,11 @@ Wenn Sie BoxViewer die Freigabe des Standorts erlauben:
 #### Adresssuche & Ortsbezeichnungen
 Für die Adresssuche (Text → Koordinaten) und die Umkehrung von Ortsbezeichnungen (Koordinaten → Stadt/Land) kann die App folgende Dienste kontaktieren:
 * Den nativen Android-`android.location.Geocoder`. Das Backend wird vom Gerät/ROM bestimmt (auf Standard-Android in der Regel Google; auf de-Googled-ROMs möglicherweise ein anderer Anbieter oder nicht verfügbar).
-* Einen öffentlichen OpenStreetMap-basierten Geocoder (z. B. **Nominatim** oder **Photon**) als Fallback, wenn der native Geocoder keine Ergebnisse liefert.
-Es werden nur die angefragte Adresse oder die Koordinate übertragen. Keine Telemetrie-, Analyse- oder Identifikationsdaten werden gesendet.
+* Einen öffentlichen OpenStreetMap-basierten Geocoder als Fallback, wenn der native Geocoder keine Ergebnisse liefert. Primärer Fallback ist **Photon**; **Nominatim** wird nur verwendet, wenn Photon nicht verfügbar ist oder keine Ergebnisse liefert.
+  * **Photon** ([https://photon.komoot.io](https://photon.komoot.io)), betrieben von der komoot GmbH, Berlin, Deutschland. Datenschutzerklärung: [https://www.komoot.com/privacy](https://www.komoot.com/privacy)
+  * **Nominatim** ([https://nominatim.openstreetmap.org](https://nominatim.openstreetmap.org)), betrieben von der OpenStreetMap Foundation. Datenschutzerklärung: [https://osmfoundation.org/wiki/Privacy_Policy](https://osmfoundation.org/wiki/Privacy_Policy)
+
+Es werden nur die angefragte Adresse oder die Koordinate an die Geocoding-Dienste übertragen. Keine Telemetrie-, Analyse- oder Identifikationsdaten werden gesendet.
 
 ### 4. Lokaler SQLite-Speicher
 Die App speichert Ihre Einstellungen, favorisierten senseBoxes und zwischengespeicherten Messwerte lokal in einer sicheren SQLite-Datenbank auf Ihrem Gerät.
@@ -172,7 +186,7 @@ Stuttgarter Str. 106
 70736 Fellbach  
 Deutschland  
 
-* **E-Mail:** admin@42bit.email
+* **E-Mail:** nichu42@42bit.email
 * **Code-Repository & Support:** [https://codeberg.org/nichu42/BoxViewer](https://codeberg.org/nichu42/BoxViewer)
 
 Wenn Sie Fragen oder Anmerkungen zu dieser Datenschutzerklärung haben, können Sie gerne ein Ticket im Codeberg-Repository eröffnen.

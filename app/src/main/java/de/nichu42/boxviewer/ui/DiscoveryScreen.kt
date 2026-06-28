@@ -2,8 +2,12 @@ package de.nichu42.boxviewer.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -63,7 +67,7 @@ fun DiscoveryScreen(
     val lastUpdatedMinutes by viewModel.lastUpdatedMinutes.collectAsStateWithLifecycle()
     val lastSearchedCoords by viewModel.lastSearchedCoords.collectAsStateWithLifecycle()
 
-    var visibleLimit by rememberSaveable(discoveredBoxes) { mutableStateOf(5) }
+    var visibleLimit by rememberSaveable(discoveredBoxes) { mutableIntStateOf(5) }
 
     var searchQuery by rememberSaveable { mutableStateOf("") }
     
@@ -85,6 +89,18 @@ fun DiscoveryScreen(
         }
     )
 
+    // Launcher for external barcode scanner apps (ZXing-compatible intent protocol)
+    val barcodeScanLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val raw = result.data?.getStringExtra("SCAN_RESULT") ?: return@rememberLauncherForActivityResult
+            // Extract a 24-char hex box ID from an openSenseMap URL or use the raw value directly
+            val boxId = Regex("[0-9a-fA-F]{24}").find(raw)?.value ?: raw.trim()
+            searchQuery = boxId
+            viewModel.searchBoxes(boxId)
+        }
+    }
 
 
     Scaffold(
@@ -311,6 +327,30 @@ fun DiscoveryScreen(
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
+                                } else {
+                                    IconButton(
+                                        modifier = Modifier.testTag("barcode_scan_button"),
+                                        onClick = {
+                                            val intent = Intent("com.google.zxing.client.android.SCAN").apply {
+                                                putExtra("SCAN_MODE", "QR_CODE_MODE")
+                                            }
+                                            try {
+                                                barcodeScanLauncher.launch(intent)
+                                            } catch (_: ActivityNotFoundException) {
+                                                Toast.makeText(
+                                                    context,
+                                                    "No barcode scanner app found. Please install one (e.g. Binary Eye or Barcode Scanner).",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.QrCodeScanner,
+                                            contentDescription = "Scan QR code",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
                                 }
                             }
                         },
@@ -532,7 +572,7 @@ fun DiscoveryScreen(
                                              .minByOrNull { it.second }?.first ?: 0
                                     }
                                     var sliderIndex by remember(currentRadiusIdx) {
-                                         mutableStateOf(currentRadiusIdx.toFloat())
+                                         mutableFloatStateOf(currentRadiusIdx.toFloat())
                                     }
                                     val displayRadius = remember(sliderIndex) {
                                          radiusSteps[(sliderIndex + 0.5f).toInt().coerceIn(0, radiusSteps.lastIndex)]

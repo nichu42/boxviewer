@@ -51,7 +51,7 @@ fun DashboardScreen(
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME && viewModel.savedBoxes.value.isNotEmpty()) {
+            if (event == Lifecycle.Event.ON_RESUME && viewModel.savedBoxes.value.isNotEmpty()) {
                 viewModel.refreshAll(force = false)
             }
         }

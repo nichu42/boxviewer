@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
+import androidx.core.content.edit
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
@@ -27,7 +28,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class SenseBoxViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = SenseBoxDatabase.getDatabase(application)
-    private val repository = SenseBoxRepository(db)
+    private val repository = SenseBoxRepository(application, db)
 
     val savedBoxes: StateFlow<List<de.nichu42.boxviewer.data.db.SavedBoxEntity>> = repository.savedBoxes
         .stateIn(
@@ -80,14 +81,14 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         if (_sensorHistoryCache.value.containsKey(key)) return
         if (_sensorHistoryLoading.value.contains(key)) return
         viewModelScope.launch {
-            _sensorHistoryLoading.value = _sensorHistoryLoading.value + key
+            _sensorHistoryLoading.value += key
             try {
                 val measurements = getSensorData(boxId, sensorId, limit).reversed()
-                _sensorHistoryCache.value = _sensorHistoryCache.value + (key to measurements)
+                _sensorHistoryCache.value += (key to measurements)
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
-                _sensorHistoryLoading.value = _sensorHistoryLoading.value - key
+                _sensorHistoryLoading.value -= key
             }
         }
     }
@@ -166,58 +167,51 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
 
     fun setUseConditionalFormatting(use: Boolean) {
         _useConditionalFormatting.value = use
-        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean("use_conditional_formatting", use)
-            .apply()
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
+            putBoolean("use_conditional_formatting", use)
+        }
     }
 
     fun setTemperatureUnit(unit: String) {
         _temperatureUnit.value = unit
-        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-            .edit()
-            .putString("temperature_unit", unit)
-            .apply()
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
+            putString("temperature_unit", unit)
+        }
     }
 
     fun setPressureUnit(unit: String) {
         _pressureUnit.value = unit
-        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-            .edit()
-            .putString("pressure_unit", unit)
-            .apply()
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
+            putString("pressure_unit", unit)
+        }
     }
 
     fun setWindUnit(unit: String) {
         _windUnit.value = unit
-        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-            .edit()
-            .putString("wind_unit", unit)
-            .apply()
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
+            putString("wind_unit", unit)
+        }
     }
 
     fun setFormatPressure(format: Boolean) {
         _formatPressure.value = format
-        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean("format_pressure", format)
-            .apply()
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
+            putBoolean("format_pressure", format)
+        }
     }
 
     fun setAppTheme(theme: AppTheme) {
         _appTheme.value = theme
-        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-            .edit()
-            .putString("app_theme", theme.name)
-            .apply()
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
+            putString("app_theme", theme.name)
+        }
     }
 
     fun setAqiSystem(system: AqiSystem) {
         _aqiSystem.value = system
-        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-            .edit()
-            .putString("aqi_system", system.name)
-            .apply()
+        getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
+            putString("aqi_system", system.name)
+        }
     }
 
     enum class ExposureFilter(val label: String) {
@@ -278,7 +272,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         clearSearch()
     }
 
-    val discoveredBoxes: StateFlow<List<SenseBox>> = kotlinx.coroutines.flow.combine(
+    val discoveredBoxes: StateFlow<List<SenseBox>> = combine(
         _rawDiscoveredBoxes,
         selectedExposure,
         _lastUpdatedMinutes,
@@ -320,7 +314,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             try {
                 // 1. Native Geocoder query (run in background IO dispatcher)
                 val geocoder = android.location.Geocoder(getApplication(), java.util.Locale.getDefault())
-                val nativeAddresses = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                val nativeAddresses = withContext(kotlinx.coroutines.Dispatchers.IO) {
                     try {
                         @Suppress("DEPRECATION")
                         geocoder.getFromLocationName(query, 5)
@@ -330,55 +324,12 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                     }
                 }
 
-                // 2. Supplementary Nominatim OSM API query for multiple rich results
-                // (Photon/Komoot was removed to keep all network traffic strictly within
-                // openSenseMap + OSM Nominatim, per the project's no-external-calls charter.)
-                val nominatimAddresses = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    val list = mutableListOf<android.location.Address>()
-                    try {
-                        val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
-                        val url = "https://nominatim.openstreetmap.org/search?q=$encodedQuery&format=json&limit=5&accept-language=en"
-                        val client = okhttp3.OkHttpClient()
-                        val request = okhttp3.Request.Builder()
-                            .url(url)
-                            .header("User-Agent", "SenseBoxFinderApp/1.0 (contact: nicolai.roediger@gmail.com)")
-                            .build()
-                        client.newCall(request).execute().use { response ->
-                            if (response.isSuccessful) {
-                                val body = response.body.string()
-                                if (body.isNotBlank()) {
-                                    val jsonArray = org.json.JSONArray(body)
-                                    for (i in 0 until jsonArray.length()) {
-                                        val obj = jsonArray.getJSONObject(i)
-                                        val lat = obj.optDouble("lat", 0.0)
-                                        val lon = obj.optDouble("lon", 0.0)
-                                        val displayName = obj.optString("display_name", "")
-                                        
-                                        if (displayName.isNotBlank()) {
-                                            val address = android.location.Address(java.util.Locale.US).apply {
-                                                latitude = lat
-                                                longitude = lon
-                                                setAddressLine(0, displayName)
-                                                
-                                                val name = obj.optString("name", "")
-                                                if (name.isNotBlank()) {
-                                                    locality = name
-                                                }
-                                            }
-                                            list.add(address)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                    list
-                }
+                // 2. Photon (EU-based) OSM geocoder as the primary fallback, then Nominatim.
+                val photonAddresses = photonForwardGeocode(query)
+                val osmAddresses = photonAddresses.ifEmpty { nominatimForwardGeocode(query) }
 
                 // 3. Combine all lists, filter duplicates by label, and take up to 3-5 results
-                val combined = (nativeAddresses ?: emptyList()) + nominatimAddresses
+                val combined = (nativeAddresses ?: emptyList()) + osmAddresses
                 val distinct = combined.distinctBy { addr ->
                     val line = addr.getAddressLine(0) ?: addr.locality ?: ""
                     line.lowercase().trim()
@@ -670,9 +621,126 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
+     * Forward-geocode a query using Photon (EU-based OpenStreetMap geocoder by komoot).
+     * Returns up to 5 Address objects.
+     */
+    private suspend fun photonForwardGeocode(query: String): List<android.location.Address> {
+        return withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val list = mutableListOf<android.location.Address>()
+            try {
+                val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
+                val url = "https://photon.komoot.io/api/?q=$encodedQuery&limit=5&lang=en"
+                val client = okhttp3.OkHttpClient()
+                val request = okhttp3.Request.Builder()
+                    .url(url)
+                    .header("User-Agent", "BoxViewer/${de.nichu42.boxviewer.BuildConfig.VERSION_NAME} (contact: nichu42@42bit.email)")
+                    .build()
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val body = response.body.string()
+                        if (body.isNotBlank()) {
+                            val json = org.json.JSONObject(body)
+                            val features = json.optJSONArray("features") ?: return@withContext list
+                            for (i in 0 until features.length()) {
+                                val feature = features.getJSONObject(i)
+                                val geometry = feature.optJSONObject("geometry")
+                                val coords = geometry?.optJSONArray("coordinates")
+                                val lon = coords?.optDouble(0, 0.0) ?: 0.0
+                                val lat = coords?.optDouble(1, 0.0) ?: 0.0
+                                val props = feature.optJSONObject("properties") ?: continue
+                                val name = props.optString("name", "").trim()
+                                val street = props.optString("street", "").trim()
+                                val housenumber = props.optString("housenumber", "").trim()
+                                val postcode = props.optString("postcode", "").trim()
+                                val city = props.optString("city", "").trim()
+                                val state = props.optString("state", "").trim()
+                                val country = props.optString("country", "").trim()
+                                val cc = props.optString("countrycode", "").trim().uppercase(java.util.Locale.US)
+
+                                val streetLine = listOf(street, housenumber).filter { it.isNotBlank() }.joinToString(" ")
+                                val cityLine = listOf(postcode, city).filter { it.isNotBlank() }.joinToString(" ")
+                                val displayName = listOfNotNull(
+                                    name.takeIf { it.isNotBlank() },
+                                    streetLine.takeIf { it.isNotBlank() },
+                                    cityLine.takeIf { it.isNotBlank() },
+                                    state.takeIf { it.isNotBlank() },
+                                    country.takeIf { it.isNotBlank() }
+                                ).filter { it.isNotBlank() }.joinToString(", ")
+
+                                if (displayName.isNotBlank() && lat != 0.0 && lon != 0.0) {
+                                    list.add(android.location.Address(java.util.Locale.US).apply {
+                                        latitude = lat
+                                        longitude = lon
+                                        setAddressLine(0, displayName)
+                                        locality = city.takeIf { it.isNotBlank() } ?: name
+                                        adminArea = state
+                                        countryName = country
+                                        countryCode = cc
+                                    })
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            list
+        }
+    }
+
+    /**
+     * Forward-geocode a query using Nominatim as a fallback.
+     * Returns up to 5 Address objects.
+     */
+    private suspend fun nominatimForwardGeocode(query: String): List<android.location.Address> {
+        return withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val list = mutableListOf<android.location.Address>()
+            try {
+                val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
+                val url = "https://nominatim.openstreetmap.org/search?q=$encodedQuery&format=json&limit=5&accept-language=en"
+                val client = okhttp3.OkHttpClient()
+                val request = okhttp3.Request.Builder()
+                    .url(url)
+                    .header("User-Agent", "BoxViewer/${de.nichu42.boxviewer.BuildConfig.VERSION_NAME} (contact: nichu42@42bit.email)")
+                    .build()
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val body = response.body.string()
+                        if (body.isNotBlank()) {
+                            val jsonArray = org.json.JSONArray(body)
+                            for (i in 0 until jsonArray.length()) {
+                                val obj = jsonArray.getJSONObject(i)
+                                val lat = obj.optDouble("lat", 0.0)
+                                val lon = obj.optDouble("lon", 0.0)
+                                val displayName = obj.optString("display_name", "")
+
+                                if (displayName.isNotBlank()) {
+                                    list.add(android.location.Address(java.util.Locale.US).apply {
+                                        latitude = lat
+                                        longitude = lon
+                                        setAddressLine(0, displayName)
+                                        val name = obj.optString("name", "")
+                                        if (name.isNotBlank()) {
+                                            locality = name
+                                        }
+                                    })
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            list
+        }
+    }
+
+    /**
      * Reverse-geocode a coordinate. Tries the Android native Geocoder first, then falls back
-     * to the openSenseMap-compatible Nominatim OSM reverse endpoint. De-Googled devices often
-     * have no cloud-backed Geocoder, so the fallback is required for a usable location label.
+     * to Photon (EU-based), then to Nominatim. De-Googled devices often have no cloud-backed
+     * Geocoder, so a fallback is required for a usable location label.
      */
     private suspend fun reverseGeocodeWithFallback(
         lat: Double,
@@ -706,14 +774,80 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             }
         }
 
-        // 2. Fallback to Nominatim OSM Reverse API
-        val nominatimLabel = withContext(kotlinx.coroutines.Dispatchers.IO) {
+        // 2. Fallback to Photon (EU-based), then Nominatim
+        val photonLabel = photonReverseGeocode(lat, lng, fullAddress)
+        if (photonLabel.isNotBlank()) return photonLabel
+
+        return nominatimReverseGeocode(lat, lng, fullAddress)
+    }
+
+    /**
+     * Reverse-geocode a coordinate using Photon (EU-based OpenStreetMap geocoder by komoot).
+     */
+    private suspend fun photonReverseGeocode(lat: Double, lng: Double, fullAddress: Boolean): String {
+        return withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val url = "https://photon.komoot.io/reverse?lon=$lng&lat=$lat&lang=en"
+                val client = okhttp3.OkHttpClient()
+                val request = okhttp3.Request.Builder()
+                    .url(url)
+                    .header("User-Agent", "BoxViewer/${de.nichu42.boxviewer.BuildConfig.VERSION_NAME} (contact: nichu42@42bit.email)")
+                    .build()
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val body = response.body.string()
+                        if (body.isNotBlank()) {
+                            val json = org.json.JSONObject(body)
+                            val features = json.optJSONArray("features")
+                            if (features != null && features.length() > 0) {
+                                val props = features.getJSONObject(0).optJSONObject("properties")
+                                if (props != null) {
+                                    val city = props.optString("city", "").ifBlank {
+                                        props.optString("town", "").ifBlank {
+                                            props.optString("village", "").ifBlank {
+                                                props.optString("suburb", "").ifBlank {
+                                                    props.optString("county", "").ifBlank {
+                                                        props.optString("municipality", "")
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }.trim()
+                                    val state = props.optString("state", "").trim()
+                                    val country = if (fullAddress) {
+                                        props.optString("country", "").trim()
+                                    } else {
+                                        props.optString("countrycode", "").trim().uppercase(java.util.Locale.US)
+                                    }
+                                    val formattedState = if (fullAddress) state else abbreviateState(state)
+                                    val parts = listOf(city, formattedState, country).filter { it.isNotBlank() }
+                                    if (parts.isNotEmpty()) {
+                                        return@withContext parts.joinToString(", ")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ""
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                ""
+            }
+        }
+    }
+
+    /**
+     * Reverse-geocode a coordinate using Nominatim as a fallback.
+     */
+    private suspend fun nominatimReverseGeocode(lat: Double, lng: Double, fullAddress: Boolean): String {
+        return withContext(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 val url = "https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=json&accept-language=en"
                 val client = okhttp3.OkHttpClient()
                 val request = okhttp3.Request.Builder()
                     .url(url)
-                    .header("User-Agent", "SenseBoxFinderApp/1.0 (contact: nicolai.roediger@gmail.com)")
+                    .header("User-Agent", "BoxViewer/${de.nichu42.boxviewer.BuildConfig.VERSION_NAME} (contact: nichu42@42bit.email)")
                     .build()
                 client.newCall(request).execute().use { response ->
                     if (response.isSuccessful) {
@@ -742,18 +876,18 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                                 val formattedState = if (fullAddress) state else abbreviateState(state)
                                 val parts = listOf(city, formattedState, country).filter { it.isNotBlank() }
                                 if (parts.isNotEmpty()) {
-                                    parts.joinToString(", ")
-                                } else ""
-                            } else ""
-                        } else ""
-                    } else ""
+                                    return@withContext parts.joinToString(", ")
+                                }
+                            }
+                        }
+                    }
+                    ""
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 ""
             }
         }
-        return nominatimLabel
     }
 
     fun getAddressFromLocation(lat: Double, lng: Double, onResult: (String) -> Unit) {
@@ -1128,7 +1262,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             _hasSearchBeenDone.value = true
             try {
                 val geocoder = android.location.Geocoder(getApplication(), java.util.Locale.getDefault())
-                val addresses = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                val addresses = withContext(kotlinx.coroutines.Dispatchers.IO) {
                     try {
                         geocoder.getFromLocationName(locationName, 1)
                     } catch (e: Exception) {
@@ -1261,7 +1395,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         return repository.getSensorData(boxId, sensorId, limit)
     }
 
-    fun calculateInstantCastForBox(boxId: String, value: Double?): AqiResult {
+    fun calculateInstantCastForBox(value: Double?): AqiResult {
         // Access the already-loaded in-memory sensor list synchronously — no blocking DB call needed.
         val hasPm25 = _cachedSensors.value.any {
             val title = it.sensorTitle.lowercase()
@@ -1271,7 +1405,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         return AqiCalculator.calculateInstantCast(value, pmType, aqiSystem.value)
     }
 
-    fun calculateNowCastForBox(@Suppress("UNUSED_PARAMETER") boxId: String, values: List<Double>): AqiResult {
+    fun calculateNowCastForBox(values: List<Double>): AqiResult {
         val hasPm25 = _cachedSensors.value.any {
             val title = it.sensorTitle.lowercase()
             title.contains("pm2.5") || title.contains("pm25") || (it.sensorUnit?.contains("g/m") == true && !title.contains("pm10"))

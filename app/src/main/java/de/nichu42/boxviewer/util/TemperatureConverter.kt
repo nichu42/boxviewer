@@ -9,7 +9,14 @@ object TemperatureConverter {
         val fromUnitClean = fromUnit?.trim() ?: "°C"
         val isFromF = fromUnitClean.equals("°F", ignoreCase = true) || fromUnitClean.equals("F", ignoreCase = true)
         val isFromK = fromUnitClean.equals("K", ignoreCase = true) || fromUnitClean.equals("Kelvin", ignoreCase = true)
-        val isFromC = !isFromF && !isFromK
+        val isFromC = fromUnitClean.equals("°C", ignoreCase = true) || fromUnitClean.equals("C", ignoreCase = true)
+        
+        // If the source unit is explicitly a non-temperature unit, bypass conversion and return valueStr unmodified
+        val hasOriginalUnit = fromUnit != null && fromUnit.trim().isNotEmpty()
+        val isTempUnit = isFromF || isFromK || isFromC
+        if (hasOriginalUnit && !isTempUnit) {
+            return valueStr
+        }
 
         return try {
             var celsius = valueStr.toDouble()

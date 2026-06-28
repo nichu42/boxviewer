@@ -1,6 +1,6 @@
 package de.nichu42.boxviewer.util
 
-import android.graphics.Color as AndroidColor
+import androidx.core.graphics.toColorInt
 
 /**
  * Shared, UI-framework-agnostic resolver for sensor value colors.
@@ -52,7 +52,7 @@ object SensorValueColorResolver {
                     }
                     else -> null
                 }
-                if (hex != null) return AndroidColor.parseColor(hex)
+                if (hex != null) return hex.toColorInt()
             }
 
             if (isVirtualAqi && value != null) {
@@ -87,13 +87,13 @@ object SensorValueColorResolver {
                     }
                     else -> "#64748B"
                 }
-                return AndroidColor.parseColor(hex)
+                return hex.toColorInt()
             }
 
             if (value != null) {
                 val pmType = if (isPm10) "pm10" else "pm2.5"
                 val res = AqiCalculator.calculateInstantCast(value, pmType, aqiSystem)
-                return AndroidColor.parseColor(res.colorHex)
+                return res.colorHex.toColorInt()
             }
 
             return defaultColor

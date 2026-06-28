@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -40,18 +39,12 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalConfiguration
-import android.content.ClipData
-import android.widget.Toast
 import androidx.compose.ui.unit.IntOffset
 import kotlin.math.roundToInt
-import de.nichu42.boxviewer.util.CrashHandler
-import de.nichu42.boxviewer.util.ApiLogger
 
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -91,7 +84,6 @@ fun AboutScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .statusBarsPadding()
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
@@ -906,13 +898,23 @@ private fun calcScrollDelta(scrollState: ScrollState, targetScroll: Int): Float 
 }
 
 // Custom Third Party Licenses Screen (Option B) - 100% stable, custom styled, robust
+enum class LibraryCategory(val displayName: String) {
+    CORE_UI("Core UI & Architecture"),
+    NETWORKING("Networking & Media"),
+    DATABASE_CONCURRENCY("Database & Concurrency"),
+    UTILITIES("Utilities & Codecs"),
+    DATA_SERVICES("Data & Geocoding Services"),
+    TESTING("Testing Frameworks")
+}
+
 data class ThirdPartyLib(
     val name: String,
     val author: String,
     val description: String,
     val licenseName: String,
     val licenseText: String,
-    val url: String
+    val url: String,
+    val category: LibraryCategory
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -965,7 +967,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Modern and declarative UI toolkit, components, life cycle systems, and core tools used to build high-end Android products.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://developer.android.com/jetpack/compose"
+                url = "https://developer.android.com/jetpack/compose",
+                category = LibraryCategory.CORE_UI
             ),
             ThirdPartyLib(
                 name = "Retrofit",
@@ -973,7 +976,8 @@ fun ThirdPartyLicensesScreen(
                 description = "A type-safe HTTP client for Android and JVM, used to translate openSenseMap REST APIs into clean Kotlin interfaces.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://github.com/square/retrofit"
+                url = "https://github.com/square/retrofit",
+                category = LibraryCategory.NETWORKING
             ),
             ThirdPartyLib(
                 name = "OkHttp Engine & Interceptor",
@@ -981,7 +985,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Efficient modern connection multiplexing HTTP logging HTTP client infrastructure.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://github.com/square/okhttp"
+                url = "https://github.com/square/okhttp",
+                category = LibraryCategory.NETWORKING
             ),
             ThirdPartyLib(
                 name = "Moshi Core & Codegen",
@@ -989,7 +994,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Modern JSON library for Android, Kotlin, and Java, facilitating rapid type-safe JSON serialization/deserialization.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://github.com/square/moshi"
+                url = "https://github.com/square/moshi",
+                category = LibraryCategory.NETWORKING
             ),
             ThirdPartyLib(
                 name = "Coil Image Loader",
@@ -997,7 +1003,8 @@ fun ThirdPartyLicensesScreen(
                 description = "An image loading library for Android backed by Kotlin Coroutines, used to load remote assets and SVG vectors.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://github.com/coil-kt/coil"
+                url = "https://github.com/coil-kt/coil",
+                category = LibraryCategory.NETWORKING
             ),
             ThirdPartyLib(
                 name = "Kotlinx Coroutines & Flow",
@@ -1005,7 +1012,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Library support for Kotlin coroutines, facilitating clean asynchronous reactive data programming and state flow bindings.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://github.com/Kotlin/kotlinx.coroutines"
+                url = "https://github.com/Kotlin/kotlinx.coroutines",
+                category = LibraryCategory.DATABASE_CONCURRENCY
             ),
             ThirdPartyLib(
                 name = "Room Persistence Database",
@@ -1013,7 +1021,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Abstraction layer over SQLite, enabling robust, offline-capable structured query caching of user-added environmental sensor boxes.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://developer.android.com/training/data-storage/room"
+                url = "https://developer.android.com/training/data-storage/room",
+                category = LibraryCategory.DATABASE_CONCURRENCY
             ),
             ThirdPartyLib(
                 name = "ZXing Core",
@@ -1021,7 +1030,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Open-source barcode image processing library used to generate QR codes for sharing senseBox deep links locally on-device.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://github.com/zxing/zxing"
+                url = "https://github.com/zxing/zxing",
+                category = LibraryCategory.UTILITIES
             ),
             ThirdPartyLib(
                 name = "AndroidX Navigation Compose",
@@ -1029,7 +1039,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Type-safe navigation component for Jetpack Compose, used for in-app routing between dashboard, details, settings, and AQI screens.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://developer.android.com/jetpack/compose/navigation"
+                url = "https://developer.android.com/jetpack/compose/navigation",
+                category = LibraryCategory.CORE_UI
             ),
             ThirdPartyLib(
                 name = "AndroidX Core KTX & SplashScreen",
@@ -1037,7 +1048,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Kotlin extensions for Android framework APIs and the backwards-compatible splash screen API used at app launch.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://developer.android.com/jetpack/androidx/releases/core"
+                url = "https://developer.android.com/jetpack/androidx/releases/core",
+                category = LibraryCategory.CORE_UI
             ),
             ThirdPartyLib(
                 name = "AndroidX Lifecycle Compose",
@@ -1045,7 +1057,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Lifecycle-aware coroutine scopes, ViewModel integration, and Flow collection utilities for Compose.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://developer.android.com/jetpack/androidx/releases/lifecycle"
+                url = "https://developer.android.com/jetpack/androidx/releases/lifecycle",
+                category = LibraryCategory.CORE_UI
             ),
             ThirdPartyLib(
                 name = "AndroidX Activity Compose",
@@ -1053,7 +1066,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Compose integration for Activities, providing setContent support and handling configuration changes.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://developer.android.com/jetpack/androidx/releases/activity"
+                url = "https://developer.android.com/jetpack/androidx/releases/activity",
+                category = LibraryCategory.CORE_UI
             ),
             ThirdPartyLib(
                 name = "Compose Material Icons Extended",
@@ -1061,7 +1075,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Extended Material Design icon set used throughout the app for richer iconography.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary"
+                url = "https://developer.android.com/reference/kotlin/androidx/compose/material/icons/package-summary",
+                category = LibraryCategory.CORE_UI
             ),
             ThirdPartyLib(
                 name = "Robolectric",
@@ -1069,7 +1084,8 @@ fun ThirdPartyLicensesScreen(
                 description = "Unit testing framework that runs Android framework code on the JVM, used for the converter and AQI test suite.",
                 licenseName = "MIT License",
                 licenseText = mit,
-                url = "https://github.com/robolectric/robolectric"
+                url = "https://github.com/robolectric/robolectric",
+                category = LibraryCategory.TESTING
             ),
             ThirdPartyLib(
                 name = "Roborazzi",
@@ -1077,7 +1093,35 @@ fun ThirdPartyLicensesScreen(
                 description = "Screenshot testing toolkit for Compose used in the automated visual regression test suite.",
                 licenseName = "Apache License 2.0",
                 licenseText = apache2,
-                url = "https://github.com/takahirom/roborazzi"
+                url = "https://github.com/takahirom/roborazzi",
+                category = LibraryCategory.TESTING
+            ),
+            ThirdPartyLib(
+                name = "openSenseMap API",
+                author = "openSenseLab gGmbH",
+                description = "Open environmental sensor platform providing the core data feed, box metadata, and sensor measurements for the app.",
+                licenseName = "GPL v2 / ODbL",
+                licenseText = "Open environmental data powered by openSenseMap.org.",
+                url = "https://opensensemap.org",
+                category = LibraryCategory.DATA_SERVICES
+            ),
+            ThirdPartyLib(
+                name = "Photon Geocoder",
+                author = "komoot GmbH",
+                description = "Search and reverse-geocoding service powered by OpenStreetMap data, providing privacy-friendly address-to-coordinate lookups without Google dependencies.",
+                licenseName = "CC-BY-SA",
+                licenseText = "Data © OpenStreetMap contributors. Search service operated by komoot GmbH.",
+                url = "https://photon.komoot.io",
+                category = LibraryCategory.DATA_SERVICES
+            ),
+            ThirdPartyLib(
+                name = "Nominatim Geocoder",
+                author = "OpenStreetMap Foundation",
+                description = "Open-source search and reverse-geocoding engine for OpenStreetMap data, used as a secure secondary fallback for location resolution.",
+                licenseName = "ODbL License",
+                licenseText = "Data © OpenStreetMap contributors. OpenStreetMap® is open data, licensed under the Open Data Commons Open Database License (ODbL) by the OpenStreetMap Foundation.",
+                url = "https://nominatim.org",
+                category = LibraryCategory.DATA_SERVICES
             )
         )
     }
@@ -1122,114 +1166,131 @@ fun ThirdPartyLicensesScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            libraries.forEach { lib ->
-                var expanded by remember { mutableStateOf(false) }
+            val groupedLibraries = remember(libraries) {
+                libraries.groupBy { it.category }
+            }
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("lib_card_${lib.name.replace(" ", "_").lowercase()}"),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    onClick = { expanded = !expanded }
-                ) {
-                    Column(
+            LibraryCategory.entries.forEach { category ->
+                val libs = groupedLibraries[category] ?: return@forEach
+                val sortedLibs = remember(libs) { libs.sortedBy { it.name } }
+
+                Text(
+                    text = category.displayName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                )
+
+                sortedLibs.forEach { lib ->
+                    var expanded by remember { mutableStateOf(false) }
+
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
+                            .testTag("lib_card_${lib.name.replace(" ", "_").lowercase()}"),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        onClick = { expanded = !expanded }
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = lib.name,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = "by ${lib.author}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
-                            }
-                            IconButton(
-                                onClick = {
-                                    try {
-                                        uriHandler.openUri(lib.url)
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                    }
-                                },
-                                modifier = Modifier.size(36.dp).testTag("lib_link_${lib.name.replace(" ", "_").lowercase()}")
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Language,
-                                    contentDescription = "Open Homepage",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = lib.description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            lineHeight = 18.sp
-                        )
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            SuggestionChip(
-                                onClick = { expanded = !expanded },
-                                label = {
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = lib.licenseName,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold
+                                        text = lib.name,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "by ${lib.author}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.secondary
                                     )
                                 }
-                            )
+                                IconButton(
+                                    onClick = {
+                                        try {
+                                            uriHandler.openUri(lib.url)
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                        }
+                                    },
+                                    modifier = Modifier.size(36.dp).testTag("lib_link_${lib.name.replace(" ", "_").lowercase()}")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Language,
+                                        contentDescription = "Open Homepage",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
 
                             Text(
-                                text = if (expanded) "Hide details" else "Show license",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.SemiBold
+                                text = lib.description,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                lineHeight = 18.sp
                             )
-                        }
 
-                        if (expanded) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                        shape = RoundedCornerShape(6.dp)
-                                    )
-                                    .padding(12.dp)
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(
-                                    text = lib.licenseText,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = FontFamily.Monospace,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    lineHeight = 16.sp
+                                SuggestionChip(
+                                    onClick = { expanded = !expanded },
+                                    label = {
+                                        Text(
+                                            text = lib.licenseName,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
                                 )
+
+                                Text(
+                                    text = if (expanded) "Hide details" else "Show license",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+
+                            if (expanded) {
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                            shape = RoundedCornerShape(6.dp)
+                                        )
+                                        .padding(12.dp)
+                                ) {
+                                    Text(
+                                        text = lib.licenseText,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontFamily = FontFamily.Monospace,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        lineHeight = 16.sp
+                                    )
+                                }
                             }
                         }
                     }
@@ -1241,10 +1302,3 @@ fun ThirdPartyLicensesScreen(
     }
 }
 
-fun formatFileSize(size: Long): String {
-    return when {
-        size < 1024 -> "$size B"
-        size < 1024 * 1024 -> String.format(java.util.Locale.US, "%.1f KB", size / 1024.0)
-        else -> String.format(java.util.Locale.US, "%.1f MB", size / (1024.0 * 1024.0))
-    }
-}

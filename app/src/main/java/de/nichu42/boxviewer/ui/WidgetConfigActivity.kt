@@ -37,7 +37,7 @@ class WidgetConfigActivity : ComponentActivity() {
         }
 
         val db = SenseBoxDatabase.getDatabase(applicationContext)
-        val repository = SenseBoxRepository(db)
+        val repository = SenseBoxRepository(applicationContext, db)
 
         setContent {
             MyApplicationTheme(dynamicColor = false) {

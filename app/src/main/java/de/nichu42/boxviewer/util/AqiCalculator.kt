@@ -3,13 +3,13 @@ package de.nichu42.boxviewer.util
 import de.nichu42.boxviewer.data.db.SensorCacheEntity
 import kotlin.math.roundToInt
 
-enum class AqiSystem(val label: String, val scaleLabel: String) {
-    US_EPA("US EPA AQI", "AQI"),
-    UK_DAQI("UK DAQI", "DAQI"),
-    EU_EAQI("European EAQI", "EAQI"),
-    CANADA_AQHI("Canada AQHI", "AQHI"),
-    INDIA_AQI("India AQI", "AQI"),
-    CHINA_AQI("China AQI", "AQI")
+enum class AqiSystem(val label: String) {
+    US_EPA("US EPA AQI"),
+    UK_DAQI("UK DAQI"),
+    EU_EAQI("European EAQI"),
+    CANADA_AQHI("Canada AQHI"),
+    INDIA_AQI("India AQI"),
+    CHINA_AQI("China AQI")
 }
 
 data class AqiResult(

@@ -1,5 +1,7 @@
 package de.nichu42.boxviewer.data.repository
 
+import android.content.Context
+import android.widget.Toast
 import de.nichu42.boxviewer.data.api.RetrofitClient
 import de.nichu42.boxviewer.data.api.SenseBox
 import de.nichu42.boxviewer.data.db.*
@@ -12,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class SenseBoxRepository(db: SenseBoxDatabase) {
+class SenseBoxRepository(private val context: Context, db: SenseBoxDatabase) {
     private val api = RetrofitClient.api
     private val savedBoxDao = db.savedBoxDao()
     private val widgetConfigDao = db.widgetConfigDao()
@@ -37,6 +39,10 @@ class SenseBoxRepository(db: SenseBoxDatabase) {
 
     suspend fun getWidgetConfig(widgetId: Int): WidgetConfigEntity? = withContext(Dispatchers.IO) {
         widgetConfigDao.getWidgetConfig(widgetId)
+    }
+
+    suspend fun getAllWidgetConfigs(): List<WidgetConfigEntity> = withContext(Dispatchers.IO) {
+        widgetConfigDao.getAllWidgetConfigs()
     }
 
     suspend fun saveWidgetConfig(config: WidgetConfigEntity) = withContext(Dispatchers.IO) {
@@ -180,7 +186,7 @@ class SenseBoxRepository(db: SenseBoxDatabase) {
         // so newly-added boxes show Temperature → Humidity → PM10 → PM2.5 → AQI → Pressure → Wind → other.
         val synthesized = AqiCalculator.synthesizeVirtualSensors(caches, AqiSystem.US_EPA, box.id)
             .sortedWith(compareBy({ SensorSortKey.of(it.sensorTitle) }, { it.sensorTitle }))
-        val allSensorIds = synthesized.map { it.sensorId }.joinToString(",")
+        val allSensorIds = synthesized.joinToString(",") { it.sensorId }
 
         val entity = SavedBoxEntity(
             boxId = box.id,
@@ -270,12 +276,34 @@ class SenseBoxRepository(db: SenseBoxDatabase) {
         }
     }
 
+    private suspend fun showApiErrorToast(e: Exception) {
+        val message = when (e) {
+            is retrofit2.HttpException -> {
+                "API call failed: HTTP ${e.code()}"
+            }
+            is java.io.IOException -> {
+                "API call failed: Network error"
+            }
+            else -> {
+                "API call failed: ${e.localizedMessage ?: "Unknown error"}"
+            }
+        }
+        withContext(Dispatchers.Main) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private suspend fun <T> logApiCall(
         url: String,
         call: suspend () -> T
     ): T {
         if (!ApiLogger.isLoggingEnabled()) {
-            return call()
+            try {
+                return call()
+            } catch (e: Exception) {
+                showApiErrorToast(e)
+                throw e
+            }
         }
 
         val startTime = System.currentTimeMillis()
@@ -328,6 +356,7 @@ class SenseBoxRepository(db: SenseBoxDatabase) {
                     parsingResult = "Request Failed"
                 }
             }
+            showApiErrorToast(e)
             throw e
         } finally {
             val duration = System.currentTimeMillis() - startTime

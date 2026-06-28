@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -594,8 +595,8 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
     val histCacheKey = "$boxId/${sensor.id}"
     val historicalMeasurements = historyCache[histCacheKey]
     val isLoadingHistory = histCacheKey in historyLoadingIds
-    // historyError is surfaced via isLoadingHistory staying false and historicalMeasurements staying null
-    val historyError: String? = null // errors are swallowed in ViewModel; sparkline stays empty
+    // If loading fails, historicalMeasurements remains null, prompting fallback to the last single measurement
+
 
     // Trigger history load when card is first expanded (idempotent: no-ops if already loaded/loading)
     LaunchedEffect(isExpanded) {
@@ -699,7 +700,7 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
 
                     val labelText = if (isLoadingHistory) {
                         "FETCHING HISTORICAL MEASUREMENT TREND..."
-                    } else if (historyError != null) {
+                    } else if (historicalMeasurements == null) {
                         "HISTORICAL MEASUREMENT TREND (FALLBACK DATA)"
                     } else {
                         "HISTORICAL MEASUREMENT TREND"
@@ -743,9 +744,9 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                             if (sensor.id == "virtual_aqi") {
                                 rawMeasurements.map { m ->
                                     val rawVal = m.value?.toDoubleOrNull()
-                                    val res = viewModel.calculateInstantCastForBox(boxId, rawVal)
+                                    val res = viewModel.calculateInstantCastForBox(rawVal)
                                     val displayVal = if (res.value != null) {
-                                        String.format(java.util.Locale.US, "%.0f", res.value)
+                                        String.format(Locale.US, "%.0f", res.value)
                                     } else {
                                         // For qualitative EU EAQI, map to index severity level for the Sparkline height logic
                                         when (res.label) {
@@ -779,19 +780,19 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                         if (sensor.id == "virtual_aqi") {
                             val nowCastResult = remember(rawMeasurements, aqiSystem) {
                                 val rawVals = rawMeasurements.mapNotNull { it.value?.toDoubleOrNull() }
-                                viewModel.calculateNowCastForBox(boxId, rawVals)
+                                viewModel.calculateNowCastForBox(rawVals)
                             }
                             if (nowCastResult.isAvailable) {
                                 val scoreText = if (nowCastResult.value != null) {
-                                    String.format(java.util.Locale.US, "%.0f", nowCastResult.value)
+                                    String.format(Locale.US, "%.0f", nowCastResult.value)
                                 } else {
                                     ""
                                 }
-                                val badgeColor = Color(android.graphics.Color.parseColor(nowCastResult.colorHex))
+                                val badgeColor = Color(nowCastResult.colorHex.toColorInt())
                                 val textContrastColor = de.nichu42.boxviewer.ui.theme.SensorTheme.getContrastColor(badgeColor)
 
                                 Spacer(modifier = Modifier.height(8.dp))
-                                androidx.compose.foundation.layout.Box(
+                                Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .background(badgeColor, shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))

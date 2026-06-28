@@ -24,6 +24,11 @@ class ConverterTest {
         assertEquals("20.0", TemperatureConverter.convertValue("293.15", "K", "°C"))
         assertEquals("20.0", TemperatureConverter.convertValue("68.0", "°F", "°C"))
         
+        // Non-temperature units should bypass conversion completely and return unmodified
+        assertEquals("12.34", TemperatureConverter.convertValue("12.34", "µg/m³", "°F"))
+        assertEquals("42", TemperatureConverter.convertValue("42", "Good", "°F"))
+        assertEquals("85.5", TemperatureConverter.convertValue("85.5", "%", "K"))
+
         // Units
         assertEquals("°F", TemperatureConverter.convertUnit("°C", "°F"))
         assertEquals("°C", TemperatureConverter.convertUnit("°C", "°C"))

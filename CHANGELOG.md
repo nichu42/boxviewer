@@ -2,7 +2,32 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
-## [Unreleased]
+## [0.41] - 2026-06-28
+
+### Added
+- **Small and Large Home Screen Widgets**: Added two new widget sizes, `senseBox Info (Small 2x1)` and `senseBox Info (Large 4x3)`, in addition to the standard `Medium 3x2` widget.
+- **Responsive & Size-Adaptive Widgets**:
+  - Widgets dynamically adapt their layout to the size constraints. When a widget's height is too short (< 74dp), it automatically forces the Metric Highlight (GRID) view.
+  - Header elements (box name, update time, and action buttons) show or hide dynamically based on the widget's current width constraints to prevent clipping.
+  - A visual loading spinner replaces the refresh button while network requests are active.
+  - Improved layout background transparency handling.
+- **Resilient Alarm Scheduling & Boot Autostart**:
+  - Reschedules all widget update alarms automatically upon system reboot (`BOOT_COMPLETED`) or app update (`MY_PACKAGE_REPLACED`).
+  - Added `RECEIVE_BOOT_COMPLETED` permission declaration in `AndroidManifest.xml`.
+- **QR & Barcode Scanning Integration**:
+  - Added QR code scanner integration to the Discovery screen search bar. Users can now scan senseBox IDs or URLs containing box IDs using any external ZXing-compatible barcode scanner app.
+- **API Error Toasts**: Displays an error toast when openSenseMap API calls fail, showing the HTTP status code (if applicable) or the network error message.
+- **Geocoding & Data Service Attributions**: Added explicit attribution entries for openSenseMap, Photon, and Nominatim (with OpenStreetMap contributors licensing details) in both `AboutScreen` (under 'Data & Geocoding Services') and `README.md` ('Data, Geocoding & Attribution').
+
+### Changed
+- **Geocoding Fallback Prioritization**: Prioritized Photon (komoot GmbH, Germany) as the primary geocoding fallback, and Nominatim (OSM Foundation) as the secondary fallback.
+- **User-Agent Headers**: Set appropriate dynamic headers identifying `BoxViewer/versionname` on all geocoding (via `SenseBoxViewModel`) and openSenseMap (via Retrofit's `OkHttpClient`) network queries, resolving the version name dynamically from `BuildConfig.VERSION_NAME`.
+- **Third-Party Licenses UI**: Restructured the third-party licenses list in `AboutScreen` to be grouped into logical categories (Core UI, Networking, Concurrency, Utilities, Testing) and sorted alphabetically within each category for better organization.
+- **Privacy Disclosures**: Updated `PRIVACY.md` to disclose IP address transmission to external services (openSenseMap, Photon, Nominatim) under the GDPR and linked the privacy policies of Photon, Nominatim, and openSenseMap.
+
+### Fixed
+- **Cleaned Up Compose State Delegations**: Replaced generic `mutableStateOf` references with type-specific `mutableIntStateOf` and `mutableFloatStateOf` delegates on the Discovery screen to prevent boxing.
+- **Refactored NowCast & InstantCast Signature**: Simplified parameter signatures by removing unused `boxId` parameters.
 
 ## [0.40] - 2026-06-27
 

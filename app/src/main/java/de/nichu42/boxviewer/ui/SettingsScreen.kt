@@ -19,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -59,7 +58,6 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .statusBarsPadding()
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
@@ -361,7 +359,7 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     var apiLoggingEnabled by remember { mutableStateOf(ApiLogger.isLoggingEnabled()) }
-                    var apiLogLimit by remember { mutableStateOf(ApiLogger.getMaxEntries()) }
+                    var apiLogLimit by remember { mutableIntStateOf(ApiLogger.getMaxEntries()) }
                     var logSizeStr by remember { mutableStateOf("0 B") }
 
                     LaunchedEffect(apiLoggingEnabled) {

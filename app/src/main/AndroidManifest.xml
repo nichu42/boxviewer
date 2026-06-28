@@ -3,6 +3,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".BoxViewerApplication"
@@ -51,19 +52,58 @@
             </intent-filter>
         </activity>
 
-        <!-- Standard AppWidgetProvider Receiver -->
+        <!-- Standard AppWidgetProvider Receiver (Medium) -->
         <receiver
             android:name=".widget.SenseBoxWidgetProvider"
             android:exported="true"
-            android:label="senseBox Current Info">
+            android:label="@string/widget_name_medium">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
                 <action android:name="de.nichu42.boxviewer.widget.ACTION_REFRESH_WIDGET"/>
                 <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <!-- NOTE: ACTION_SCREEN_ON cannot be received by manifest receivers on Android;
+                     it must be registered dynamically. USER_PRESENT covers the unlock-to-refresh
+                     use case and is the reliable substitute. -->
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info"/>
+        </receiver>
+
+        <!-- Small AppWidgetProvider Receiver -->
+        <receiver
+            android:name=".widget.SenseBoxWidgetProviderSmall"
+            android:exported="true"
+            android:label="@string/widget_name_small">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="de.nichu42.boxviewer.widget.ACTION_REFRESH_WIDGET"/>
+                <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_small"/>
+        </receiver>
+
+        <!-- Large AppWidgetProvider Receiver -->
+        <receiver
+            android:name=".widget.SenseBoxWidgetProviderLarge"
+            android:exported="true"
+            android:label="@string/widget_name_large">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="de.nichu42.boxviewer.widget.ACTION_REFRESH_WIDGET"/>
+                <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info_large"/>
         </receiver>
 
         <!-- FileProvider for sharing QR code PNG images via share sheet -->

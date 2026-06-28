@@ -27,15 +27,15 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 
 ## ✨ Key Features
 
-*   **🔒 Privacy-First & De-Googled Friendly**: 100% free of Google Play Services (GMS) dependencies in the app code. Core functionality relies on the native Android `LocationManager` and direct openSenseMap APIs. Address search and location labels may use the device’s native geocoder (ROM-dependent backend) or an OpenStreetMap-based fallback; see the Privacy Policy for details. Zero telemetry, analytics, or third-party trackers.
 *   **📊 Live Interactive Dashboard**: Favorite and save specific environmental stations. Customize exactly which sensor metrics (Temperature, Humidity, UV, PM2.5, Barometric Pressure, etc.) you want to track at a glance.
-*   **🔍 Smart Discovery Engine**: Locate public senseBoxes from the openSenseMap community using direct search by name/ID, location address auto-complete, or on-demand GPS discovery.
-*   **📈 Rich Telemetry Analysis**: Deep telemetry streams visualization including units, last updated timestamps, coordinates, station type, and exposure type (indoor vs. outdoor).
-*   **🔋 Battery & API-Friendly**: Seamless local SQLite caching (`SensorCacheEntity`) and awake-on-unlock widget refresh logic ensure you get fresh data without draining your battery or hammering openSenseMap servers.
-*   **🌬️ Air Quality Index Engine**: Six international AQI standards (US EPA, UK DAQI, EU EAQI, Canada AQHI, India, China) with a virtual synthesized sensor and 12-hour NowCast averaging computed locally from cached openSenseMap data.
-*   **🌡️ Local Unit Conversion**: Per-sensor unit switching for temperature (°C/°F/K), pressure (hPa/mbar/Pa/inHg/mmHg), and wind (m/s/km/h/mph/kn) performed entirely on-device.
 *   **📱 Glanceable Home Widgets**: Customize home screen widgets featuring Material Design 3 theme colors to monitor your favorite senseBox metrics. Supports text & icon scaling up to 200%, toggling detail styles (Full Details, Value & Unit, Value Only), conditional formatting, AQI display modes, and direct home-screen reconfiguration on Android 12+. 
+*   **🌬️ Air Quality Index Engine**: Six international AQI standards (US EPA, UK DAQI, EU EAQI, Canada AQHI, India, China) with a virtual synthesized sensor and 12-hour NowCast averaging computed locally from cached openSenseMap data.
+*   **📈 Rich Telemetry Analysis**: Deep telemetry streams visualization including units, last updated timestamps, coordinates, station type, and exposure type (indoor vs. outdoor).
+*   **🔍 Smart Discovery Engine**: Locate public senseBoxes from the openSenseMap community using direct search by name/ID, location address auto-complete, or on-demand GPS discovery.
+*   **🌡️ Local Unit Conversion**: Per-sensor unit switching for temperature (°C/°F/K), pressure (hPa/mbar/Pa/inHg/mmHg), and wind (m/s/km/h/mph/kn) performed entirely on-device.
 *   **🔗 Quick Sharing & Deep Linking**: Generate local QR codes to share senseBox stations. Recipients scan the code or open a sharing web link to view the station directly inside the BoxViewer app.
+*   **🔋 Battery & API-Friendly**: Seamless local SQLite caching (`SensorCacheEntity`) and awake-on-unlock widget refresh logic ensure you get fresh data without draining your battery or hammering openSenseMap servers.
+*   **🔒 Privacy-First & De-Googled Friendly**: 100% free of Google Play Services (GMS) dependencies in the app code. Core functionality relies on the native Android `LocationManager` and direct openSenseMap APIs. Address search and location labels may use the device’s native geocoder (ROM-dependent backend) or an OpenStreetMap-based fallback; see the Privacy Policy for details. Zero telemetry, analytics, or third-party trackers.
 *   **🛠️ Local API Debug Logging**: Opt-in to capture raw API requests, responses, and Moshi parsing results in a JSON Lines (`.jsonl`) file stored locally. Copy or share logs via native sheets to diagnose errors easily.
 
 ---
@@ -86,21 +86,24 @@ BoxViewer adheres to the strict guidelines of modern Android architecture (MVVM 
 
 ---
 
-## 🌍 Data & Attribution (openSenseMap)
+## 🌍 Data, Geocoding & Attribution
 
+### openSenseMap API
 This app utilizes the open API provided by **openSenseMap**, an open-source platform dedicated to collecting and exploring environmental sensor data from around the globe.
 
-### What is openSenseMap?
-Originally emerged from a research project at the University of Münster (Germany), openSenseMap has grown into one of the largest citizen-operated sensor networks in the world. It provides a free platform for schools, universities, scientists, and citizen enthusiasts to publish real-time environmental measurements—such as air quality, temperature, and humidity—and share them as Open Data.
+*   **What is openSenseMap?**: Originally emerged from a research project at the University of Münster (Germany), openSenseMap has grown into one of the largest citizen-operated sensor networks in the world. It provides a free platform for schools, universities, scientists, and citizen enthusiasts to publish real-time environmental measurements—such as air quality, temperature, and humidity—and share them as Open Data.
+*   **Who operates it?**: The platform is operated and maintained by **openSenseLab gGmbH**, a non-profit organization based in Münster, Germany, dedicated to promoting digital sovereignty, education, and public participation in scientific environmental monitoring.
+*   **Support Open Data!**: openSenseMap is completely free to use and relies heavily on community contributions and donations to keep its servers running and its data accessible to all. If you love the environmental insights provided in this app, please consider supporting their project:
+    *   **Explore**: [opensensemap.org](https://opensensemap.org)
+    *   **Build**: [sensebox.de](https://sensebox.de)
+    *   **Donate**: [Donate via Betterplace](https://www.betterplace.org/en/projects/89947-opensensemap-org-the-free-map-for-environmental-data)
 
-### Who operates it?
-The platform is operated and maintained by **openSenseLab gGmbH**, a non-profit organization based in Münster, Germany, dedicated to promoting digital sovereignty, education, and public participation in scientific environmental monitoring.
+### Geocoding & Address Lookup
+To resolve coordinates to readable address labels (e.g., city/country) and enable searching for locations without relying on proprietary Google Play Services, BoxViewer integrates open-source OpenStreetMap (OSM) data backends:
+*   **Photon Geocoder**: An open, privacy-friendly search and reverse-geocoding service powered by OpenStreetMap data, operated by **[komoot GmbH](https://www.komoot.com)**, Berlin, Germany.
+*   **Nominatim Geocoder**: An open-source search and reverse-geocoding engine for OpenStreetMap data, operated by the **[OpenStreetMap Foundation](https://osmfoundation.org)**.
 
-### Support Open Data!
-openSenseMap is completely free to use and relies heavily on community contributions and donations to keep its servers running and its data accessible to all. If you love the environmental insights provided in this app, please consider supporting their project:
-*   **Explore**: [opensensemap.org](https://opensensemap.org)
-*   **Build**: [sensebox.de](https://sensebox.de)
-*   **Donate**: [Donate via Betterplace](https://www.betterplace.org/en/projects/89947-opensensemap-org-the-free-map-for-environmental-data)
+We are extremely grateful to the **OpenStreetMap contributors** for providing the underlying open map data that powers the geo features of this app.
 
 ---
 

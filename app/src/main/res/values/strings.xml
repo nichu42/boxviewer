@@ -18,4 +18,8 @@
     <string name="widget_placeholder_pressure" translatable="false">Druck</string>
     <string name="widget_placeholder_pm25" translatable="false">PM2.5</string>
     <string name="widget_placeholder_pm10" translatable="false">PM10</string>
+
+    <string name="widget_name_small">senseBox Info (Small 2x1)</string>
+    <string name="widget_name_medium">senseBox Info (Medium 3x2)</string>
+    <string name="widget_name_large">senseBox Info (Large 4x3)</string>
 </resources>
