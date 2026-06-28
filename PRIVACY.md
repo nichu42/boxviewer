@@ -1,6 +1,6 @@
 # Legal Disclosures & Privacy Policy / Impressum & Datenschutzerklärung
 
-**Effective Date / Stand:** June 25, 2026
+**Effective Date / Stand:** June 27, 2026
 
 *   [English Version (Imprint & Privacy Policy)](#english-version)
 *   [Deutsche Version (Impressum & Datenschutzerklärung)](#deutsche-version)
@@ -46,16 +46,25 @@ BoxViewer does **not** collect, store, or transmit any personal information, usa
 * No background analytics pings or telemetry SDKs (such as Firebase, Google Analytics, or Crashlytics) are integrated.
 
 ### 2. Network Connections
-To provide its core functionality, BoxViewer only communicates with the official **openSenseMap API**:
+To provide its core functionality, BoxViewer communicates with the official **openSenseMap API**:
 * **API Host:** `https://api.opensensemap.org`
 * **Purpose:** To fetch public senseBox configurations, metadata, and current sensor measurements.
-* No other third-party servers, advertisement networks, or tracking systems are contacted.
+
+**Geocoding Services — the only non-openSenseMap connections:**
+For address search (text → coordinates) and reverse location labels (coordinates → city/country), the app may contact the geocoding services described under "Location Data" below. These calls are triggered only by explicit user action and are not used for tracking, analytics, or advertising. BoxViewer does not intentionally contact Google; however, on stock Android devices the native `Geocoder` backend is typically provided by Google.
 
 ### 3. Location Data
 When you grant location permissions to BoxViewer:
-* The app uses the standard, native Android `LocationManager` to determine your device's coordinates (via GPS, Network, or Passive location providers).
-* **Local Processing:** This location is used solely on-device to calculate distances to nearby senseBoxes or to show your location on the discovery map.
-* **No Sharing:** Your location coordinates are never sent to our servers, openSenseMap, or any other third parties.
+* The app uses the standard, native Android `LocationManager` to determine your device's coordinates (via GPS, Network, or Passive location providers). `LocationManager` is part of AOSP and does not itself use Google Play Services.
+* **ROM-dependent backend:** On de-Googled ROMs (GrapheneOS, LineageOS without GMS, CalyxOS, etc.) the location providers do not contact Google. On stock Android devices with Google Play Services, the **Network** provider may use a Google-backed backend; the **GPS** provider does not.
+* **Local Processing:** Your coordinates are used solely on-device to query openSenseMap for nearby senseBoxes and to show your position on the discovery map.
+* **No Sharing:** Raw GPS coordinates are never sent to our servers or any third-party geocoding service unless you actively use address search or view a reverse-geocoded location label.
+
+#### Address Search & Location Labels
+For address search (text → coordinates) and reverse location labels (coordinates → city/country), the app may contact:
+* The native Android `android.location.Geocoder`. Its backend is determined by your device/ROM (on stock Android this is typically Google; on de-Googled ROMs it may be a different provider or unavailable).
+* A public OpenStreetMap-based geocoder (such as **Nominatim** or **Photon**) as a fallback when the native geocoder returns no results.
+Only the requested address or coordinate is transmitted. No telemetry, analytics, or identifiers are sent.
 
 ### 4. Local SQLite Storage
 The app stores your preferences, bookmarked senseBoxes, and cached sensor data locally on your device in a secure SQLite database. 
@@ -123,16 +132,25 @@ BoxViewer erhebt, speichert oder übermittelt keine personenbezogenen Daten, Nut
 * Es sind keine Telemetrie- oder Analyse-SDKs (wie Firebase, Google Analytics oder Crashlytics) integriert.
 
 ### 2. Netzwerkverbindungen
-Zur Bereitstellung der Kernfunktionalitäten kommuniziert BoxViewer ausschließlich mit der offiziellen **openSenseMap-API**:
+Zur Bereitstellung der Kernfunktionalitäten kommuniziert BoxViewer mit der offiziellen **openSenseMap-API**:
 * **API-Host:** `https://api.opensensemap.org`
 * **Zweck:** Abrufen öffentlicher senseBox-Konfigurationen, Metadaten und aktueller Sensormesswerte.
-* Es werden keine sonstigen Server, Werbenetzwerke oder Tracking-Systeme kontaktiert.
+
+**Geocoding-Dienste — die einzigen nicht-openSenseMap-Verbindungen:**
+Für die Adresssuche (Text → Koordinaten) und die Umkehrung von Ortsbezeichnungen (Koordinaten → Stadt/Land) kann die App die unter "Standortdaten" beschriebenen Geocoding-Dienste kontaktieren. Diese Aufrufe werden nur durch ausdrückliche Benutzeraktion ausgelöst und nicht für Tracking, Analyse oder Werbung verwendet. BoxViewer kontaktiert Google nicht bewusst; auf Standard-Android-Geräten wird der native `Geocoder`-Backend jedoch in der Regel von Google bereitgestellt.
 
 ### 3. Standortdaten
 Wenn Sie BoxViewer die Freigabe des Standorts erlauben:
-* Die App nutzt den standardmäßigen, nativen Android-`LocationManager`, um die Koordinaten Ihres Geräts zu bestimmen (über GPS, Mobilfunk oder passive Standortanbieter).
+* Die App nutzt den standardmäßigen, nativen Android-`LocationManager`, um die Koordinaten Ihres Geräts zu bestimmen (über GPS, Mobilfunk oder passive Standortanbieter). Der `LocationManager` ist Teil von AOSP und verwendet selbst keine Google Play Services.
+* **ROM-abhängiges Backend:** Auf de-Googled-ROMs (GrapheneOS, LineageOS ohne GMS, CalyxOS usw.) kontaktieren die Standortanbieter Google nicht. Auf Standard-Android-Geräten mit Google Play Services kann der **Mobilfunk**-Anbieter ein Google-gestütztes Backend verwenden; der **GPS**-Anbieter tut dies nicht.
 * **Lokale Verarbeitung:** Dieser Standort wird ausschließlich lokal auf Ihrem Gerät verwendet, um Entfernungen zu nahegelegenen senseBoxes zu berechnen oder Ihre Position auf der Umgebungskarte anzuzeigen.
-* **Keine Weitergabe:** Ihre Standortkoordinaten werden niemals an unsere Server, an openSenseMap oder an sonstige Dritte übermittelt.
+* **Keine Weitergabe:** Ihre Standortkoordinaten werden niemals an unsere Server, an openSenseMap oder an sonstige Dritte übermittelt, es sei denn, Sie nutzen aktiv die Adresssuche oder sehen sich eine umgekehrt geocodierte Ortsbezeichnung an.
+
+#### Adresssuche & Ortsbezeichnungen
+Für die Adresssuche (Text → Koordinaten) und die Umkehrung von Ortsbezeichnungen (Koordinaten → Stadt/Land) kann die App folgende Dienste kontaktieren:
+* Den nativen Android-`android.location.Geocoder`. Das Backend wird vom Gerät/ROM bestimmt (auf Standard-Android in der Regel Google; auf de-Googled-ROMs möglicherweise ein anderer Anbieter oder nicht verfügbar).
+* Einen öffentlichen OpenStreetMap-basierten Geocoder (z. B. **Nominatim** oder **Photon**) als Fallback, wenn der native Geocoder keine Ergebnisse liefert.
+Es werden nur die angefragte Adresse oder die Koordinate übertragen. Keine Telemetrie-, Analyse- oder Identifikationsdaten werden gesendet.
 
 ### 4. Lokaler SQLite-Speicher
 Die App speichert Ihre Einstellungen, favorisierten senseBoxes und zwischengespeicherten Messwerte lokal in einer sicheren SQLite-Datenbank auf Ihrem Gerät.

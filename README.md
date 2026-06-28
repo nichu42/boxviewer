@@ -27,7 +27,7 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 
 ## ✨ Key Features
 
-*   **🔒 Privacy-First & De-Googled Friendly**: 100% free of Google Play Services (GMS) dependencies. Relies purely on the native Android `LocationManager` and direct openSenseMap APIs. Zero telemetry, analytics, or third-party trackers.
+*   **🔒 Privacy-First & De-Googled Friendly**: 100% free of Google Play Services (GMS) dependencies in the app code. Core functionality relies on the native Android `LocationManager` and direct openSenseMap APIs. Address search and location labels may use the device’s native geocoder (ROM-dependent backend) or an OpenStreetMap-based fallback; see the Privacy Policy for details. Zero telemetry, analytics, or third-party trackers.
 *   **📊 Live Interactive Dashboard**: Favorite and save specific environmental stations. Customize exactly which sensor metrics (Temperature, Humidity, UV, PM2.5, Barometric Pressure, etc.) you want to track at a glance.
 *   **🔍 Smart Discovery Engine**: Locate public senseBoxes from the openSenseMap community using direct search by name/ID, location address auto-complete, or on-demand GPS discovery.
 *   **📈 Rich Telemetry Analysis**: Deep telemetry streams visualization including units, last updated timestamps, coordinates, station type, and exposure type (indoor vs. outdoor).
