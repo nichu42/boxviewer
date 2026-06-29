@@ -225,6 +225,25 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
             }
         }
 
+        fun updateAllWidgetsFromCache(context: Context, excludeWidgetId: Int? = null) {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val providers = listOf(
+                SenseBoxWidgetProvider::class.java,
+                SenseBoxWidgetProviderSmall::class.java,
+                SenseBoxWidgetProviderLarge::class.java
+            )
+            for (provider in providers) {
+                val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, provider))
+                if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
+                    for (appWidgetId in appWidgetIds) {
+                        if (appWidgetId != excludeWidgetId) {
+                            updateWidgetAsync(context, appWidgetManager, appWidgetId)
+                        }
+                    }
+                }
+            }
+        }
+
         fun updateWidgetByFetchingAsync(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, force: Boolean = false) {
             val db = SenseBoxDatabase.getDatabase(context)
             val repository = SenseBoxRepository(context, db)
@@ -265,7 +284,7 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
 
                 try {
                     // Fetch latest sensor values
-                    repository.fetchAndSyncBox(config.boxId)
+                    repository.fetchAndSyncBox(config.boxId, force)
                     
                     // Update configuration timestamp in local store
                     val updatedConfig = config.copy(lastFetchedTime = System.currentTimeMillis())
@@ -275,6 +294,9 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
 
                     val views = buildRemoteViews(context, updatedConfig, cachedSensors, isLoading = false)
                     appWidgetManager.updateAppWidget(appWidgetId, views)
+
+                    // Instantly sync the new values to all other active widgets
+                    updateAllWidgetsFromCache(context, excludeWidgetId = appWidgetId)
                 } catch (e: Exception) {
                     e.printStackTrace()
                     // Re-draw in case network fails with what is cached
@@ -347,31 +369,43 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
             val showRefreshButton = config.showRefreshButton && (minWidth == 0 || minWidth >= 140)
             val showConfigButton = config.showConfigButton && (minWidth == 0 || minWidth >= 140)
 
-            views.setTextViewText(R.id.widget_box_name, config.boxName)
-            views.setViewVisibility(R.id.widget_box_name, if (showBoxName) View.VISIBLE else View.GONE)
-
-            // Format date string
-            val updatedString = if (config.lastFetchedTime > 0) {
-                val df = SimpleDateFormat("HH:mm", Locale.getDefault())
-                "Updated ${df.format(Date(config.lastFetchedTime))}"
-            } else {
-                "Updated --:--"
-            }
-            views.setTextViewText(R.id.widget_update_time, updatedString)
-            views.setViewVisibility(R.id.widget_update_time, if (showUpdateTime) View.VISIBLE else View.GONE)
+            val hasVisibleHeaderElements = showBoxName || showUpdateTime || showRefreshButton || showConfigButton
+            views.setViewVisibility(R.id.widget_header, if (hasVisibleHeaderElements) View.VISIBLE else View.GONE)
 
             val textScale = config.textScale
-            views.setTextViewTextSize(R.id.widget_box_name, android.util.TypedValue.COMPLEX_UNIT_SP, 13f * textScale)
-            views.setTextViewTextSize(R.id.widget_update_time, android.util.TypedValue.COMPLEX_UNIT_SP, 9f * textScale)
 
-            if (isLoading) {
-                views.setViewVisibility(R.id.widget_refresh_button, View.GONE)
-                views.setViewVisibility(R.id.widget_loading_spinner, if (minWidth == 0 || minWidth >= 140) View.VISIBLE else View.GONE)
+            if (hasVisibleHeaderElements) {
+                views.setTextViewText(R.id.widget_box_name, config.boxName)
+                views.setViewVisibility(R.id.widget_box_name, if (showBoxName) View.VISIBLE else View.GONE)
+
+                // Format date string
+                val updatedString = if (config.lastFetchedTime > 0) {
+                    val df = SimpleDateFormat("HH:mm", Locale.getDefault())
+                    "Updated ${df.format(Date(config.lastFetchedTime))}"
+                } else {
+                    "Updated --:--"
+                }
+                views.setTextViewText(R.id.widget_update_time, updatedString)
+                views.setViewVisibility(R.id.widget_update_time, if (showUpdateTime) View.VISIBLE else View.GONE)
+
+                views.setTextViewTextSize(R.id.widget_box_name, android.util.TypedValue.COMPLEX_UNIT_SP, 13f * textScale)
+                views.setTextViewTextSize(R.id.widget_update_time, android.util.TypedValue.COMPLEX_UNIT_SP, 9f * textScale)
+
+                if (isLoading) {
+                    views.setViewVisibility(R.id.widget_refresh_button, View.GONE)
+                    views.setViewVisibility(R.id.widget_loading_spinner, if (minWidth == 0 || minWidth >= 140) View.VISIBLE else View.GONE)
+                } else {
+                    views.setViewVisibility(R.id.widget_refresh_button, if (showRefreshButton) View.VISIBLE else View.GONE)
+                    views.setViewVisibility(R.id.widget_loading_spinner, View.GONE)
+                }
+                views.setViewVisibility(R.id.widget_settings_button, if (showConfigButton) View.VISIBLE else View.GONE)
             } else {
-                views.setViewVisibility(R.id.widget_refresh_button, if (showRefreshButton) View.VISIBLE else View.GONE)
+                views.setViewVisibility(R.id.widget_box_name, View.GONE)
+                views.setViewVisibility(R.id.widget_update_time, View.GONE)
+                views.setViewVisibility(R.id.widget_refresh_button, View.GONE)
                 views.setViewVisibility(R.id.widget_loading_spinner, View.GONE)
+                views.setViewVisibility(R.id.widget_settings_button, View.GONE)
             }
-            views.setViewVisibility(R.id.widget_settings_button, if (showConfigButton) View.VISIBLE else View.GONE)
 
             // Theme indices background colors (modern, material palettes).
             // Handles backward-compatibility for values < 10, or treats them as ARGB colors directly.

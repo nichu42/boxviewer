@@ -24,6 +24,7 @@ import androidx.core.content.edit
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
+import de.nichu42.boxviewer.widget.SenseBoxWidgetProvider
 
 class SenseBoxViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -159,6 +160,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 repository.refreshAllSavedBoxes()
+                SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -170,6 +172,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
             putBoolean("use_conditional_formatting", use)
         }
+        SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
     }
 
     fun setTemperatureUnit(unit: String) {
@@ -177,6 +180,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
             putString("temperature_unit", unit)
         }
+        SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
     }
 
     fun setPressureUnit(unit: String) {
@@ -184,6 +188,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
             putString("pressure_unit", unit)
         }
+        SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
     }
 
     fun setWindUnit(unit: String) {
@@ -191,6 +196,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
             putString("wind_unit", unit)
         }
+        SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
     }
 
     fun setFormatPressure(format: Boolean) {
@@ -198,6 +204,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
             putBoolean("format_pressure", format)
         }
+        SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
     }
 
     fun setAppTheme(theme: AppTheme) {
@@ -212,6 +219,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit {
             putString("aqi_system", system.name)
         }
+        SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
     }
 
     enum class ExposureFilter(val label: String) {
@@ -1132,6 +1140,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 val box = repository.fetchAndSyncBox(boxId, force)
                 _selectedBox.value = box
                 _cachedSensors.value = repository.getCachedSensors(boxId)
+                SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
             } catch (e: Exception) {
                 e.printStackTrace()
                 if (!hasInitialValue) {
@@ -1149,10 +1158,12 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 val isSaved = repository.getSavedBox(box.id) != null
                 if (isSaved) {
                     repository.unfavoriteBox(box.id)
+                    SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
                 } else {
                     repository.favoriteBox(box)
                     try {
                         repository.fetchAndSyncBox(box.id, true)
+                        SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
                     } catch (fetchEx: Exception) {
                         fetchEx.printStackTrace()
                     }
@@ -1168,6 +1179,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 repository.unfavoriteBox(boxId)
+                SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -1341,6 +1353,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             _isLoading.value = true
             try {
                 repository.refreshAllSavedBoxes(force)
+                SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
             } catch (e: Exception) {
                 e.printStackTrace()
                 _errorMessage.value = "Failed to refresh: ${e.message}"

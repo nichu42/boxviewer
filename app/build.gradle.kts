@@ -14,8 +14,8 @@ android {
     applicationId = "de.nichu42.boxviewer"
     minSdk = 24
     targetSdk = 37
-    versionCode = 9
-    versionName = "0.41"
+    versionCode = 10
+    versionName = "0.42"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }

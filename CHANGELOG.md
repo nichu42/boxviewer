@@ -2,6 +2,21 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [0.42] - 2026-06-29
+
+### Added
+- **Coherent Local Synchronization**: Added instant database-to-widget updates whenever measurements are updated in the app (e.g., during startup synchronization, dashboard refreshes, detail screen sync, or toggling favorites) or when unit and formatting preferences are changed (temperature, pressure, wind units, conditional formatting, and AQI systems). This ensures home screen widgets, the dashboard, and details pages are instantly kept in sync without triggering redundant network calls.
+- **Forced Update Rate-Limiting**: Implemented a 15-second rate-limit throttle on manual forced updates per senseBox to prevent hammering the openSenseMap API. Displays a debounced Toast warning if spammed, and gracefully degrades to resolving from the local SQLite cache.
+- **Legacy Launcher Icon Fallbacks**: Added legacy square (`ic_launcher.png`) and round (`ic_launcher_round.png`) launcher icons across all density buckets (`mdpi` to `xxxhdpi`) generated from the updated logo. This ensures clean, high-quality, and consistent app icon presentation on older Android versions and system-level components (such as Toast notification headers on Android 12+).
+
+### Changed
+- **Launcher Icon Border & Margin Refinement**: Cleaned up the app icon artwork to remove the outer blue frame and built a 60% artwork scale safety margin directly into the source logo WebP file. This ensures the branding crops cleanly inside circular, squircle, and rounded-rectangle launcher shapes, and remains fully unclipped inside system-rendered Toast headers.
+- **Launcher & Splash Icon Scaling**: Adjusted the adaptive launcher foreground insets to `8dp` and the startup splash screen icon insets to `32dp` to optimize visibility and render both icons at highly readable, prominent sizes on all devices.
+
+### Fixed
+- **Widget Layout Jump**: Fixed a layout jump during widget updates when the header is disabled. The header container and the loading spinner are now hidden entirely if all header elements (box name, update time, and buttons) are disabled by the user or hidden due to widget size constraints.
+- **Widget Physical Refresh Force Flag**: Fixed a bug where the `force` parameter was not forwarded to the database repository in `SenseBoxWidgetProvider`, which previously caused manual widget refreshes to be ignored if the database cache was fresh.
+
 ## [0.41] - 2026-06-28
 
 ### Added

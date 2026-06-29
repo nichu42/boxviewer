@@ -60,9 +60,24 @@ class SenseBoxRepository(private val context: Context, db: SenseBoxDatabase) {
     suspend fun fetchAndSyncBox(boxId: String, force: Boolean = false): SenseBox = withContext(Dispatchers.IO) {
         val cached = sensorCacheDao.getCachedSensors(boxId)
         val now = System.currentTimeMillis()
+
+        var actualForce = force
+        if (force) {
+            val lastForced = lastForcedFetchTimes[boxId] ?: 0L
+            if (now - lastForced < 15000L) {
+                if (now - lastToastTime > 3000L) {
+                    lastToastTime = now
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Rate limit: Please wait 15s between manual refreshes.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                actualForce = false
+            }
+        }
+
         val isFresh = cached.isNotEmpty() && cached.any { (now - it.localFetchedAt) < 60000 }
 
-        if (!force && isFresh) {
+        if (!actualForce && isFresh) {
             val saved = savedBoxDao.getSavedBox(boxId)
             return@withContext SenseBox(
                 id = boxId,
@@ -93,6 +108,10 @@ class SenseBoxRepository(private val context: Context, db: SenseBoxDatabase) {
         val url = "https://api.opensensemap.org/boxes/$boxId"
         val box = logApiCall(url) {
             api.getBox(boxId)
+        }
+        
+        if (actualForce) {
+            lastForcedFetchTimes[boxId] = System.currentTimeMillis()
         }
         
         // Cache sensors
@@ -372,5 +391,11 @@ class SenseBoxRepository(private val context: Context, db: SenseBoxDatabase) {
                 error = errorMsg
             )
         }
+    }
+
+    companion object {
+        private val lastForcedFetchTimes = java.util.concurrent.ConcurrentHashMap<String, Long>()
+        @Volatile
+        private var lastToastTime = 0L
     }
 }
