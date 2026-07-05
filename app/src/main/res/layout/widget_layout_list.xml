@@ -85,13 +85,14 @@
         android:clickable="true"
         android:focusable="true"
         android:background="@drawable/widget_inner_card_bg"
-        android:gravity="center_vertical">
+        android:gravity="top">
 
         <!-- Content Row 1 -->
         <RelativeLayout
             android:id="@+id/row_1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <ImageView
                 android:id="@+id/sensor_icon_1"
@@ -133,7 +134,8 @@
         <RelativeLayout
             android:id="@+id/row_2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:layout_marginTop="4.5dp">
 
             <ImageView
@@ -176,7 +178,8 @@
         <RelativeLayout
             android:id="@+id/row_3"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:layout_marginTop="4.5dp">
 
             <ImageView
@@ -219,7 +222,8 @@
         <RelativeLayout
             android:id="@+id/row_4"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:layout_marginTop="4.5dp"
             android:visibility="gone">
 
@@ -263,7 +267,8 @@
         <RelativeLayout
             android:id="@+id/row_5"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:layout_marginTop="4.5dp"
             android:visibility="gone">
 
@@ -307,7 +312,8 @@
         <RelativeLayout
             android:id="@+id/row_6"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:layout_marginTop="4.5dp"
             android:visibility="gone">
 

@@ -2,6 +2,12 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [0.43] - 2026-07-05
+
+### Fixed
+- **Widget Vertical Fill / Blank Space**: Fixed a layout issue where the list-style widget left wasted blank space at the top and bottom of the values container, omitting content that would have fit in the widget. Sensor rows are now weight-distributed (`layout_weight="1"`) so they expand to evenly fill the widget's full height, regardless of how many rows are visible (3–6). The container gravity also switched from `center_vertical` to `top` to anchor rows at the top when fewer rows are present.
+- **Widget Row-Count Sizing Thresholds**: Switched the row-count computation from the conservative `OPTION_APPWIDGET_MIN_HEIGHT` to the larger of the widget's MIN/MAX height bounds, and added the previously missing 5-row tier. Thresholds are now slightly more generous (140/170/200 dp) so taller widgets show as many rows as actually fit, instead of under-utilizing available space.
+
 ## [0.42] - 2026-06-29
 
 ### Added

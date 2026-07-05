@@ -352,6 +352,11 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
             val options = appWidgetManager.getAppWidgetOptions(config.widgetId)
             val minWidth = options?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH) ?: 0
             val minHeight = options?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT) ?: 0
+            // Use the largest of the reported height bounds so a widget that was resized
+            // taller than its minimum still gets enough rows to fill the available space
+            // instead of leaving blank space at the top and bottom of the widget.
+            val maxHeight = options?.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT) ?: 0
+            val effectiveHeight = maxOf(minHeight, maxHeight)
 
             val actualIsMetricMode = if (minHeight in 1..74) {
                 // Too short to display a list, dynamically adapt by forcing metric highlight
@@ -540,10 +545,11 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
                     views.setTextColor(R.id.big_sensor_value, 0xFF38BDF8.toInt())
                 }
             } else {
-                val maxRows = if (minHeight > 0) {
+                val maxRows = if (effectiveHeight > 0) {
                     when {
-                        minHeight < 120 -> 3
-                        minHeight < 180 -> 4
+                        effectiveHeight < 140 -> 3
+                        effectiveHeight < 170 -> 4
+                        effectiveHeight < 200 -> 5
                         else -> 6
                     }
                 } else {
