@@ -370,7 +370,7 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
 
             // Setup box details with size-dependent visibility constraints
             val showBoxName = config.showBoxName && (minWidth == 0 || minWidth >= 120)
-            val showUpdateTime = config.showUpdateTime && (minWidth == 0 || minWidth >= 160)
+            val showUpdateTime = config.showUpdateTime && (minWidth == 0 || minWidth >= 80)
             val showRefreshButton = config.showRefreshButton && (minWidth == 0 || minWidth >= 140)
             val showConfigButton = config.showConfigButton && (minWidth == 0 || minWidth >= 140)
 
@@ -384,11 +384,13 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
                 views.setViewVisibility(R.id.widget_box_name, if (showBoxName) View.VISIBLE else View.GONE)
 
                 // Format date string
+                val showFullTime = minWidth == 0 || minWidth >= 160
                 val updatedString = if (config.lastFetchedTime > 0) {
                     val df = SimpleDateFormat("HH:mm", Locale.getDefault())
-                    "Updated ${df.format(Date(config.lastFetchedTime))}"
+                    val timeStr = df.format(Date(config.lastFetchedTime))
+                    if (showFullTime) "Updated $timeStr" else timeStr
                 } else {
-                    "Updated --:--"
+                    if (showFullTime) "Updated --:--" else "--:--"
                 }
                 views.setTextViewText(R.id.widget_update_time, updatedString)
                 views.setViewVisibility(R.id.widget_update_time, if (showUpdateTime) View.VISIBLE else View.GONE)

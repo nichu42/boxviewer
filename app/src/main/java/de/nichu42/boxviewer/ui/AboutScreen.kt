@@ -998,15 +998,6 @@ fun ThirdPartyLicensesScreen(
                 category = LibraryCategory.NETWORKING
             ),
             ThirdPartyLib(
-                name = "Coil Image Loader",
-                author = "Coil Contributors",
-                description = "An image loading library for Android backed by Kotlin Coroutines, used to load remote assets and SVG vectors.",
-                licenseName = "Apache License 2.0",
-                licenseText = apache2,
-                url = "https://github.com/coil-kt/coil",
-                category = LibraryCategory.NETWORKING
-            ),
-            ThirdPartyLib(
                 name = "Kotlinx Coroutines & Flow",
                 author = "JetBrains s.r.o.",
                 description = "Library support for Kotlin coroutines, facilitating clean asynchronous reactive data programming and state flow bindings.",

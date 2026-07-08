@@ -8,7 +8,7 @@
 ---
 
 <a id="english-version"></a>
-# English Version: Imprint & Privacy Policy
+# English Version
 
 <a id="imprint"></a>
 ## Part 1: Imprint (Provider Identification)
@@ -101,7 +101,7 @@ If you have any questions or feedback regarding this policy, feel free to open a
 ---
 
 <a id="deutsche-version"></a>
-# Deutsche Version: Impressum & Datenschutzerklärung
+# Deutsche Version
 
 <a id="impressum"></a>
 ## Teil 1: Impressum (Anbieterkennzeichnung)

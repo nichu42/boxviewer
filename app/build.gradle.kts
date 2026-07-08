@@ -14,10 +14,8 @@ android {
     applicationId = "de.nichu42.boxviewer"
     minSdk = 24
     targetSdk = 37
-    versionCode = 11
-    versionName = "0.43"
-
-    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    versionCode = 12
+    versionName = "0.44"
   }
 
   signingConfigs {
@@ -106,8 +104,6 @@ dependencies {
   implementation(libs.androidx.navigation.compose)
   implementation(libs.androidx.room.ktx)
   implementation(libs.androidx.room.runtime)
-  implementation(libs.coil.compose)
-  implementation(libs.coil.svg)
   implementation(libs.converter.moshi)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
@@ -123,11 +119,7 @@ dependencies {
   testImplementation(libs.roborazzi)
   testImplementation(libs.roborazzi.compose)
   testImplementation(libs.roborazzi.junit.rule)
-  androidTestImplementation(platform(libs.androidx.compose.bom))
-  androidTestImplementation(libs.androidx.espresso.core)
-  androidTestImplementation(libs.androidx.runner)
   "sharedTestImplementation"(libs.androidx.compose.ui.test.junit4)
-  "sharedTestImplementation"(libs.androidx.junit)
   debugImplementation(libs.androidx.compose.ui.test.manifest)
   debugImplementation(libs.androidx.compose.ui.tooling)
   "ksp"(libs.androidx.room.compiler)

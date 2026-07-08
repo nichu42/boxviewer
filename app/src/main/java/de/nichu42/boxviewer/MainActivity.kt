@@ -34,6 +34,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import de.nichu42.boxviewer.ui.AboutScreen
 import de.nichu42.boxviewer.ui.SettingsScreen
+import de.nichu42.boxviewer.ui.ApiLogViewerScreen
 import de.nichu42.boxviewer.ui.AqiInfoScreen
 import de.nichu42.boxviewer.ui.AddBoxConfirmScreen
 import de.nichu42.boxviewer.ui.LicenseScreen
@@ -174,7 +175,7 @@ class MainActivity : ComponentActivity() {
                         val activeTab = when (currentRoute) {
                             "dashboard", "detail/{boxId}", "add/{boxId}" -> "dashboard"
                             "discovery" -> "discovery"
-                            "settings", "aqi_info" -> "settings"
+                            "settings", "aqi_info", "api_log_viewer" -> "settings"
                             "about", "license", "third_party_licenses" -> "about"
                             else -> null
                         }
@@ -301,11 +302,21 @@ class MainActivity : ComponentActivity() {
                                 viewModel = viewModel,
                                 onNavigateToAqiInfo = {
                                     navController.navigate("aqi_info")
+                                },
+                                onNavigateToApiLogViewer = {
+                                    navController.navigate("api_log_viewer")
                                 }
                             )
                         }
                         composable("aqi_info") {
                             AqiInfoScreen(
+                                onBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+                        composable("api_log_viewer") {
+                            ApiLogViewerScreen(
                                 onBack = {
                                     navController.popBackStack()
                                 }

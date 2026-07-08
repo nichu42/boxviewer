@@ -234,6 +234,46 @@ object ApiLogger {
         }
     }
 
+    suspend fun parseLogs(): Pair<Map<String, Any>?, List<ApiLogEntry>> {
+        return mutex.withLock {
+            val context = appContext ?: return@withLock Pair(null, emptyList())
+            val file = File(context.filesDir, FILE_NAME)
+            if (!file.exists()) return@withLock Pair(null, emptyList())
+
+            val diagnostics = mutableMapOf<String, Any>()
+            val entries = mutableListOf<ApiLogEntry>()
+
+            try {
+                file.forEachLine { line ->
+                    if (line.isBlank()) return@forEachLine
+                    if (line.contains("\"type\":\"diagnostics\"") || line.contains("\"type\" : \"diagnostics\"")) {
+                        try {
+                            @Suppress("UNCHECKED_CAST")
+                            val map = moshi.adapter(Map::class.java).fromJson(line) as? Map<String, Any>
+                            if (map != null) {
+                                diagnostics.putAll(map)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    } else {
+                        try {
+                            val entry = entryAdapter.fromJson(line)
+                            if (entry != null) {
+                                entries.add(entry)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            Pair(diagnostics.ifEmpty { null }, entries.reversed())
+        }
+    }
+
     suspend fun getLogFileSize(): Long {
         return mutex.withLock {
             val context = appContext ?: return@withLock 0L
