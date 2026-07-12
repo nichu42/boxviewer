@@ -48,7 +48,7 @@ jobs:
           rclone sync ./web "bunny:${BUNNY_S3_BUCKET}" \
             --fast-list --checksum --transfers 16 --verbose
 
-      - name: Purge CDN cache for updated files
+      - name: Purge CDN cache for changed files
         continue-on-error: true
         env:
           BUNNY_API_KEY: ${{ secrets.BUNNY_API_KEY }}
@@ -58,11 +58,22 @@ jobs:
             exit 0
           fi
           domain="share.boxviewer.app"
+          base="${{ github.event.before }}"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            echo "No previous commit available (force push or manual run); purging all web assets"
+            files=$(find ./web -type f | sed 's#^./web/##')
+          else
+            echo "Detecting changed files between $base and ${{ github.sha }}"
+            files=$(git diff --name-only "$base" "${{ github.sha }}" -- web/ | sed 's#^web/##')
+          fi
+          if [ -z "$files" ]; then
+            echo "No web files changed, nothing to purge"
+            exit 0
+          fi
           urls=""
-          while IFS= read -r file; do
-            path="${file#./web/}"
-            urls="${urls}\"https://${domain}/${path}\","
-          done < <(find ./web -type f)
+          while IFS= read -r path; do
+            [ -n "$path" ] && urls="${urls}\"https://${domain}/${path}\","
+          done <<< "$files"
           urls="[${urls%,}]"
           echo "Purging URLs: $urls"
           curl -s -X POST "https://api.bunny.net/purge" \
