@@ -23,23 +23,23 @@
             // Fallback for browsers that don't redirect automatically
             setTimeout(() => {
                 spinner.style.display = "none";
-                statusText.textContent = "If the station did not open automatically, tap the button below to launch the app. If you don't have BoxViewer installed, you can download the open-source client from Codeberg.";
+                statusText.textContent = "If the station did not open automatically, tap the button below to launch the app. If you don't have BoxViewer installed, you can download the open-source client from GitHub.";
                 actionBtn.textContent = "Open in App";
 
                 const installContainer = document.createElement('div');
-                installContainer.innerHTML = '<a href="https://codeberg.org/nichu42/BoxViewer" class="install-link">Get BoxViewer on Codeberg &rarr;</a>';
+                installContainer.innerHTML = '<a href="https://github.com/nichu42/boxviewer" class="install-link">Get BoxViewer on GitHub &rarr;</a>';
                 actionBtn.parentNode.insertBefore(installContainer, actionBtn.nextSibling);
             }, 2500);
         } else {
             heading.textContent = "Invalid Station Link";
             statusText.textContent = "The senseBox ID provided in this URL is invalid or malformed. Please verify that you have copied the correct sharing link from your device.";
-            actionBtn.textContent = "Visit Codeberg Project";
-            actionBtn.href = "https://codeberg.org/nichu42/BoxViewer";
+            actionBtn.textContent = "Visit GitHub Project";
+            actionBtn.href = "https://github.com/nichu42/boxviewer";
         }
     } else {
         heading.textContent = "BoxViewer for openSenseMap";
         statusText.textContent = "BoxViewer is a beautiful, tracking-free Android companion client for the openSenseMap community. This sharing page helps you open community weather stations and DIY senseBoxes directly in the app.";
-        actionBtn.textContent = "Get BoxViewer on Codeberg";
-        actionBtn.href = "https://codeberg.org/nichu42/BoxViewer";
+        actionBtn.textContent = "Get BoxViewer on GitHub";
+        actionBtn.href = "https://github.com/nichu42/boxviewer";
     }
 })();

@@ -1,0 +1,61 @@
+name: Deploy to bunny.net
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'web/**'
+  workflow_dispatch:
+
+concurrency:
+  group: bunny-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install rclone
+        run: curl -fsSL https://rclone.org/install.sh | sudo bash
+
+      - name: Configure rclone for Bunny Storage
+        env:
+          BUNNY_S3_ENDPOINT: ${{ secrets.BUNNY_S3_ENDPOINT }}
+          BUNNY_S3_ACCESS_KEY: ${{ secrets.BUNNY_S3_ACCESS_KEY }}
+          BUNNY_S3_SECRET_KEY: ${{ secrets.BUNNY_S3_SECRET_KEY }}
+        run: |
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf <<EOF
+          [bunny]
+          type = s3
+          provider = Bunny
+          env_auth = false
+          access_key_id = ${BUNNY_S3_ACCESS_KEY}
+          secret_access_key = ${BUNNY_S3_SECRET_KEY}
+          endpoint = ${BUNNY_S3_ENDPOINT}
+          acl = private
+          EOF
+
+      - name: Sync web assets to Bunny Storage
+        env:
+          BUNNY_S3_BUCKET: ${{ secrets.BUNNY_S3_BUCKET }}
+        run: |
+          rclone sync ./web "bunny:${BUNNY_S3_BUCKET}" \
+            --fast-list --checksum --transfers 16 --verbose
+
+      - name: Purge pull zone cache
+        continue-on-error: true
+        env:
+          BUNNY_API_KEY: ${{ secrets.BUNNY_API_KEY }}
+          BUNNY_PULL_ZONE_ID: ${{ secrets.BUNNY_PULL_ZONE_ID }}
+        run: |
+          if [ -z "$BUNNY_API_KEY" ] || [ -z "$BUNNY_PULL_ZONE_ID" ]; then
+            echo "BUNNY_API_KEY or BUNNY_PULL_ZONE_ID not set, skipping cache purge"
+            exit 0
+          fi
+          curl -s -X POST "https://api.bunny.net/pullzone/${BUNNY_PULL_ZONE_ID}/purgeCache" \
+            -H "AccessKey: ${BUNNY_API_KEY}"

@@ -1,0 +1,48 @@
+name: Build and Release APK
+
+on:
+  push:
+    tags:
+      - 'v*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Decode release keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks
+
+      - name: Build release APK
+        env:
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m" -Dorg.gradle.workers.max=2 --warning-mode all
+
+      - name: Rename release APK
+        run: cp app/build/outputs/apk/release/app-release.apk "BoxViewer-${{ github.ref_name }}.apk"
+
+      - name: Upload release APK to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          files: BoxViewer-${{ github.ref_name }}.apk
+          generate_release_notes: true

@@ -140,11 +140,11 @@ fun AboutScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
                     
-                    // Codeberg Link Button
+                    // GitHub Link Button
                     Button(
                         onClick = {
                             try {
-                                uriHandler.openUri("https://codeberg.org/nichu42/BoxViewer")
+                                uriHandler.openUri("https://github.com/nichu42/boxviewer")
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
@@ -158,12 +158,12 @@ fun AboutScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Language,
-                            contentDescription = "Codeberg Homepage",
+                            contentDescription = "GitHub Project Page",
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Project Homepage (Codeberg)",
+                            text = "Project Homepage (GitHub)",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold
                         )

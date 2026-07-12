@@ -33,7 +33,15 @@
                 <data android:scheme="boxviewer" android:host="box" />
             </intent-filter>
 
-            <!-- HTTPS App Link / Deep Link for Codeberg Pages Forwarding Service -->
+            <!-- HTTPS App Link / Deep Link for bunny.net forwarding service (canonical) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="share.boxviewer.app" android:pathPrefix="/" />
+            </intent-filter>
+
+            <!-- Legacy HTTPS App Link for Codeberg Pages forwarding service (backward compatibility for old shared links) -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
                         dismissButton = {
                             OutlinedButton(
                                 onClick = {
-                                    val intent = Intent(Intent.ACTION_VIEW, "https://codeberg.org/nichu42/BoxViewer".toUri())
+                                    val intent = Intent(Intent.ACTION_VIEW, "https://github.com/nichu42/boxviewer".toUri())
                                     startActivity(intent)
                                     finish()
                                 }
@@ -432,7 +432,7 @@ class MainActivity : ComponentActivity() {
         val uri = intent.data ?: return null
 
         val id = when (uri.scheme) {
-            "https" -> if (uri.host == "nichu42.codeberg.page") uri.getQueryParameter("id") else null
+            "https" -> if (uri.host in setOf("share.boxviewer.app", "nichu42.codeberg.page")) uri.getQueryParameter("id") else null
             "boxviewer" -> if (uri.host == "box") uri.pathSegments.firstOrNull() else null
             else -> null
         }

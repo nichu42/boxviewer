@@ -2,6 +2,18 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [0.45] - 2026-07-12
+
+### Changed
+- **Project Home Moved to GitHub**: The canonical repository is now `https://github.com/nichu42/boxviewer`. Issue tracking, source browsing, and release downloads have moved from Codeberg to GitHub. This was necessary because the project was not wanted on Codeberg by their community.
+- **Web Hosting Moved to bunny.net**: The sharing/deep-link landing page is now hosted on bunny.net (European provider) at `https://share.boxviewer.app` using the high-volume global CDN tier. The previous Codeberg Pages workflow has been replaced by an automated bunny.net Storage Zone sync.
+- **Sharing URLs Updated**: senseBox share links now point to `https://share.boxviewer.app/?id=<boxId>`. This is a breaking change. Previous links do no longer work!
+- **CI/CD Migration**: Replaced Woodpecker/Forgejo workflows with GitHub Actions — `.github/workflows/release.yml` for signed APK releases and `.github/workflows/deploy-bunny.yml` for web asset deployment.
+
+### Updated
+- `PRIVACY.md` (English and German) now discloses bunny.net hosting and global CDN processing.
+- `README.md`, `web/index.html`, `web/app.js`, and `web/.well-known/security.txt` now reference GitHub and `share.boxviewer.app`.
+
 ## [0.43] - 2026-07-05
 
 ### Fixed

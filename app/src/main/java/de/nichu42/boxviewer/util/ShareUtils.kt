@@ -18,7 +18,7 @@ import java.io.FileOutputStream
 
 object ShareUtils {
 
-    private const val SHARE_BASE_URL = "https://nichu42.codeberg.page/BoxViewer"
+    private const val SHARE_BASE_URL = "https://share.boxviewer.app"
 
     fun buildBoxDeepLink(boxId: String): String = "$SHARE_BASE_URL/?id=$boxId"
 
