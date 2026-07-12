@@ -96,6 +96,7 @@ This app utilizes the open API provided by **openSenseMap**, an open-source plat
 *   **Support Open Data!**: openSenseMap is completely free to use and relies heavily on community contributions and donations to keep its servers running and its data accessible to all. If you love the environmental insights provided in this app, please consider supporting their project:
     *   **Explore**: [opensensemap.org](https://opensensemap.org)
     *   **Build**: [sensebox.de](https://sensebox.de)
+    *   **Source code**: [sensebox/openSenseMap](https://github.com/sensebox/openSenseMap) · [sensebox/openSenseMap-API](https://github.com/sensebox/openSenseMap-API)
     *   **Donate**: [Donate via Betterplace](https://www.betterplace.org/en/projects/89947-opensensemap-org-the-free-map-for-environmental-data)
 
 ### Geocoding & Address Lookup
