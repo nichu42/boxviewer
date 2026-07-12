@@ -48,17 +48,24 @@ jobs:
           rclone sync ./web "bunny:${BUNNY_S3_BUCKET}" \
             --fast-list --checksum --transfers 16 --verbose
 
-      - name: Purge pull zone cache
+      - name: Purge CDN cache for updated files
         continue-on-error: true
         env:
           BUNNY_API_KEY: ${{ secrets.BUNNY_API_KEY }}
-          BUNNY_PULL_ZONE_ID: ${{ secrets.BUNNY_PULL_ZONE_ID }}
         run: |
-          if [ -z "$BUNNY_API_KEY" ] || [ -z "$BUNNY_PULL_ZONE_ID" ]; then
-            echo "BUNNY_API_KEY or BUNNY_PULL_ZONE_ID not set, skipping cache purge"
+          if [ -z "$BUNNY_API_KEY" ]; then
+            echo "BUNNY_API_KEY not set, skipping cache purge"
             exit 0
           fi
+          domain="share.boxviewer.app"
+          urls=""
+          while IFS= read -r file; do
+            path="${file#./web/}"
+            urls="${urls}\"https://${domain}/${path}\","
+          done < <(find ./web -type f)
+          urls="[${urls%,}]"
+          echo "Purging URLs: $urls"
           curl -s -X POST "https://api.bunny.net/purge" \
             -H "AccessKey: ${BUNNY_API_KEY}" \
             -H "Content-Type: application/json" \
-            -d "{\"pullzone\":${BUNNY_PULL_ZONE_ID}}"
+            -d "{\"Urls\":${urls}}"
