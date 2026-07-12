@@ -58,7 +58,7 @@ jobs:
             echo "BUNNY_API_KEY or BUNNY_PULL_ZONE_ID not set, skipping cache purge"
             exit 0
           fi
-          curl -s -X POST "https://api.bunny.net/pullzone/${BUNNY_PULL_ZONE_ID}/purgeCache" \
+          curl -s -X POST "https://api.bunny.net/purge" \
             -H "AccessKey: ${BUNNY_API_KEY}" \
             -H "Content-Type: application/json" \
-            -d '{}'
+            -d "{\"pullzone\":${BUNNY_PULL_ZONE_ID}}"
