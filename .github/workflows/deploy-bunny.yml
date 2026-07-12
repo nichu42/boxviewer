@@ -19,19 +19,34 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Install rclone
+        run: curl -fsSL https://rclone.org/install.sh | sudo bash
+
+      - name: Configure rclone for Bunny S3
+        env:
+          BUNNY_S3_ENDPOINT: ${{ secrets.BUNNY_S3_ENDPOINT }}
+          BUNNY_S3_ACCESS_KEY: ${{ secrets.BUNNY_S3_ACCESS_KEY }}
+          BUNNY_S3_SECRET_KEY: ${{ secrets.BUNNY_S3_SECRET_KEY }}
+        run: |
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf <<EOF
+          [bunny]
+          type = s3
+          provider = Other
+          env_auth = false
+          access_key_id = ${BUNNY_S3_ACCESS_KEY}
+          secret_access_key = ${BUNNY_S3_SECRET_KEY}
+          endpoint = ${BUNNY_S3_ENDPOINT}
+          force_path_style = true
+          acl = private
+          EOF
+
       - name: Sync web assets to Bunny Storage
         env:
-          BUNNY_STORAGE_HOST: ${{ secrets.BUNNY_STORAGE_HOST }}
-          BUNNY_STORAGE_PASSWORD: ${{ secrets.BUNNY_STORAGE_PASSWORD }}
-          BUNNY_STORAGE_ZONE: ${{ secrets.BUNNY_STORAGE_ZONE }}
+          BUNNY_S3_BUCKET: ${{ secrets.BUNNY_S3_BUCKET }}
         run: |
-          find ./web -type f | while read -r file; do
-            target="${file#./web/}"
-            echo "Uploading $file -> $target"
-            curl -fsS -X PUT "https://${BUNNY_STORAGE_HOST}/${BUNNY_STORAGE_ZONE}/${target}" \
-              -H "AccessKey: ${BUNNY_STORAGE_PASSWORD}" \
-              --data-binary "@$file"
-          done
+          rclone sync ./web "bunny:${BUNNY_S3_BUCKET}" \
+            --fast-list --checksum --transfers 16 --verbose
 
       - name: Purge pull zone cache
         continue-on-error: true

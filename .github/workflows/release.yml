@@ -35,7 +35,9 @@ jobs:
         env:
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m" -Dorg.gradle.workers.max=2 --warning-mode all
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m" -Dorg.gradle.workers.max=2 --warning-mode all
 
       - name: Rename release APK
         run: cp app/build/outputs/apk/release/app-release.apk "BoxViewer-${{ github.ref_name }}.apk"
