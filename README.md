@@ -50,7 +50,7 @@ You can download stable APKs directly from GitHub — no account required:
 *   **[Download Stable APKs](https://github.com/nichu42/boxviewer/releases)**: Recommended for most users. Contains vetted, officially tagged stable releases.
 
 ### 🔄 Automatic Updates with Obtainium
-To receive automatic updates on de-googled systems, we recommend using **[Obtainium](https://github.com/ImranR17/Obtainium)**:
+To receive automatic updates on de-googled systems, we recommend using **[Obtainium](https://obtainium.imranr.dev/)**:
 1. Copy the GitHub repository link: `https://github.com/nichu42/boxviewer`
 2. Open Obtainium and select **Add App**.
 3. Paste the URL and click **Add** to start tracking releases.
