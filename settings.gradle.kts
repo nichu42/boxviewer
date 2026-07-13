@@ -27,3 +27,5 @@ dependencyResolutionManagement {
 rootProject.name = "BoxViewer"
 
 include(":app")
+
+// Force a Dependabot graph refresh on the next push.
