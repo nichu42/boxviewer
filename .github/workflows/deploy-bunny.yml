@@ -8,6 +8,9 @@ on:
       - 'web/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: bunny-deploy
   cancel-in-progress: false
