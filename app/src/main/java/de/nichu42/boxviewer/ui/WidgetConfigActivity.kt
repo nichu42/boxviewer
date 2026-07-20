@@ -3,23 +3,25 @@ package de.nichu42.boxviewer.ui
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import de.nichu42.boxviewer.data.db.SenseBoxDatabase
 import de.nichu42.boxviewer.data.repository.SenseBoxRepository
+import de.nichu42.boxviewer.util.LocaleHelper
 
 import de.nichu42.boxviewer.ui.theme.MyApplicationTheme
 
-class WidgetConfigActivity : ComponentActivity() {
+class WidgetConfigActivity : AppCompatActivity() {
 
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        LocaleHelper.applySavedLocale(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 

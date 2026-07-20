@@ -6,10 +6,10 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.core.net.toUri
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.layout.padding
@@ -51,7 +51,7 @@ import androidx.compose.ui.res.stringResource
 import de.nichu42.boxviewer.R
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     
     private val pendingBoxIdFromWidget = MutableStateFlow<String?>(null)
     private val pendingAddBoxId = MutableStateFlow<String?>(null)
