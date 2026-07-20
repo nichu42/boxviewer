@@ -22,7 +22,7 @@ object FontScaleHelper {
     const val DEFAULT_SCALE = 1.0f
 
     /** Allowed range for the user-adjustable scale. */
-    val VALUE_RANGE = 0.8f..2.0f
+    val VALUE_RANGE = 0.6f..2.0f
 
     /** Returns the persisted text scale, or [DEFAULT_SCALE] if none is set. */
     fun getSavedTextScale(context: Context): Float {

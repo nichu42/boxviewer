@@ -47,11 +47,11 @@
     <string name="settings_conditional_formatting_description">Färbe Sensorwerte basierend auf ihrem aktuellen Messwert ein.</string>
     <string name="settings_language_label">Sprache</string>
     <string name="settings_language_description">Wähle die Sprache für die App-Benutzeroberfläche.</string>
-    <string name="settings_text_scale_label">Textgröße</string>
-    <string name="settings_text_scale_description">Passe die app-weite Textgröße an. Das kann auf großen Bildschirmen oder im Auto helfen.</string>
-    <string name="settings_text_scale_compact">80% (Kompakt)</string>
-    <string name="settings_text_scale_default">100% (Standard)</string>
-    <string name="settings_text_scale_large">200% (Groß)</string>
+    <string name="settings_text_scale_label">App-Textskalierung</string>
+    <string name="settings_text_scale_description">Passe die relative Textgröße der App-Oberfläche an dein Gerät oder deine Leseentfernung an.</string>
+    <string name="settings_text_scale_compact">60%% (Kompakt)</string>
+    <string name="settings_text_scale_default">100%% (Standard)</string>
+    <string name="settings_text_scale_double">200%% (Doppelt)</string>
     <string name="settings_aqi_standard_label">AQI-Standard</string>
     <string name="settings_aqi_standard_description">Wähle die Berechnung des Luftqualitätsindex für AQI-Sensoren.</string>
     <string name="settings_temperature_unit_label">Temperatureinheit</string>
