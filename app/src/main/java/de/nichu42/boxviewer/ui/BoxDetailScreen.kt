@@ -800,7 +800,7 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                             }
                             if (nowCastResult.isAvailable) {
                                 val scoreText = if (nowCastResult.value != null) {
-                                    String.format(Locale.US, "%.0f", nowCastResult.value)
+                                    String.format(Locale.getDefault(), "%.0f", nowCastResult.value)
                                 } else {
                                     ""
                                 }

@@ -271,8 +271,8 @@ private fun BoxPreviewCard(
                 Spacer(modifier = Modifier.height(4.dp))
             } else {
                 box.currentLocation?.let { loc ->
-                    val latStr = String.format(java.util.Locale.US, "%.4f", loc.latitude)
-                    val lngStr = String.format(java.util.Locale.US, "%.4f", loc.longitude)
+                    val latStr = String.format(java.util.Locale.getDefault(), "%.4f", loc.latitude)
+                    val lngStr = String.format(java.util.Locale.getDefault(), "%.4f", loc.longitude)
                     Text(
                         text = "Coords: $latStr, $lngStr",
                         style = MaterialTheme.typography.bodySmall,

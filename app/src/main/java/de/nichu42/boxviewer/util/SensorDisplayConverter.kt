@@ -14,6 +14,11 @@ object SensorDisplayConverter {
         val pressUnit: String?
     )
 
+    /**
+     * Runs the numeric conversion chain and formats the final display value using
+     * the current app locale. Intermediate values stay numeric so locale formatting
+     * never breaks parsing between conversion steps.
+     */
     fun convert(
         rawValue: String?,
         sourceUnit: String?,
@@ -22,13 +27,65 @@ object SensorDisplayConverter {
         windUnit: String,
         formatPressure: Boolean
     ): ConversionResult {
-        val tempVal = TemperatureConverter.convertValue(rawValue, sourceUnit, temperatureUnit)
-        val tempUnit = TemperatureConverter.convertUnit(sourceUnit, temperatureUnit)
-        val pressVal = PressureConverter.convertValue(tempVal, tempUnit, pressureUnit, formatPressure)
-        val pressUnit = PressureConverter.convertUnit(tempUnit, pressureUnit)
-        val windVal = WindConverter.convertValue(pressVal, pressUnit, windUnit)
-        val windUnitResult = WindConverter.convertUnit(pressUnit, windUnit)
+        return convert(rawValue, sourceUnit, temperatureUnit, pressureUnit, windUnit, formatPressure, java.util.Locale.getDefault())
+    }
+
+    fun convert(
+        rawValue: String?,
+        sourceUnit: String?,
+        temperatureUnit: String,
+        pressureUnit: String,
+        windUnit: String,
+        formatPressure: Boolean,
+        locale: java.util.Locale
+    ): ConversionResult {
+        // Temperature step
+        val tempDouble = TemperatureConverter.convertToDouble(rawValue, sourceUnit, temperatureUnit)
+        val tempUnit = if (tempDouble != null) {
+            TemperatureConverter.convertUnit(sourceUnit, temperatureUnit)
+        } else {
+            sourceUnit
+        }
+
+        // Pressure step (passes through non-pressure values unchanged)
+        val pressDouble = PressureConverter.convertToDouble(
+            tempDouble?.toString() ?: rawValue,
+            tempUnit,
+            pressureUnit
+        )
+        val pressUnit = if (pressDouble != null) {
+            PressureConverter.convertUnit(tempUnit, pressureUnit)
+        } else {
+            tempUnit
+        }
+
+        // Wind step (passes through non-wind values unchanged)
+        val windDouble = WindConverter.convertToDouble(
+            pressDouble?.toString() ?: tempDouble?.toString() ?: rawValue,
+            pressUnit,
+            windUnit
+        )
+        val windUnitResult = if (windDouble != null) {
+            WindConverter.convertUnit(pressUnit, windUnit)
+        } else {
+            pressUnit
+        }
+
         val displayUnit = UnitUnifier.unifyUnit(windUnitResult)
-        return ConversionResult(value = windVal, unit = displayUnit, tempUnit = tempUnit, pressUnit = pressUnit)
+
+        // Format the final numeric value with the converter that actually handled it.
+        val displayValue = when {
+            windDouble != null -> WindConverter.formatValue(windDouble, locale)
+            pressDouble != null -> PressureConverter.formatValue(pressDouble, formatPressure, locale)
+            tempDouble != null -> TemperatureConverter.formatValue(tempDouble, locale)
+            else -> rawValue
+        }
+
+        return ConversionResult(
+            value = displayValue,
+            unit = displayUnit,
+            tempUnit = tempUnit,
+            pressUnit = pressUnit
+        )
     }
 }

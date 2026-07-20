@@ -7,9 +7,26 @@ import de.nichu42.boxviewer.util.WindConverter
 import de.nichu42.boxviewer.util.AqiSystem
 import de.nichu42.boxviewer.util.AqiCalculator
 import org.junit.Assert.assertEquals
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
+import java.util.Locale
 
 class ConverterTest {
+
+    private lateinit var originalLocale: Locale
+
+    @Before
+    fun setLocaleToUs() {
+        originalLocale = Locale.getDefault()
+        Locale.setDefault(Locale.US)
+    }
+
+    @After
+    fun restoreLocale() {
+        Locale.setDefault(originalLocale)
+    }
+
 
     @Test
     fun testTemperatureConverter() {

@@ -5,24 +5,32 @@ import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 object PressureConverter {
-    private val separatorFormatter = DecimalFormat("#,##0.##", DecimalFormatSymbols(Locale.US))
-    private val rawFormatter = DecimalFormat("0.##", DecimalFormatSymbols(Locale.US))
 
-    fun convertValue(valueStr: String?, fromUnit: String?, targetUnit: String, formatPressure: Boolean): String {
-        if (valueStr == null) return "--"
-        
+    private fun separatorFormatter(locale: Locale) =
+        DecimalFormat("#,##0.##", DecimalFormatSymbols(locale))
+
+    private fun rawFormatter(locale: Locale) =
+        DecimalFormat("0.##", DecimalFormatSymbols(locale))
+
+    /**
+     * Converts [valueStr] from [fromUnit] to [targetUnit] and returns the numeric
+     * result, or null if the source is not a pressure unit or cannot be parsed.
+     */
+    fun convertToDouble(valueStr: String?, fromUnit: String?, targetUnit: String): Double? {
+        if (valueStr == null) return null
+
         val fromUnitClean = fromUnit?.trim() ?: "hPa"
         val isPa = fromUnitClean.equals("Pa", ignoreCase = true)
         val isHpa = fromUnitClean.equals("hPa", ignoreCase = true)
         val isMbar = fromUnitClean.equals("mbar", ignoreCase = true) || fromUnitClean.equals("mb", ignoreCase = true)
         val isInHg = fromUnitClean.equals("inHg", ignoreCase = true)
         val isMmHg = fromUnitClean.equals("mmHg", ignoreCase = true) || fromUnitClean.equals("torr", ignoreCase = true)
-        
-        if (!isPa && !isHpa && !isMbar && !isInHg && !isMmHg) return valueStr
+
+        if (!isPa && !isHpa && !isMbar && !isInHg && !isMmHg) return null
 
         return try {
             val value = valueStr.toDouble()
-            
+
             // First normalize to hPa
             val hpaValue = when {
                 isPa -> value / 100.0
@@ -32,19 +40,41 @@ object PressureConverter {
             }
 
             // Then convert to target unit
-            val targetValue = when (targetUnit) {
+            when (targetUnit) {
                 "Pa" -> hpaValue * 100.0
                 "inHg" -> hpaValue / 33.8639
                 "mmHg" -> hpaValue / 1.33322
                 else -> hpaValue // hPa or mbar (1 hPa = 1 mbar)
             }
-
-            if (formatPressure) {
-                separatorFormatter.format(targetValue)
-            } else {
-                rawFormatter.format(targetValue)
-            }
         } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Formats a pressure numeric value for the given locale.
+     */
+    fun formatValue(value: Double, formatPressure: Boolean, locale: Locale = Locale.getDefault()): String {
+        return if (formatPressure) {
+            separatorFormatter(locale).format(value)
+        } else {
+            rawFormatter(locale).format(value)
+        }
+    }
+
+    fun convertValue(
+        valueStr: String?,
+        fromUnit: String?,
+        targetUnit: String,
+        formatPressure: Boolean,
+        locale: Locale = Locale.getDefault()
+    ): String {
+        if (valueStr == null) return "--"
+
+        val value = convertToDouble(valueStr, fromUnit, targetUnit)
+        return if (value != null) {
+            formatValue(value, formatPressure, locale)
+        } else {
             valueStr
         }
     }

@@ -936,8 +936,8 @@ fun DiscoveredBoxCard(
                     }
                 } else {
                     box.currentLocation?.let { loc ->
-                        val latStr = String.format(Locale.US, "%.4f", loc.latitude)
-                        val lngStr = String.format(Locale.US, "%.4f", loc.longitude)
+                        val latStr = String.format(Locale.getDefault(), "%.4f", loc.latitude)
+                        val lngStr = String.format(Locale.getDefault(), "%.4f", loc.longitude)
                         Row(
                             modifier = Modifier.padding(top = 2.dp),
                             verticalAlignment = Alignment.CenterVertically

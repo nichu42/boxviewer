@@ -1135,7 +1135,7 @@ fun WidgetConfigScreen(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = String.format(java.util.Locale.US, "%.0f%%", textScale * 100),
+                                    text = String.format(java.util.Locale.getDefault(), "%.0f%%", textScale * 100),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary

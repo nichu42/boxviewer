@@ -905,7 +905,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     fun getAddressFromLocation(lat: Double, lng: Double, onResult: (String) -> Unit) {
         viewModelScope.launch {
             val ctx = getApplication<Application>()
-            var label = ctx.getString(R.string.location_coordinates_label, "%.4f".format(java.util.Locale.US, lat), "%.4f".format(java.util.Locale.US, lng))
+            var label = ctx.getString(R.string.location_coordinates_label, "%.4f".format(java.util.Locale.getDefault(), lat), "%.4f".format(java.util.Locale.getDefault(), lng))
             try {
                 val fallbackLabel = reverseGeocodeWithFallback(lat, lng)
                 if (fallbackLabel.isNotBlank()) {
@@ -985,7 +985,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             }
 
             if (label.isBlank()) {
-                label = getApplication<Application>().getString(R.string.location_lat_lon_label, "%.3f".format(java.util.Locale.US, lat), "%.3f".format(java.util.Locale.US, lng))
+                label = getApplication<Application>().getString(R.string.location_lat_lon_label, "%.3f".format(java.util.Locale.getDefault(), lat), "%.3f".format(java.util.Locale.getDefault(), lng))
             }
             boxAddressCache[boxId] = label
             onResult(label)
@@ -1008,7 +1008,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             }
 
             if (label.isBlank()) {
-                label = getApplication<Application>().getString(R.string.location_lat_lon_label, "%.3f".format(java.util.Locale.US, lat), "%.3f".format(java.util.Locale.US, lng))
+                label = getApplication<Application>().getString(R.string.location_lat_lon_label, "%.3f".format(java.util.Locale.getDefault(), lat), "%.3f".format(java.util.Locale.getDefault(), lng))
             }
             boxFullAddressCache[boxId] = label
             onResult(label)
