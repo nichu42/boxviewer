@@ -12,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import de.nichu42.boxviewer.data.db.SenseBoxDatabase
 import de.nichu42.boxviewer.data.repository.SenseBoxRepository
+import de.nichu42.boxviewer.util.FontScaleHelper
 import de.nichu42.boxviewer.util.LocaleHelper
 
 import de.nichu42.boxviewer.ui.theme.MyApplicationTheme
@@ -40,28 +41,31 @@ class WidgetConfigActivity : AppCompatActivity() {
 
         val db = SenseBoxDatabase.getDatabase(applicationContext)
         val repository = SenseBoxRepository(applicationContext, db)
+        val appTextScale = FontScaleHelper.getSavedTextScale(this)
 
         setContent {
             MyApplicationTheme(dynamicColor = false) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    WidgetConfigScreen(
-                        repository = repository,
-                        appWidgetId = appWidgetId,
-                        onConfigSaved = {
-                            val resultValue = Intent().apply {
-                                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                FontScaleHelper.ApplyTextScale(scale = appTextScale) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        WidgetConfigScreen(
+                            repository = repository,
+                            appWidgetId = appWidgetId,
+                            onConfigSaved = {
+                                val resultValue = Intent().apply {
+                                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                                }
+                                setResult(RESULT_OK, resultValue)
+                                finish()
+                            },
+                            onConfigCancelled = {
+                                setResult(RESULT_CANCELED)
+                                finish()
                             }
-                            setResult(RESULT_OK, resultValue)
-                            finish()
-                        },
-                        onConfigCancelled = {
-                            setResult(RESULT_CANCELED)
-                            finish()
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }

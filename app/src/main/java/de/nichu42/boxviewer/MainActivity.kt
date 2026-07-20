@@ -46,6 +46,7 @@ import de.nichu42.boxviewer.data.db.DB_VERSION
 import de.nichu42.boxviewer.ui.SenseBoxViewModel
 import de.nichu42.boxviewer.ui.theme.MyApplicationTheme
 import de.nichu42.boxviewer.util.ApiLogger
+import de.nichu42.boxviewer.util.FontScaleHelper
 import de.nichu42.boxviewer.util.LocaleHelper
 import androidx.compose.ui.res.stringResource
 import de.nichu42.boxviewer.R
@@ -77,6 +78,8 @@ class MainActivity : AppCompatActivity() {
         val currentExpectedVersion = DB_VERSION
         val isDowngraded = dbVersion > currentExpectedVersion
 
+        val appTextScale = FontScaleHelper.getSavedTextScale(this)
+
         setContent {
             val appTheme by viewModel.appTheme.collectAsState()
             val isDarkTheme = when (appTheme) {
@@ -86,321 +89,323 @@ class MainActivity : AppCompatActivity() {
             }
             // Apply the custom Sleek Interface theme matching Material 3 specifications
             MyApplicationTheme(darkTheme = isDarkTheme, dynamicColor = false) {
-                var isDowngradedState by remember { mutableStateOf(isDowngraded) }
+                FontScaleHelper.ApplyTextScale(scale = appTextScale) {
+                    var isDowngradedState by remember { mutableStateOf(isDowngraded) }
 
-                if (isDowngradedState) {
-                    AlertDialog(
-                        onDismissRequest = { /* Prevent dismiss on click outside */ },
-                        properties = androidx.compose.ui.window.DialogProperties(dismissOnClickOutside = false),
-                        title = { Text(stringResource(R.string.db_version_mismatch_title), fontWeight = FontWeight.Bold) },
-                        text = {
-                            Text(stringResource(R.string.db_version_mismatch_message))
-                        },
-                        confirmButton = {
-                            Button(
-                                onClick = {
-                                    applicationContext.deleteDatabase("sensebox_database")
-                                    isDowngradedState = false
-                                }
-                            ) {
-                                Text(stringResource(R.string.db_version_mismatch_start_over))
-                            }
-                        },
-                        dismissButton = {
-                            OutlinedButton(
-                                onClick = {
-                                    val intent = Intent(Intent.ACTION_VIEW, "https://github.com/nichu42/boxviewer".toUri())
-                                    startActivity(intent)
-                                    finish()
-                                }
-                            ) {
-                                Text(stringResource(R.string.db_version_mismatch_install_update))
-                            }
-                        }
-                    )
-                } else {
-                    var showResetAlert by remember { mutableStateOf(false) }
-
-                    LaunchedEffect(Unit) {
-                        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-                        if (prefs.getBoolean("db_reset_occurred", false)) {
-                            showResetAlert = true
-                            prefs.edit { putBoolean("db_reset_occurred", false) }
-                        }
-                    }
-
-                    if (showResetAlert) {
+                    if (isDowngradedState) {
                         AlertDialog(
-                            onDismissRequest = { showResetAlert = false },
-                            title = { Text(stringResource(R.string.db_updated_title), fontWeight = FontWeight.Bold) },
+                            onDismissRequest = { /* Prevent dismiss on click outside */ },
+                            properties = androidx.compose.ui.window.DialogProperties(dismissOnClickOutside = false),
+                            title = { Text(stringResource(R.string.db_version_mismatch_title), fontWeight = FontWeight.Bold) },
                             text = {
-                                Text(stringResource(R.string.db_updated_message))
+                                Text(stringResource(R.string.db_version_mismatch_message))
                             },
                             confirmButton = {
-                                Button(onClick = { showResetAlert = false }) {
-                                    Text(stringResource(R.string.action_ok))
+                                Button(
+                                    onClick = {
+                                        applicationContext.deleteDatabase("sensebox_database")
+                                        isDowngradedState = false
+                                    }
+                                ) {
+                                    Text(stringResource(R.string.db_version_mismatch_start_over))
+                                }
+                            },
+                            dismissButton = {
+                                OutlinedButton(
+                                    onClick = {
+                                        val intent = Intent(Intent.ACTION_VIEW, "https://github.com/nichu42/boxviewer".toUri())
+                                        startActivity(intent)
+                                        finish()
+                                    }
+                                ) {
+                                    Text(stringResource(R.string.db_version_mismatch_install_update))
                                 }
                             }
                         )
-                    }
+                    } else {
+                        var showResetAlert by remember { mutableStateOf(false) }
 
-                    val navController = rememberNavController()
-                    val boxIdFromWidget by pendingBoxIdFromWidget.collectAsState()
-
-                    LaunchedEffect(boxIdFromWidget) {
-                        if (!boxIdFromWidget.isNullOrEmpty()) {
-                            navController.navigate("detail/$boxIdFromWidget")
-                            // Reset the state to prevent infinite loop or re-navigation on recomposition
-                            pendingBoxIdFromWidget.value = null
-                            intent?.removeExtra("box_id")
-                        }
-                    }
-
-                    val addBoxId by pendingAddBoxId.collectAsState()
-
-                    LaunchedEffect(addBoxId) {
-                        if (!addBoxId.isNullOrEmpty()) {
-                            navController.navigate("add/$addBoxId")
-                            pendingAddBoxId.value = null
-                            intent?.data = null
-                        }
-                    }
-
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        val navBackStackEntry by navController.currentBackStackEntryAsState()
-                        val currentRoute = navBackStackEntry?.destination?.route
-
-                        // Map every route (including sub-screens) to its parent tab
-                        val activeTab = when (currentRoute) {
-                            "dashboard", "detail/{boxId}", "add/{boxId}" -> "dashboard"
-                            "discovery" -> "discovery"
-                            "settings", "aqi_info", "api_log_viewer" -> "settings"
-                            "about", "license", "third_party_licenses" -> "about"
-                            else -> null
+                        LaunchedEffect(Unit) {
+                            val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                            if (prefs.getBoolean("db_reset_occurred", false)) {
+                                showResetAlert = true
+                                prefs.edit { putBoolean("db_reset_occurred", false) }
+                            }
                         }
 
-                        NavigationBar(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ) {
-                            NavigationBarItem(
-                                icon = { Icon(Icons.Default.Home, contentDescription = stringResource(R.string.nav_dashboard)) },
-                                label = { Text(stringResource(R.string.nav_home), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
-                                selected = activeTab == "dashboard",
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-                                ),
-                                onClick = {
-                                    if (currentRoute != "dashboard") {
-                                        navController.navigate("dashboard") {
-                                            popUpTo("dashboard") { inclusive = true }
-                                        }
-                                    }
-                                }
-                            )
-                            NavigationBarItem(
-                                icon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.nav_discover)) },
-                                label = { Text(stringResource(R.string.nav_discover), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
-                                selected = activeTab == "discovery",
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-                                ),
-                                onClick = {
-                                    if (currentRoute != "discovery") {
-                                        navController.navigate("discovery") {
-                                            popUpTo("dashboard")
-                                        }
-                                    }
-                                }
-                            )
-                            NavigationBarItem(
-                                icon = { Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.nav_settings)) },
-                                label = { Text(stringResource(R.string.nav_settings), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
-                                selected = activeTab == "settings",
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-                                ),
-                                onClick = {
-                                    if (currentRoute != "settings") {
-                                        navController.navigate("settings") {
-                                            popUpTo("dashboard")
-                                        }
-                                    }
-                                }
-                            )
-                            NavigationBarItem(
-                                icon = { Icon(Icons.Default.Info, contentDescription = stringResource(R.string.nav_about)) },
-                                label = { Text(stringResource(R.string.nav_about), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
-                                selected = activeTab == "about",
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-                                ),
-                                onClick = {
-                                    if (currentRoute != "about") {
-                                        navController.navigate("about") {
-                                            popUpTo("dashboard")
-                                        }
-                                    }
-                                }
-                            )
-                        }
-                    }
-
-                ) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = "dashboard",
-                        modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
-                    ) {
-                        composable("dashboard") {
-                            DashboardScreen(
-                                viewModel = viewModel,
-                                onBoxSelected = { boxId ->
-                                    navController.navigate("detail/$boxId")
+                        if (showResetAlert) {
+                            AlertDialog(
+                                onDismissRequest = { showResetAlert = false },
+                                title = { Text(stringResource(R.string.db_updated_title), fontWeight = FontWeight.Bold) },
+                                text = {
+                                    Text(stringResource(R.string.db_updated_message))
                                 },
-                                onGoToDiscovery = {
-                                    navController.navigate("discovery")
-                                }
-                            )
-                        }
-                        composable("discovery") {
-                            DiscoveryScreen(
-                                viewModel = viewModel,
-                                onBoxSelected = { boxId ->
-                                    navController.navigate("detail/$boxId")
-                                },
-                                onNavigateToDashboardWithConfig = { boxId ->
-                                    viewModel.setAutoConfigureBox(boxId)
-                                    if (navController.currentDestination?.route != "dashboard") {
-                                        navController.navigate("dashboard") {
-                                            popUpTo("dashboard") { inclusive = false }
-                                            launchSingleTop = true
-                                        }
+                                confirmButton = {
+                                    Button(onClick = { showResetAlert = false }) {
+                                        Text(stringResource(R.string.action_ok))
                                     }
                                 }
                             )
                         }
-                        composable("settings") {
-                            SettingsScreen(
-                                viewModel = viewModel,
-                                onNavigateToAqiInfo = {
-                                    navController.navigate("aqi_info")
-                                },
-                                onNavigateToApiLogViewer = {
-                                    navController.navigate("api_log_viewer")
-                                }
-                            )
-                        }
-                        composable("aqi_info") {
-                            AqiInfoScreen(
-                                onBack = {
-                                    navController.popBackStack()
-                                }
-                            )
-                        }
-                        composable("api_log_viewer") {
-                            ApiLogViewerScreen(
-                                onBack = {
-                                    navController.popBackStack()
-                                }
-                            )
-                        }
-                        composable("about") {
-                            AboutScreen(
-                                viewModel = viewModel,
-                                onViewLicense = {
-                                    navController.navigate("license")
-                                },
-                                onViewThirdPartyLicenses = {
-                                    navController.navigate("third_party_licenses")
-                                }
-                            )
-                        }
-                        composable("license") {
-                            LicenseScreen(
-                                onBack = {
-                                    navController.popBackStack()
-                                }
-                            )
-                        }
-                        composable("third_party_licenses") {
-                            ThirdPartyLicensesScreen(
-                                onBack = {
-                                    navController.popBackStack()
-                                }
-                            )
-                        }
-                        composable("detail/{boxId}") { backStackEntry ->
-                            val boxId = backStackEntry.arguments?.getString("boxId") ?: ""
-                            BoxDetailScreen(
-                                boxId = boxId,
-                                viewModel = viewModel,
-                                onBack = { navController.popBackStack() },
-                                onNavigateToDashboardWithConfig = { boxIdVal ->
-                                    viewModel.setAutoConfigureBox(boxIdVal)
-                                    if (navController.currentDestination?.route != "dashboard") {
-                                        navController.navigate("dashboard") {
-                                            popUpTo("dashboard") { inclusive = false }
-                                            launchSingleTop = true
-                                        }
-                                    }
-                                }
-                            )
-                        }
-                        composable("add/{boxId}") { backStackEntry ->
-                            val boxId = backStackEntry.arguments?.getString("boxId") ?: ""
-                            val savedBoxesState by viewModel.savedBoxes.collectAsState()
-                            var userActionTaken by remember { mutableStateOf(false) }
 
-                            LaunchedEffect(savedBoxesState, boxId) {
-                                if (!userActionTaken && savedBoxesState.any { it.boxId == boxId }) {
-                                    userActionTaken = true
-                                    navController.navigate("detail/$boxId") {
-                                        popUpTo("add/$boxId") { inclusive = true }
-                                    }
-                                }
+                        val navController = rememberNavController()
+                        val boxIdFromWidget by pendingBoxIdFromWidget.collectAsState()
+
+                        LaunchedEffect(boxIdFromWidget) {
+                            if (!boxIdFromWidget.isNullOrEmpty()) {
+                                navController.navigate("detail/$boxIdFromWidget")
+                                // Reset the state to prevent infinite loop or re-navigation on recomposition
+                                pendingBoxIdFromWidget.value = null
+                                intent?.removeExtra("box_id")
+                            }
+                        }
+
+                        val addBoxId by pendingAddBoxId.collectAsState()
+
+                        LaunchedEffect(addBoxId) {
+                            if (!addBoxId.isNullOrEmpty()) {
+                                navController.navigate("add/$addBoxId")
+                                pendingAddBoxId.value = null
+                                intent?.data = null
+                            }
+                        }
+
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        bottomBar = {
+                            val navBackStackEntry by navController.currentBackStackEntryAsState()
+                            val currentRoute = navBackStackEntry?.destination?.route
+
+                            // Map every route (including sub-screens) to its parent tab
+                            val activeTab = when (currentRoute) {
+                                "dashboard", "detail/{boxId}", "add/{boxId}" -> "dashboard"
+                                "discovery" -> "discovery"
+                                "settings", "aqi_info", "api_log_viewer" -> "settings"
+                                "about", "license", "third_party_licenses" -> "about"
+                                else -> null
                             }
 
-                            AddBoxConfirmScreen(
-                                boxId = boxId,
-                                viewModel = viewModel,
-                                onAddToDashboard = { id ->
-                                    userActionTaken = true
-                                    viewModel.setAutoConfigureBox(id)
-                                    navController.navigate("dashboard") {
-                                        popUpTo("dashboard") { inclusive = false }
-                                        launchSingleTop = true
+                            NavigationBar(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            ) {
+                                NavigationBarItem(
+                                    icon = { Icon(Icons.Default.Home, contentDescription = stringResource(R.string.nav_dashboard)) },
+                                    label = { Text(stringResource(R.string.nav_home), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                    selected = activeTab == "dashboard",
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+                                    ),
+                                    onClick = {
+                                        if (currentRoute != "dashboard") {
+                                            navController.navigate("dashboard") {
+                                                popUpTo("dashboard") { inclusive = true }
+                                            }
+                                        }
                                     }
-                                },
-                                onViewDetails = { id ->
-                                    userActionTaken = true
-                                    navController.navigate("detail/$id") {
-                                        popUpTo("add/$boxId") { inclusive = true }
+                                )
+                                NavigationBarItem(
+                                    icon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.nav_discover)) },
+                                    label = { Text(stringResource(R.string.nav_discover), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                    selected = activeTab == "discovery",
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+                                    ),
+                                    onClick = {
+                                        if (currentRoute != "discovery") {
+                                            navController.navigate("discovery") {
+                                                popUpTo("dashboard")
+                                            }
+                                        }
                                     }
-                                },
-                                onCancel = {
-                                    userActionTaken = true
-                                    navController.popBackStack("dashboard", inclusive = false)
+                                )
+                                NavigationBarItem(
+                                    icon = { Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.nav_settings)) },
+                                    label = { Text(stringResource(R.string.nav_settings), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                    selected = activeTab == "settings",
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+                                    ),
+                                    onClick = {
+                                        if (currentRoute != "settings") {
+                                            navController.navigate("settings") {
+                                                popUpTo("dashboard")
+                                            }
+                                        }
+                                    }
+                                )
+                                NavigationBarItem(
+                                    icon = { Icon(Icons.Default.Info, contentDescription = stringResource(R.string.nav_about)) },
+                                    label = { Text(stringResource(R.string.nav_about), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                    selected = activeTab == "about",
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+                                    ),
+                                    onClick = {
+                                        if (currentRoute != "about") {
+                                            navController.navigate("about") {
+                                                popUpTo("dashboard")
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+
+                    ) { innerPadding ->
+                        NavHost(
+                            navController = navController,
+                            startDestination = "dashboard",
+                            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
+                        ) {
+                            composable("dashboard") {
+                                DashboardScreen(
+                                    viewModel = viewModel,
+                                    onBoxSelected = { boxId ->
+                                        navController.navigate("detail/$boxId")
+                                    },
+                                    onGoToDiscovery = {
+                                        navController.navigate("discovery")
+                                    }
+                                )
+                            }
+                            composable("discovery") {
+                                DiscoveryScreen(
+                                    viewModel = viewModel,
+                                    onBoxSelected = { boxId ->
+                                        navController.navigate("detail/$boxId")
+                                    },
+                                    onNavigateToDashboardWithConfig = { boxId ->
+                                        viewModel.setAutoConfigureBox(boxId)
+                                        if (navController.currentDestination?.route != "dashboard") {
+                                            navController.navigate("dashboard") {
+                                                popUpTo("dashboard") { inclusive = false }
+                                                launchSingleTop = true
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                            composable("settings") {
+                                SettingsScreen(
+                                    viewModel = viewModel,
+                                    onNavigateToAqiInfo = {
+                                        navController.navigate("aqi_info")
+                                    },
+                                    onNavigateToApiLogViewer = {
+                                        navController.navigate("api_log_viewer")
+                                    }
+                                )
+                            }
+                            composable("aqi_info") {
+                                AqiInfoScreen(
+                                    onBack = {
+                                        navController.popBackStack()
+                                    }
+                                )
+                            }
+                            composable("api_log_viewer") {
+                                ApiLogViewerScreen(
+                                    onBack = {
+                                        navController.popBackStack()
+                                    }
+                                )
+                            }
+                            composable("about") {
+                                AboutScreen(
+                                    viewModel = viewModel,
+                                    onViewLicense = {
+                                        navController.navigate("license")
+                                    },
+                                    onViewThirdPartyLicenses = {
+                                        navController.navigate("third_party_licenses")
+                                    }
+                                )
+                            }
+                            composable("license") {
+                                LicenseScreen(
+                                    onBack = {
+                                        navController.popBackStack()
+                                    }
+                                )
+                            }
+                            composable("third_party_licenses") {
+                                ThirdPartyLicensesScreen(
+                                    onBack = {
+                                        navController.popBackStack()
+                                    }
+                                )
+                            }
+                            composable("detail/{boxId}") { backStackEntry ->
+                                val boxId = backStackEntry.arguments?.getString("boxId") ?: ""
+                                BoxDetailScreen(
+                                    boxId = boxId,
+                                    viewModel = viewModel,
+                                    onBack = { navController.popBackStack() },
+                                    onNavigateToDashboardWithConfig = { boxIdVal ->
+                                        viewModel.setAutoConfigureBox(boxIdVal)
+                                        if (navController.currentDestination?.route != "dashboard") {
+                                            navController.navigate("dashboard") {
+                                                popUpTo("dashboard") { inclusive = false }
+                                                launchSingleTop = true
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                            composable("add/{boxId}") { backStackEntry ->
+                                val boxId = backStackEntry.arguments?.getString("boxId") ?: ""
+                                val savedBoxesState by viewModel.savedBoxes.collectAsState()
+                                var userActionTaken by remember { mutableStateOf(false) }
+
+                                LaunchedEffect(savedBoxesState, boxId) {
+                                    if (!userActionTaken && savedBoxesState.any { it.boxId == boxId }) {
+                                        userActionTaken = true
+                                        navController.navigate("detail/$boxId") {
+                                            popUpTo("add/$boxId") { inclusive = true }
+                                        }
+                                    }
                                 }
-                            )
+
+                                AddBoxConfirmScreen(
+                                    boxId = boxId,
+                                    viewModel = viewModel,
+                                    onAddToDashboard = { id ->
+                                        userActionTaken = true
+                                        viewModel.setAutoConfigureBox(id)
+                                        navController.navigate("dashboard") {
+                                            popUpTo("dashboard") { inclusive = false }
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    onViewDetails = { id ->
+                                        userActionTaken = true
+                                        navController.navigate("detail/$id") {
+                                            popUpTo("add/$boxId") { inclusive = true }
+                                        }
+                                    },
+                                    onCancel = {
+                                        userActionTaken = true
+                                        navController.popBackStack("dashboard", inclusive = false)
+                                    }
+                                )
+                            }
                         }
                     }
                 }

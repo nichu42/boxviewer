@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.util.ApiLogger
 import de.nichu42.boxviewer.util.CrashHandler
+import de.nichu42.boxviewer.util.FontScaleHelper
 import de.nichu42.boxviewer.util.LocaleHelper
 import kotlinx.coroutines.launch
 
@@ -187,6 +188,72 @@ fun SettingsScreen(
                                     )
                                 }
                             }
+                        }
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+
+                    // App-wide text scale
+                    var textScale by remember { mutableFloatStateOf(FontScaleHelper.getSavedTextScale(context)) }
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    stringResource(R.string.settings_text_scale_label),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    stringResource(R.string.settings_text_scale_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Text(
+                                text = String.format(java.util.Locale.getDefault(), "%.0f%%", textScale * 100),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Slider(
+                            value = textScale,
+                            onValueChange = { textScale = it },
+                            onValueChangeFinished = {
+                                FontScaleHelper.setTextScale(context, textScale)
+                                (context as? android.app.Activity)?.recreate()
+                            },
+                            valueRange = FontScaleHelper.VALUE_RANGE,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = SliderDefaults.colors(
+                                thumbColor = MaterialTheme.colorScheme.primary,
+                                activeTrackColor = MaterialTheme.colorScheme.primary
+                            )
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                stringResource(R.string.settings_text_scale_compact),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                stringResource(R.string.settings_text_scale_default),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                stringResource(R.string.settings_text_scale_large),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
 
