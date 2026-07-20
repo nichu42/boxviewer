@@ -57,9 +57,11 @@ object LocaleHelper {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_APP_LANGUAGE, tag)
-            .apply()
+            .commit()
         applyLocale(tag)
-        context.findActivity()?.recreate()
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+            context.findActivity()?.recreate()
+        }
     }
 
     /** Returns the saved language tag, or empty string for system default. */
