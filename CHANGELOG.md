@@ -2,6 +2,19 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [0.50] - 2026-07-20
+
+### Added
+- **Multi-Language Support**: Added full Android localization infrastructure with POEditor-managed translations. English is the source/fallback language; German is the first target language.
+- **Per-App Language Picker**: New in-app language setting defaults to the system locale and supports English and German. Integrated with Android 13+ system app-language settings via `locale_config.xml`.
+- **Automated Translation Sync**: Added `.github/workflows/sync-translations.yml` to pull completed POEditor translations into the repository.
+- **App-Wide Text Scale**: New setting to adjust app interface text size from 60% to 200%, helpful for tablets and Android Automotive OS. Scales only text (`sp`), not layout (`dp`).
+- **Numeric Localization**: Temperature, pressure, wind, coordinate, and percentage values now format with the user's locale-aware decimal/thousands separators.
+
+### Changed
+- **German Tone of Voice**: Standardized the German translation to use the informal "du" address throughout.
+- **Theme Base**: Switched the app theme parent to `Theme.AppCompat.DayNight.NoActionBar` to support AppCompat per-app locales.
+
 ## [0.45] - 2026-07-12
 
 ### Changed
