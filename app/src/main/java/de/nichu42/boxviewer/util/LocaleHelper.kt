@@ -1,6 +1,8 @@
 package de.nichu42.boxviewer.util
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import de.nichu42.boxviewer.R
@@ -45,7 +47,8 @@ object LocaleHelper {
     }
 
     /**
-     * Persists the user's choice and applies it immediately.
+     * Persists the user's choice, applies it immediately, and recreates the
+     * current activity so the new locale is visible right away.
      *
      * @param tag Empty string means "follow system default"; otherwise a BCP-47 tag
      *            from [SUPPORTED_LOCALES].
@@ -56,6 +59,7 @@ object LocaleHelper {
             .putString(KEY_APP_LANGUAGE, tag)
             .apply()
         applyLocale(tag)
+        context.findActivity()?.recreate()
     }
 
     /** Returns the saved language tag, or empty string for system default. */
@@ -78,5 +82,15 @@ object LocaleHelper {
             LocaleListCompat.forLanguageTags(tag)
         }
         AppCompatDelegate.setApplicationLocales(localeList)
+    }
+
+    /** Walks up the [ContextWrapper] chain to find the hosting [Activity]. */
+    private fun Context.findActivity(): Activity? {
+        var currentContext = this
+        while (currentContext is ContextWrapper) {
+            if (currentContext is Activity) return currentContext
+            currentContext = currentContext.baseContext
+        }
+        return null
     }
 }
