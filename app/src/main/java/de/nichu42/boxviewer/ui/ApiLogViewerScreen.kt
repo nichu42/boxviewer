@@ -1,6 +1,7 @@
 package de.nichu42.boxviewer.ui
 
 import android.content.ClipData
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -35,6 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.util.ApiLogger
 import kotlinx.coroutines.launch
 import org.json.JSONArray
@@ -46,7 +49,7 @@ import java.net.URL
 fun ApiLogViewerScreen(
     onBack: () -> Unit
 ) {
-    val context = LocalContext.current
+    val ctx = LocalContext.current
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
 
@@ -113,7 +116,7 @@ fun ApiLogViewerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("API Debug Logs", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.api_log_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(
                         onClick = onBack,
@@ -121,24 +124,24 @@ fun ApiLogViewerScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.cd_back)
                         )
                     }
                 },
                 actions = {
                     IconButton(onClick = { reloadLogs() }) {
-                        Icon(imageVector = Icons.Default.Refresh, contentDescription = "Refresh Logs")
+                        Icon(imageVector = Icons.Default.Refresh, contentDescription = stringResource(R.string.cd_refresh_logs))
                     }
                     IconButton(
                         onClick = {
                             ApiLogger.clearLogs()
                             logEntries = emptyList()
                             diagnostics = null
-                            Toast.makeText(context, "Logs cleared", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(ctx, ctx.getString(R.string.api_log_logs_cleared), Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier.testTag("api_log_viewer_clear")
                     ) {
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Clear Logs", tint = MaterialTheme.colorScheme.error)
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(R.string.cd_clear_logs), tint = MaterialTheme.colorScheme.error)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -207,7 +210,7 @@ fun ApiLogViewerScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = if (logEntries.isEmpty()) "No logs captured yet.\nEnable API Logging in settings." else "No matching logs found.",
+                                    text = if (logEntries.isEmpty()) stringResource(R.string.api_log_empty) else stringResource(R.string.api_log_no_matches),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     lineHeight = 20.sp,
@@ -246,19 +249,19 @@ fun ApiLogViewerScreen(
                         onCopyUrl = {
                             scope.launch {
                                 clipboard.setClipEntry(ClipData.newPlainText("API Request URL", it).toClipEntry())
-                                Toast.makeText(context, "URL copied", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, ctx.getString(R.string.api_log_url_copied), Toast.LENGTH_SHORT).show()
                             }
                         },
                         onCopyResponse = {
                             scope.launch {
                                 clipboard.setClipEntry(ClipData.newPlainText("API Response", it).toClipEntry())
-                                Toast.makeText(context, "Response JSON copied", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, ctx.getString(R.string.api_log_response_copied), Toast.LENGTH_SHORT).show()
                             }
                         },
                         onCopyAll = {
                             scope.launch {
                                 clipboard.setClipEntry(ClipData.newPlainText("API Log Item", it).toClipEntry())
-                                Toast.makeText(context, "Log entry details copied", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, ctx.getString(R.string.api_log_entry_copied), Toast.LENGTH_SHORT).show()
                             }
                         }
                     )
@@ -274,6 +277,7 @@ fun DiagnosticsCollapsiblePanel(
     isExpanded: Boolean,
     onToggle: () -> Unit
 ) {
+    val ctx = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -290,13 +294,13 @@ fun DiagnosticsCollapsiblePanel(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = "Diagnostics",
+                        contentDescription = stringResource(R.string.cd_diagnostics),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "System Diagnostics Information",
+                        text = stringResource(R.string.api_log_diagnostics_title),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -304,7 +308,7 @@ fun DiagnosticsCollapsiblePanel(
                 }
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    contentDescription = if (isExpanded) stringResource(R.string.cd_collapse) else stringResource(R.string.cd_expand),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -320,15 +324,15 @@ fun DiagnosticsCollapsiblePanel(
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    val appVer = diagnostics["appVersion"] as? String ?: "Unknown"
-                    val device = diagnostics["device"] as? String ?: "Unknown"
-                    val sdk = diagnostics["androidSdk"]?.toString() ?: "Unknown"
-                    val date = diagnostics["date"] as? String ?: "Unknown"
+                    val appVer = diagnostics["appVersion"] as? String ?: ctx.getString(R.string.time_unknown)
+                    val device = diagnostics["device"] as? String ?: ctx.getString(R.string.time_unknown)
+                    val sdk = diagnostics["androidSdk"]?.toString() ?: ctx.getString(R.string.time_unknown)
+                    val date = diagnostics["date"] as? String ?: ctx.getString(R.string.time_unknown)
 
-                    DiagnosticsRow(label = "App Version", value = appVer)
-                    DiagnosticsRow(label = "Device Info", value = device)
-                    DiagnosticsRow(label = "Android SDK", value = sdk)
-                    DiagnosticsRow(label = "Start Timestamp", value = date)
+                    DiagnosticsRow(label = stringResource(R.string.api_log_label_app_version), value = appVer)
+                    DiagnosticsRow(label = stringResource(R.string.api_log_label_device_info), value = device)
+                    DiagnosticsRow(label = stringResource(R.string.api_log_label_android_sdk), value = sdk)
+                    DiagnosticsRow(label = stringResource(R.string.api_log_label_start_timestamp), value = date)
                 }
             }
         }
@@ -400,13 +404,13 @@ fun StatsCollapsiblePanel(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Analytics,
-                        contentDescription = "Stats",
+                        contentDescription = stringResource(R.string.cd_stats),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "API Performance Statistics",
+                        text = stringResource(R.string.api_log_stats_title),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -414,7 +418,7 @@ fun StatsCollapsiblePanel(
                 }
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    contentDescription = if (isExpanded) stringResource(R.string.cd_collapse) else stringResource(R.string.cd_expand),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -435,10 +439,10 @@ fun StatsCollapsiblePanel(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        MetricCell(modifier = Modifier.weight(1f), title = "Requests", value = "$total")
+                        MetricCell(modifier = Modifier.weight(1f), title = stringResource(R.string.api_log_metric_requests), value = "$total")
                         MetricCell(
                             modifier = Modifier.weight(1f),
-                            title = "Success Rate",
+                            title = stringResource(R.string.api_log_metric_success_rate),
                             value = "$successRate%",
                             valueColor = when {
                                 successRate >= 95 -> Color(0xFF4CAF50)
@@ -446,10 +450,10 @@ fun StatsCollapsiblePanel(
                                 else -> Color(0xFFF44336)
                             }
                         )
-                        MetricCell(modifier = Modifier.weight(1f), title = "Avg Latency", value = "${avgLatency}ms")
+                        MetricCell(modifier = Modifier.weight(1f), title = stringResource(R.string.api_log_metric_avg_latency), value = "${avgLatency}ms")
                         MetricCell(
                             modifier = Modifier.weight(1f),
-                            title = "Failed",
+                            title = stringResource(R.string.api_log_metric_failed),
                             value = "${clientErrors + serverErrors + exceptions}",
                             valueColor = if (clientErrors + serverErrors + exceptions > 0) Color(0xFFF44336) else MaterialTheme.colorScheme.onSurface
                         )
@@ -458,7 +462,7 @@ fun StatsCollapsiblePanel(
                     // Visual Distribution Bar
                     Column {
                         Text(
-                            text = "Status Distribution",
+                            text = stringResource(R.string.api_log_status_distribution),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -519,10 +523,10 @@ fun StatsCollapsiblePanel(
                                 .fillMaxWidth()
                                 .padding(top = 4.dp)
                         ) {
-                            LegendItem(color = Color(0xFF4CAF50), label = "Success ($successes)")
-                            LegendItem(color = Color(0xFFFF9800), label = "Client Err ($clientErrors)")
-                            LegendItem(color = Color(0xFFF44336), label = "Server Err ($serverErrors)")
-                            LegendItem(color = Color(0xFF9C27B0), label = "Failed ($exceptions)")
+                            LegendItem(color = Color(0xFF4CAF50), label = stringResource(R.string.api_log_legend_success, successes))
+                            LegendItem(color = Color(0xFFFF9800), label = stringResource(R.string.api_log_legend_client_error, clientErrors))
+                            LegendItem(color = Color(0xFFF44336), label = stringResource(R.string.api_log_legend_server_error, serverErrors))
+                            LegendItem(color = Color(0xFF9C27B0), label = stringResource(R.string.api_log_legend_failed, exceptions))
                         }
                     }
 
@@ -530,7 +534,7 @@ fun StatsCollapsiblePanel(
                     if (topEndpoints.isNotEmpty()) {
                         Column {
                             Text(
-                                text = "Top Requested Endpoints",
+                                text = stringResource(R.string.api_log_top_endpoints),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -562,13 +566,13 @@ fun StatsCollapsiblePanel(
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Text(
-                                                    text = "${count}x",
+                                                    text = stringResource(R.string.api_log_count_format, count),
                                                     style = MaterialTheme.typography.bodySmall,
                                                     fontWeight = FontWeight.Bold,
                                                     color = MaterialTheme.colorScheme.primary
                                                 )
                                                 Text(
-                                                    text = "${lat}ms",
+                                                    text = stringResource(R.string.api_log_latency_format, lat),
                                                     style = MaterialTheme.typography.bodySmall,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
@@ -629,6 +633,16 @@ fun LegendItem(color: Color, label: String) {
 }
 
 @Composable
+private fun statusFilterDisplayName(filter: String): String = when (filter) {
+    "All" -> stringResource(R.string.filter_all)
+    "Success (2xx)" -> stringResource(R.string.api_log_filter_success)
+    "Client Error (4xx)" -> stringResource(R.string.api_log_filter_client_error)
+    "Server Error (5xx)" -> stringResource(R.string.api_log_filter_server_error)
+    "Failed/Exceptions" -> stringResource(R.string.api_log_filter_failed)
+    else -> filter
+}
+
+@Composable
 fun SearchAndFiltersSection(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
@@ -645,12 +659,12 @@ fun SearchAndFiltersSection(
         OutlinedTextField(
             value = searchQuery,
             onValueChange = onSearchQueryChange,
-            placeholder = { Text("Search logs (URL, JSON, code...)") },
+            placeholder = { Text(stringResource(R.string.api_log_search_placeholder)) },
             leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null) },
             trailingIcon = {
                 if (searchQuery.isNotEmpty()) {
                     IconButton(onClick = { onSearchQueryChange("") }) {
-                        Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear Search")
+                        Icon(imageVector = Icons.Default.Clear, contentDescription = stringResource(R.string.cd_clear_search))
                     }
                 }
             },
@@ -673,7 +687,7 @@ fun SearchAndFiltersSection(
                 FilterChip(
                     selected = isSelected,
                     onClick = { onMethodFilterChange(method) },
-                    label = { Text(method, modifier = Modifier.fillMaxWidth(), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, textAlign = androidx.compose.ui.text.style.TextAlign.Center) },
+                    label = { Text(if (method == "All") stringResource(R.string.filter_all) else method, modifier = Modifier.fillMaxWidth(), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, textAlign = androidx.compose.ui.text.style.TextAlign.Center) },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -700,7 +714,7 @@ fun SearchAndFiltersSection(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Status: $selectedStatusFilter",
+                            text = stringResource(R.string.api_log_status_filter_label, statusFilterDisplayName(selectedStatusFilter)),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -719,7 +733,7 @@ fun SearchAndFiltersSection(
                 ) {
                     filters.forEach { filter ->
                         DropdownMenuItem(
-                            text = { Text(filter, style = MaterialTheme.typography.bodyMedium) },
+                            text = { Text(statusFilterDisplayName(filter), style = MaterialTheme.typography.bodyMedium) },
                             onClick = {
                                 onStatusFilterChange(filter)
                                 expandedFilterDropdown = false
@@ -737,6 +751,7 @@ fun ApiLogEntryRow(
     entry: ApiLogger.ApiLogEntry,
     onClick: () -> Unit
 ) {
+    val ctx = LocalContext.current
     val methodColor = when (entry.method.uppercase()) {
         "GET" -> Color(0xFF4CAF50)
         "POST" -> Color(0xFF2196F3)
@@ -869,6 +884,7 @@ fun ApiLogDetailView(
     onCopyResponse: (String) -> Unit,
     onCopyAll: (String) -> Unit
 ) {
+    val ctx = LocalContext.current
     val methodColor = when (entry.method.uppercase()) {
         "GET" -> Color(0xFF4CAF50)
         "POST" -> Color(0xFF2196F3)
@@ -887,7 +903,7 @@ fun ApiLogDetailView(
     }
 
     val helpMessage = remember(entry.status, entry.error) {
-        getTroubleshootingHelp(entry.status, entry.error)
+        getTroubleshootingHelp(ctx, entry.status, entry.error)
     }
 
     val logSummaryText = remember(entry, prettyJson) {
@@ -917,7 +933,7 @@ fun ApiLogDetailView(
     ) {
         // Sheet Title
         Text(
-            text = "Request Details",
+            text = stringResource(R.string.api_log_request_details),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 12.dp)
@@ -952,7 +968,7 @@ fun ApiLogDetailView(
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
                                 Text(
-                                    text = if (entry.status > 0) "Status ${entry.status}" else "Network Error",
+                                    text = if (entry.status > 0) stringResource(R.string.api_log_status_format, entry.status) else stringResource(R.string.api_log_network_error),
                                     color = statusColor,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 12.sp
@@ -969,7 +985,7 @@ fun ApiLogDetailView(
 
                         // Full URL selectability
                         Column {
-                            Text("Request URL", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.api_log_label_request_url), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             SelectionContainer {
                                 Text(
                                     text = entry.url,
@@ -985,11 +1001,11 @@ fun ApiLogDetailView(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Timestamp", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.api_log_label_timestamp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(entry.timestamp, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 2.dp))
                             }
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("App State", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.api_log_label_app_state), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(entry.appState, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 2.dp))
                             }
                         }
@@ -1005,7 +1021,7 @@ fun ApiLogDetailView(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
-                            Text("Network / Client Exception", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onErrorContainer, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.api_log_label_network_exception), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onErrorContainer, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
                             SelectionContainer {
                                 Text(entry.error, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
@@ -1027,13 +1043,13 @@ fun ApiLogDetailView(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Help,
-                                    contentDescription = "Help",
+                                    contentDescription = stringResource(R.string.cd_help),
                                     tint = MaterialTheme.colorScheme.secondary,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Troubleshooting Suggestion",
+                                    text = stringResource(R.string.api_log_troubleshooting_title),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                                     fontWeight = FontWeight.Bold
@@ -1059,7 +1075,7 @@ fun ApiLogDetailView(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
-                            Text("Moshi Parsing Result / Metrics", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.api_log_label_parsing_result), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(modifier = Modifier.height(4.dp))
                             SelectionContainer {
                                 Text(entry.parsingResult, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
@@ -1073,7 +1089,7 @@ fun ApiLogDetailView(
             item {
                 Column {
                     Text(
-                        text = "Response Body Payload",
+                        text = stringResource(R.string.api_log_response_body_payload),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Bold,
@@ -1115,7 +1131,7 @@ fun ApiLogDetailView(
             ) {
                 Icon(imageVector = Icons.Default.Link, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Copy URL", fontSize = 11.sp)
+                Text(stringResource(R.string.api_log_copy_url), fontSize = 11.sp)
             }
             if (entry.responseJson != null) {
                 OutlinedButton(
@@ -1125,7 +1141,7 @@ fun ApiLogDetailView(
                 ) {
                     Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Copy JSON", fontSize = 11.sp)
+                    Text(stringResource(R.string.api_log_copy_json), fontSize = 11.sp)
                 }
             }
             Button(
@@ -1135,7 +1151,7 @@ fun ApiLogDetailView(
             ) {
                 Icon(imageVector = Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Copy Entire Log", fontSize = 11.sp)
+                Text(stringResource(R.string.api_log_copy_entire_log), fontSize = 11.sp)
             }
         }
     }
@@ -1158,23 +1174,18 @@ fun formatJson(json: String?): String {
 }
 
 
-fun getTroubleshootingHelp(status: Int, errorMessage: String?): String? {
+fun getTroubleshootingHelp(context: Context, status: Int, errorMessage: String?): String? {
     val err = errorMessage ?: ""
     return when {
-        // Status code based help
-        status == 404 -> "Not Found (404): The requested senseBox ID or resource does not exist on openSenseMap. If this is a widget, please check the box ID in the widget configuration settings."
-        status == 429 -> "Rate Limit Exceeded (429): The app has sent too many requests. Please wait a bit before requesting data again. Throttling is active to preserve battery and respect API limits."
-        status in 500..599 -> "Server Error ($status): The openSenseMap server is experiencing issues. You can check the server status by opening opensensemap.org in your browser."
-        
-        // Exception message based help
-        err.contains("UnknownHostException", ignoreCase = true) || err.contains("NoRouteToHostException", ignoreCase = true) -> "Network Offline: The app cannot resolve the server name. Please verify that your phone is connected to the Internet, and that your VPN or firewall is not blocking BoxViewer."
-        err.contains("TimeoutException", ignoreCase = true) || err.contains("SocketTimeoutException", ignoreCase = true) -> "Connection Timeout: The connection took too long to respond. This happens on weak mobile data connections or when the openSenseMap servers are overloaded."
-        err.contains("ConnectException", ignoreCase = true) -> "Connection Refused: Failed to connect to the openSenseMap server. The server might be down for maintenance."
-        err.contains("JsonDataException", ignoreCase = true) || err.contains("JsonEncodingException", ignoreCase = true) -> "Data Parsing Failure: The app failed to read the JSON response. This usually indicates that the openSenseMap API structure has changed, and BoxViewer requires an update."
-        
-        // General error state if status is not 2xx/3xx
-        status != 0 && status !in 200..299 -> "HTTP Error ($status): The server returned an unsuccessful status code. Check if the service is online."
-        errorMessage != null -> "Unknown Error: A client-side or network exception was caught. Check if your connection is stable."
+        status == 404 -> context.getString(R.string.api_log_help_404)
+        status == 429 -> context.getString(R.string.api_log_help_429)
+        status in 500..599 -> context.getString(R.string.api_log_help_5xx, status)
+        err.contains("UnknownHostException", ignoreCase = true) || err.contains("NoRouteToHostException", ignoreCase = true) -> context.getString(R.string.api_log_help_offline)
+        err.contains("TimeoutException", ignoreCase = true) || err.contains("SocketTimeoutException", ignoreCase = true) -> context.getString(R.string.api_log_help_timeout)
+        err.contains("ConnectException", ignoreCase = true) -> context.getString(R.string.api_log_help_refused)
+        err.contains("JsonDataException", ignoreCase = true) || err.contains("JsonEncodingException", ignoreCase = true) -> context.getString(R.string.api_log_help_parsing)
+        status != 0 && status !in 200..299 -> context.getString(R.string.api_log_help_http_error, status)
+        errorMessage != null -> context.getString(R.string.api_log_help_unknown)
         else -> null
     }
 }

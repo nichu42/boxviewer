@@ -386,11 +386,11 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
                 // Format date string
                 val showFullTime = minWidth == 0 || minWidth >= 160
                 val updatedString = if (config.lastFetchedTime > 0) {
-                    val df = SimpleDateFormat("HH:mm", Locale.getDefault())
+                    val df = SimpleDateFormat(context.getString(R.string.time_format), Locale.getDefault())
                     val timeStr = df.format(Date(config.lastFetchedTime))
-                    if (showFullTime) "Updated $timeStr" else timeStr
+                    if (showFullTime) context.getString(R.string.widget_updated_at, timeStr) else timeStr
                 } else {
-                    if (showFullTime) "Updated --:--" else "--:--"
+                    if (showFullTime) context.getString(R.string.widget_updated_none) else "--:--"
                 }
                 views.setTextViewText(R.id.widget_update_time, updatedString)
                 views.setViewVisibility(R.id.widget_update_time, if (showUpdateTime) View.VISIBLE else View.GONE)
@@ -535,7 +535,7 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
                     views.setTextColor(R.id.big_sensor_value, valueColor)
                 } else {
                     views.setTextViewText(R.id.big_sensor_value, "--")
-                    views.setTextViewText(R.id.big_sensor_title, "No active sensor")
+                    views.setTextViewText(R.id.big_sensor_title, context.getString(R.string.widget_no_active_sensor))
                     views.setImageViewResource(R.id.big_sensor_icon, R.drawable.ic_sensor_generic)
                     views.setInt(R.id.big_sensor_icon, "setColorFilter", 0xFF94A3B8.toInt())
                     

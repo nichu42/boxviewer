@@ -3,6 +3,7 @@ package de.nichu42.boxviewer.ui
 import de.nichu42.boxviewer.util.AqiSystem
 
 import android.content.ClipData
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,8 +29,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.util.ApiLogger
 import de.nichu42.boxviewer.util.CrashHandler
+import de.nichu42.boxviewer.util.LocaleHelper
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,7 +81,7 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        "APP SETTINGS",
+                        stringResource(R.string.settings_section_app_settings),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -85,13 +89,13 @@ fun SettingsScreen(
 
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            "App Theme",
+                            stringResource(R.string.settings_app_theme_label),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "Choose between light, dark, or system default visual styles.",
+                            stringResource(R.string.settings_app_theme_description),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -116,7 +120,71 @@ fun SettingsScreen(
                                         .testTag("theme_${themeOption.name.lowercase()}"),
                                     contentPadding = PaddingValues(0.dp)
                                 ) {
-                                    Text(text = themeOption.label, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        text = stringResource(
+                                            when (themeOption) {
+                                                SenseBoxViewModel.AppTheme.SYSTEM -> R.string.settings_theme_system
+                                                SenseBoxViewModel.AppTheme.LIGHT -> R.string.settings_theme_light
+                                                SenseBoxViewModel.AppTheme.DARK -> R.string.settings_theme_dark
+                                            }
+                                        ),
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+
+                    // Language picker
+                    var currentLocale by remember { mutableStateOf(LocaleHelper.getSavedLocale(context)) }
+                    var languageExpanded by remember { mutableStateOf(false) }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.settings_language_label),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                stringResource(R.string.settings_language_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+                            OutlinedButton(
+                                onClick = { languageExpanded = true },
+                                shape = RoundedCornerShape(8.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Text(stringResource(currentLocale.displayNameRes), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = languageExpanded,
+                                onDismissRequest = { languageExpanded = false }
+                            ) {
+                                LocaleHelper.SUPPORTED_LOCALES.forEach { locale ->
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(locale.displayNameRes)) },
+                                        onClick = {
+                                            LocaleHelper.setLanguage(context, locale.tag)
+                                            currentLocale = locale
+                                            languageExpanded = false
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -131,12 +199,12 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Conditional Formatting",
+                                stringResource(R.string.settings_conditional_formatting_label),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                "Colorize sensor values based on their current measurement level.",
+                                stringResource(R.string.settings_conditional_formatting_description),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -150,8 +218,8 @@ fun SettingsScreen(
                     HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
 
                     SettingsDropdownRow(
-                        label = "AQI Standard",
-                        description = "Choose the air quality index calculation used for AQI sensors.",
+                        label = stringResource(R.string.settings_aqi_standard_label),
+                        description = stringResource(R.string.settings_aqi_standard_description),
                         options = AqiSystem.entries,
                         selectedOption = aqiSystem,
                         optionToString = { it.label },
@@ -163,9 +231,13 @@ fun SettingsScreen(
                     HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
 
                     SettingsDropdownRow(
-                        label = "Temperature Unit",
-                        description = "Choose the display scale for all temperature sensors.",
-                        options = listOf("°C", "°F", "K"),
+                        label = stringResource(R.string.settings_temperature_unit_label),
+                        description = stringResource(R.string.settings_temperature_unit_description),
+                        options = listOf(
+                            stringResource(R.string.unit_celsius),
+                            stringResource(R.string.unit_fahrenheit),
+                            stringResource(R.string.unit_kelvin)
+                        ),
                         selectedOption = temperatureUnit,
                         testTag = "temperature_unit_dropdown",
                         onOptionSelected = { viewModel.setTemperatureUnit(it) }
@@ -174,9 +246,15 @@ fun SettingsScreen(
                     HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
 
                     SettingsDropdownRow(
-                        label = "Air Pressure Unit",
-                        description = "Choose the display scale for all air pressure sensors.",
-                        options = listOf("hPa", "Pa", "mbar", "inHg", "mmHg"),
+                        label = stringResource(R.string.settings_pressure_unit_label),
+                        description = stringResource(R.string.settings_pressure_unit_description),
+                        options = listOf(
+                            stringResource(R.string.unit_hpa),
+                            stringResource(R.string.unit_pa),
+                            stringResource(R.string.unit_mbar),
+                            stringResource(R.string.unit_inhg),
+                            stringResource(R.string.unit_mmhg)
+                        ),
                         selectedOption = pressureUnit,
                         testTag = "pressure_unit_dropdown",
                         onOptionSelected = { viewModel.setPressureUnit(it) }
@@ -191,12 +269,12 @@ fun SettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Format Air Pressure",
+                                stringResource(R.string.settings_format_pressure_label),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                "Format pressure values with thousands separator (e.g., 1,013.25 hPa instead of 1013.25 hPa).",
+                                stringResource(R.string.settings_format_pressure_description),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -211,9 +289,14 @@ fun SettingsScreen(
                     HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
 
                     SettingsDropdownRow(
-                        label = "Wind Speed Unit",
-                        description = "Choose the display scale for all wind speed sensors.",
-                        options = listOf("m/s", "km/h", "mph", "kn"),
+                        label = stringResource(R.string.settings_wind_unit_label),
+                        description = stringResource(R.string.settings_wind_unit_description),
+                        options = listOf(
+                            stringResource(R.string.unit_ms),
+                            stringResource(R.string.unit_kmh),
+                            stringResource(R.string.unit_mph),
+                            stringResource(R.string.unit_kn)
+                        ),
                         selectedOption = windUnit,
                         testTag = "wind_unit_dropdown",
                         onOptionSelected = { viewModel.setWindUnit(it) }
@@ -237,7 +320,7 @@ fun SettingsScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "DIAGNOSTICS & BUG REPORTING",
+                        text = stringResource(R.string.settings_section_diagnostics),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -250,13 +333,13 @@ fun SettingsScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.WarningAmber,
-                                contentDescription = "Crash Detected Warning",
+                                contentDescription = stringResource(R.string.cd_crash_detected_warning),
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "A recent app crash has been detected locally.",
+                                text = stringResource(R.string.settings_crash_detected_title),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.error
                             )
@@ -272,7 +355,7 @@ fun SettingsScreen(
                                     clipboardScope.launch {
                                         clipboard.setClipEntry(ClipData.newPlainText("Crash report", it).toClipEntry())
                                     }
-                                        Toast.makeText(context, "Crash report copied to clipboard!", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.settings_crash_report_copied), Toast.LENGTH_SHORT).show()
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(
@@ -282,13 +365,13 @@ fun SettingsScreen(
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("copy_crash_log")
                             ) {
-                                Text("Copy Crash Log", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.settings_copy_crash_log), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                             Button(
                                 onClick = {
                                     CrashHandler.clearCrashLog(context)
                                     crashLog = null
-                                    Toast.makeText(context, "Crash log cleared", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.settings_crash_log_cleared), Toast.LENGTH_SHORT).show()
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -297,12 +380,12 @@ fun SettingsScreen(
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("clear_crash_log")
                             ) {
-                                Text("Clear Log", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.settings_clear_log), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     } else {
                         Text(
-                            text = "No crashes detected. The app is running smoothly! If you encounter any bugs, you can copy standard system info to help us diagnose the issue.",
+                            text = stringResource(R.string.settings_no_crashes),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 20.sp
@@ -314,7 +397,7 @@ fun SettingsScreen(
                             clipboardScope.launch {
                                 clipboard.setClipEntry(ClipData.newPlainText("Diagnostics", systemInfo).toClipEntry())
                             }
-                                Toast.makeText(context, "Diagnostics copied to clipboard!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.settings_diagnostics_copied), Toast.LENGTH_SHORT).show()
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -323,9 +406,9 @@ fun SettingsScreen(
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("copy_diagnostics_info")
                         ) {
-                            Icon(imageVector = Icons.Default.Info, contentDescription = "Copy diagnostics", modifier = Modifier.size(18.dp))
+                            Icon(imageVector = Icons.Default.Info, contentDescription = stringResource(R.string.settings_copy_diagnostics_cd), modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Copy System Diagnostics Info", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.settings_copy_system_diagnostics), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
@@ -345,7 +428,7 @@ fun SettingsScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "API DEBUG LOGGING",
+                        text = stringResource(R.string.settings_section_api_logging),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -353,7 +436,7 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(10.dp))
                     
                     Text(
-                        text = "Capture raw JSON network requests, responses, and internal parsing metrics. Logs are saved locally in a JSON Lines format and can be shared to diagnose issues.",
+                        text = stringResource(R.string.settings_api_logging_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
@@ -366,7 +449,7 @@ fun SettingsScreen(
 
                     LaunchedEffect(apiLoggingEnabled) {
                         val size = ApiLogger.getLogFileSize()
-                        logSizeStr = formatSettingsFileSize(size)
+                        logSizeStr = formatSettingsFileSize(context, size)
                     }
 
                     // Logging Toggle Switch
@@ -377,13 +460,13 @@ fun SettingsScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Enable API Logging",
+                                text = stringResource(R.string.settings_enable_api_logging),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = "Current size: $logSizeStr",
+                                text = stringResource(R.string.settings_current_size_format, logSizeStr),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -393,7 +476,11 @@ fun SettingsScreen(
                             onCheckedChange = { checked ->
                                 apiLoggingEnabled = checked
                                 ApiLogger.setLoggingEnabled(checked)
-                                Toast.makeText(context, if (checked) "API Logging Enabled" else "API Logging Disabled", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    if (checked) context.getString(R.string.settings_api_logging_enabled) else context.getString(R.string.settings_api_logging_disabled),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             },
                             modifier = Modifier.testTag("api_logging_toggle")
                         )
@@ -402,7 +489,7 @@ fun SettingsScreen(
                     if (apiLoggingEnabled) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Max Log Entries",
+                            text = stringResource(R.string.settings_max_log_entries),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -458,11 +545,11 @@ fun SettingsScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.List,
-                                    contentDescription = "View API Logs",
+                                    contentDescription = stringResource(R.string.cd_view_api_logs),
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("View API Logs", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.settings_view_api_logs), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -473,10 +560,10 @@ fun SettingsScreen(
                                         coroutineScope.launch {
                                             val logText = ApiLogger.getLogsText()
                                             if (logText.isEmpty()) {
-                                                Toast.makeText(context, "Log is empty!", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, context.getString(R.string.settings_log_empty), Toast.LENGTH_SHORT).show()
                                             } else {
                                                 clipboard.setClipEntry(ClipData.newPlainText("API Logs", logText).toClipEntry())
-                                                Toast.makeText(context, "Logs copied to clipboard!", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, context.getString(R.string.settings_logs_copied), Toast.LENGTH_SHORT).show()
                                             }
                                         }
                                     },
@@ -487,7 +574,7 @@ fun SettingsScreen(
                                     shape = RoundedCornerShape(8.dp),
                                     modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("copy_api_logs")
                                 ) {
-                                    Text("Copy Logs", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    Text(stringResource(R.string.settings_copy_logs), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                                 }
 
                                 Button(
@@ -495,7 +582,7 @@ fun SettingsScreen(
                                         coroutineScope.launch {
                                             val logText = ApiLogger.getLogsText()
                                             if (logText.isEmpty()) {
-                                                Toast.makeText(context, "Log is empty!", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, context.getString(R.string.settings_log_empty), Toast.LENGTH_SHORT).show()
                                             } else {
                                                 try {
                                                     val sendIntent = android.content.Intent().apply {
@@ -503,11 +590,14 @@ fun SettingsScreen(
                                                         putExtra(android.content.Intent.EXTRA_TEXT, logText)
                                                         type = "text/plain"
                                                     }
-                                                    val shareIntent = android.content.Intent.createChooser(sendIntent, "Share API Logs")
+                                                    val shareIntent = android.content.Intent.createChooser(
+                                                        sendIntent,
+                                                        context.getString(R.string.settings_share_api_logs_title)
+                                                    )
                                                     context.startActivity(shareIntent)
                                                 } catch (e: Exception) {
                                                     e.printStackTrace()
-                                                    Toast.makeText(context, "Error sharing logs", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, context.getString(R.string.settings_error_sharing_logs), Toast.LENGTH_SHORT).show()
                                                 }
                                             }
                                         }
@@ -519,7 +609,7 @@ fun SettingsScreen(
                                     shape = RoundedCornerShape(8.dp),
                                     modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("share_api_logs")
                                 ) {
-                                    Text("Share Logs", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    Text(stringResource(R.string.settings_share_logs), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                                 }
                             }
 
@@ -527,7 +617,7 @@ fun SettingsScreen(
                                 onClick = {
                                     ApiLogger.clearLogs()
                                     logSizeStr = "0 B"
-                                    Toast.makeText(context, "Logs cleared", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.settings_logs_cleared), Toast.LENGTH_SHORT).show()
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -536,7 +626,7 @@ fun SettingsScreen(
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("clear_api_logs")
                             ) {
-                                Text("Clear API Logs", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.settings_clear_api_logs), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -548,11 +638,11 @@ fun SettingsScreen(
     }
 }
 
-fun formatSettingsFileSize(size: Long): String {
+fun formatSettingsFileSize(context: Context, size: Long): String {
     return when {
-        size < 1024 -> "$size B"
-        size < 1024 * 1024 -> String.format(java.util.Locale.US, "%.1f KB", size / 1024.0)
-        else -> String.format(java.util.Locale.US, "%.1f MB", size / (1024.0 * 1024.0))
+        size < 1024 -> context.getString(R.string.file_size_bytes, size)
+        size < 1024 * 1024 -> context.getString(R.string.file_size_kilobytes, size / 1024.0)
+        else -> context.getString(R.string.file_size_megabytes, size / (1024.0 * 1024.0))
     }
 }
 
@@ -584,7 +674,7 @@ private fun <T> SettingsDropdownRow(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Info,
-                            contentDescription = "info",
+                            contentDescription = stringResource(R.string.cd_info),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(16.dp)
                         )

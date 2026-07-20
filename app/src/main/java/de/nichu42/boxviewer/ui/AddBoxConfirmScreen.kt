@@ -16,6 +16,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.data.api.SenseBox
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,10 +52,10 @@ fun AddBoxConfirmScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add senseBox", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.add_box_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onCancel) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cancel")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_cancel))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -80,7 +82,7 @@ fun AddBoxConfirmScreen(
                             CircularProgressIndicator()
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "Fetching senseBox...",
+                                text = stringResource(R.string.add_box_fetching),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -109,10 +111,10 @@ fun AddBoxConfirmScreen(
                         Spacer(modifier = Modifier.height(20.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             OutlinedButton(onClick = { viewModel.loadBoxPreview(boxId) }) {
-                                Text("Retry")
+                                Text(stringResource(R.string.action_retry))
                             }
                             Button(onClick = onCancel) {
-                                Text("Cancel")
+                                Text(stringResource(R.string.action_cancel))
                             }
                         }
                     }
@@ -136,14 +138,14 @@ fun AddBoxConfirmScreen(
                             ) {
                                 Icon(Icons.Default.Bookmark, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("View Details")
+                                Text(stringResource(R.string.action_view_details))
                             }
                             OutlinedButton(
                                 onClick = onCancel,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(10.dp)
                             ) {
-                                Text("Close")
+                                Text(stringResource(R.string.action_close))
                             }
                         } else {
                             Button(
@@ -156,20 +158,20 @@ fun AddBoxConfirmScreen(
                             ) {
                                 Icon(Icons.Default.BookmarkAdd, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Add to Dashboard")
+                                Text(stringResource(R.string.action_add_to_dashboard))
                             }
                             OutlinedButton(
                                 onClick = { onViewDetails(boxId) },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(10.dp)
                             ) {
-                                Text("View Details")
+                                Text(stringResource(R.string.action_view_details))
                             }
                             TextButton(
                                 onClick = onCancel,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text("Cancel")
+                                Text(stringResource(R.string.action_cancel))
                             }
                         }
                     }
@@ -238,7 +240,7 @@ private fun BoxPreviewCard(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Already in your senseBoxes",
+                            text = stringResource(R.string.add_box_already_saved),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -253,7 +255,7 @@ private fun BoxPreviewCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.Place,
-                        contentDescription = "Location",
+                        contentDescription = stringResource(R.string.cd_location),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(14.dp)
                     )

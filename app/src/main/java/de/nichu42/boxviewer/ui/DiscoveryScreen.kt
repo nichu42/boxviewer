@@ -39,7 +39,9 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.focus.focusProperties
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.launch
+import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.data.api.SenseBox
 import java.util.*
 
@@ -81,7 +83,7 @@ fun DiscoveryScreen(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             if (isGranted) {
-                searchQuery = "Locating..."
+                searchQuery = context.getString(R.string.discovery_locating)
                 getCurrentGPSLocation(context, viewModel) { label ->
                     searchQuery = label
                 }
@@ -106,7 +108,7 @@ fun DiscoveryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Discover senseBoxes", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.discovery_title), fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -161,7 +163,7 @@ fun DiscoveryScreen(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "City / Location",
+                            text = stringResource(R.string.discovery_search_mode_location),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (isLocationSearch) textColorSelected else textColorUnselected
@@ -197,7 +199,7 @@ fun DiscoveryScreen(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "senseBox Name / ID",
+                            text = stringResource(R.string.discovery_search_mode_box_id),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (!isLocationSearch) textColorSelected else textColorUnselected
@@ -227,7 +229,7 @@ fun DiscoveryScreen(
                                     val fullLabel = listOfNotNull(city, state, country)
                                         .filter { it.isNotBlank() }
                                         .joinToString(", ")
-                                    val formattedLabel = firstAddress.getAddressLine(0) ?: fullLabel.ifBlank { "Unknown Location" }
+                                    val formattedLabel = firstAddress.getAddressLine(0) ?: fullLabel.ifBlank { context.getString(R.string.discovery_unknown_location) }
                                     
                                     searchQuery = formattedLabel
                                     viewModel.searchByAddress(firstAddress)
@@ -269,15 +271,15 @@ fun DiscoveryScreen(
                             },
                         placeholder = { 
                             if (isLocationSearch) {
-                                Text("Enter City")
+                                Text(stringResource(R.string.discovery_placeholder_city))
                             } else {
-                                Text("Search by senseBox Name / ID")
+                                Text(stringResource(R.string.discovery_placeholder_box_id))
                             }
                         },
                         leadingIcon = { 
                             Icon(
                                 imageVector = if (isLocationSearch) Icons.Default.Place else Icons.Default.Search, 
-                                contentDescription = "Search"
+                                contentDescription = stringResource(R.string.cd_search)
                             ) 
                         },
                         trailingIcon = {
@@ -292,7 +294,7 @@ fun DiscoveryScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Search,
-                                            contentDescription = "Run Search",
+                                            contentDescription = stringResource(R.string.cd_run_search),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
@@ -302,14 +304,14 @@ fun DiscoveryScreen(
                                             viewModel.clearAutocomplete()
                                         }
                                     }) {
-                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                        Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.cd_clear))
                                     }
                                 }
                                 if (isLocationSearch) {
                                     IconButton(
                                         modifier = Modifier.testTag("gps_inline_button"),
                                         onClick = {
-                                            searchQuery = "Locating..."
+                                            searchQuery = context.getString(R.string.discovery_locating)
                                             viewModel.clearAutocomplete()
                                             val check = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
                                             if (check == PackageManager.PERMISSION_GRANTED) {
@@ -323,7 +325,7 @@ fun DiscoveryScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.MyLocation,
-                                            contentDescription = "Use GPS Location",
+                                            contentDescription = stringResource(R.string.cd_use_gps),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
@@ -339,7 +341,7 @@ fun DiscoveryScreen(
                                             } catch (_: ActivityNotFoundException) {
                                                 Toast.makeText(
                                                     context,
-                                                    "No barcode scanner app found. Please install one (e.g. Binary Eye or Barcode Scanner).",
+                                                    context.getString(R.string.discovery_no_barcode_scanner),
                                                     Toast.LENGTH_LONG
                                                 ).show()
                                             }
@@ -347,7 +349,7 @@ fun DiscoveryScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.QrCodeScanner,
-                                            contentDescription = "Scan QR code",
+                                            contentDescription = stringResource(R.string.cd_scan_qr),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
@@ -382,7 +384,7 @@ fun DiscoveryScreen(
                                             .filter { it.isNotBlank() }
                                             .joinToString(", ")
                                         val formattedLabel = fullLabel.ifBlank {
-                                            address.getAddressLine(0) ?: "Unknown Location"
+                                            address.getAddressLine(0) ?: context.getString(R.string.discovery_unknown_location)
                                         }
                                         val finalLabel = address.getAddressLine(0) ?: formattedLabel
                                         Pair(address, finalLabel)
@@ -445,13 +447,13 @@ fun DiscoveryScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.FilterList,
-                                contentDescription = "Filters",
+                                contentDescription = stringResource(R.string.cd_filters),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Search Filters",
+                                text = stringResource(R.string.discovery_search_filters),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary,
@@ -459,7 +461,7 @@ fun DiscoveryScreen(
                             )
                             Icon(
                                 imageVector = if (filtersExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                contentDescription = if (filtersExpanded) "Collapse/Expand" else "Expand/Collapse",
+                                contentDescription = if (filtersExpanded) stringResource(R.string.cd_collapse) else stringResource(R.string.cd_expand),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -479,7 +481,7 @@ fun DiscoveryScreen(
 
                                 // Exposure Type Selector
                                 Text(
-                                    text = "Exposure",
+                                    text = stringResource(R.string.discovery_exposure_label),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -492,10 +494,15 @@ fun DiscoveryScreen(
                                 ) {
                                     SenseBoxViewModel.ExposureFilter.entries.forEach { filter ->
                                         val selected = (selectedExposure == filter)
+                                        val filterLabel = stringResource(when (filter) {
+                                            SenseBoxViewModel.ExposureFilter.OUTDOOR -> R.string.exposure_outdoor
+                                            SenseBoxViewModel.ExposureFilter.INDOOR -> R.string.exposure_indoor
+                                            SenseBoxViewModel.ExposureFilter.ALL -> R.string.exposure_all
+                                        })
                                         FilterChip(
                                             selected = selected,
                                             onClick = { viewModel.selectedExposure.value = filter },
-                                            label = { Text(filter.label, fontSize = 11.sp, fontWeight = FontWeight.Medium) },
+                                            label = { Text(filterLabel, fontSize = 11.sp, fontWeight = FontWeight.Medium) },
                                             shape = RoundedCornerShape(8.dp),
                                             leadingIcon = if (selected) {
                                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(12.dp)) }
@@ -513,21 +520,21 @@ fun DiscoveryScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Last Updated Limit",
+                                        text = stringResource(R.string.discovery_last_updated_limit),
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     val minutesText = when {
-                                        lastUpdatedMinutes == 15 -> "Last 15 minutes"
-                                        lastUpdatedMinutes == 30 -> "Last 30 minutes"
-                                        lastUpdatedMinutes == 60 -> "Last 1 hour"
+                                        lastUpdatedMinutes == 15 -> stringResource(R.string.discovery_last_updated_15m)
+                                        lastUpdatedMinutes == 30 -> stringResource(R.string.discovery_last_updated_30m)
+                                        lastUpdatedMinutes == 60 -> stringResource(R.string.discovery_last_updated_1h)
                                         lastUpdatedMinutes < 1440 -> {
                                             val hours = lastUpdatedMinutes / 60
-                                            "Last $hours hours"
+                                            stringResource(R.string.discovery_last_updated_hours, hours)
                                         }
-                                        lastUpdatedMinutes == 1440 -> "Last 24 hours (1 day)"
-                                        else -> "All Time"
+                                        lastUpdatedMinutes == 1440 -> stringResource(R.string.discovery_last_updated_24h)
+                                        else -> stringResource(R.string.discovery_last_updated_all_time)
                                     }
                                     Text(
                                         text = minutesText,
@@ -545,7 +552,7 @@ fun DiscoveryScreen(
                                         val index = lastUpdatedSteps.indexOf(lastUpdatedMinutes)
                                         if (index != -1) index else 2
                                     }
-                                    Text("15 m", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(stringResource(R.string.discovery_15m_short), style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     Slider(
                                         value = currentStepIndex.toFloat(),
                                         onValueChange = { indexFloat ->
@@ -558,7 +565,7 @@ fun DiscoveryScreen(
                                             .weight(1f)
                                             .padding(horizontal = 8.dp)
                                     )
-                                    Text("All Time", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(stringResource(R.string.discovery_last_updated_all_time), style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
 
                                 // Search Radius Slider Row (Shown for any search with coordinates to search around)
@@ -584,13 +591,13 @@ fun DiscoveryScreen(
                                          verticalAlignment = Alignment.CenterVertically
                                      ) {
                                          Text(
-                                             text = "Search Radius",
+                                             text = stringResource(R.string.discovery_radius_label),
                                              style = MaterialTheme.typography.labelSmall,
                                              fontWeight = FontWeight.Bold,
                                              color = MaterialTheme.colorScheme.onSurfaceVariant
                                          )
                                          Text(
-                                             text = "$displayRadius km",
+                                             text = stringResource(R.string.discovery_radius_format, displayRadius),
                                              style = MaterialTheme.typography.labelSmall,
                                              fontWeight = FontWeight.Bold,
                                              color = MaterialTheme.colorScheme.primary
@@ -601,7 +608,7 @@ fun DiscoveryScreen(
                                          verticalAlignment = Alignment.CenterVertically,
                                          modifier = Modifier.fillMaxWidth()
                                      ) {
-                                         Text("2 km", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                         Text(stringResource(R.string.discovery_2km_short), style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                          Slider(
                                              value = sliderIndex,
                                              onValueChange = { sliderIndex = it },
@@ -616,7 +623,7 @@ fun DiscoveryScreen(
                                                  .weight(1f)
                                                  .padding(horizontal = 8.dp)
                                          )
-                                         Text("250 km", style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                         Text(stringResource(R.string.discovery_250km_short), style = MaterialTheme.typography.bodySmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                      }
                                 }
                             }
@@ -654,25 +661,25 @@ fun DiscoveryScreen(
                         if (hasSearchBeenDone) {
                             Icon(
                                 imageVector = Icons.Default.SearchOff,
-                                contentDescription = "Search Off",
+                                contentDescription = stringResource(R.string.cd_search_off),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(48.dp)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = if (rawDiscoveredBoxes.isNotEmpty()) "Results Filtered Out" else "No senseBoxes Found",
+                                text = if (rawDiscoveredBoxes.isNotEmpty()) stringResource(R.string.discovery_results_filtered_out) else stringResource(R.string.discovery_no_senseboxes_found),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = if (isLocationSearch) {
                                     if (rawDiscoveredBoxes.isNotEmpty()) {
-                                        "We found ${rawDiscoveredBoxes.size} senseBoxes, but they were filtered out by your current Search Filters. Try setting 'Last Updated' to 'All Time' or 'Exposure' to 'All'."
+                                        stringResource(R.string.discovery_results_filtered_message, rawDiscoveredBoxes.size)
                                     } else {
-                                        "Try searching for a different named area above, search by coordinates, or use the GPS button to find stations."
+                                        stringResource(R.string.discovery_no_results_location_hint)
                                     }
                                 } else {
-                                    "Try checking the name spelling or verify the 24-character hexadecimal senseBox ID."
+                                    stringResource(R.string.discovery_no_results_box_hint)
                                 },
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -682,21 +689,21 @@ fun DiscoveryScreen(
                         } else {
                             Icon(
                                 imageVector = if (isLocationSearch) Icons.Default.Explore else Icons.Default.Sensors,
-                                contentDescription = "Discover",
+                                contentDescription = stringResource(R.string.cd_discover),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(48.dp)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = if (isLocationSearch) "Discover senseBoxes" else "Find senseBox Name / ID",
+                                text = if (isLocationSearch) stringResource(R.string.discovery_button_discover) else stringResource(R.string.discovery_button_find_box),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = if (isLocationSearch) {
-                                    "Search for a city, or click the GPS icon above to find weather stations near you. Bookmark your favorites to save them to your dashboard."
+                                    stringResource(R.string.discovery_empty_location_hint)
                                 } else {
-                                    "Enter a senseBox name or a 24-character senseBox ID. Remember to bookmark stations you want to keep!"
+                                    stringResource(R.string.discovery_empty_box_hint)
                                 },
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -730,7 +737,7 @@ fun DiscoveryScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "FOUND ${discoveredBoxes.size} SENSEBOXES",
+                                    text = stringResource(R.string.discovery_found_count, discoveredBoxes.size),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -742,7 +749,7 @@ fun DiscoveryScreen(
                                         modifier = Modifier.padding(start = 8.dp)
                                     ) {
                                         Text(
-                                            text = "Search radius: ${radiusMeters / 1000} km",
+                                            text = stringResource(R.string.discovery_search_radius_format, radiusMeters / 1000),
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -768,7 +775,7 @@ fun DiscoveryScreen(
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "Tap the bookmark icon to save a station to your list.",
+                                        text = stringResource(R.string.discovery_save_hint),
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -823,12 +830,12 @@ fun DiscoveryScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ExpandMore,
-                                    contentDescription = "Show more",
+                                    contentDescription = stringResource(R.string.cd_show_more),
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Show More ($remaining remaining)",
+                                    text = stringResource(R.string.discovery_show_more_format, remaining),
                                     style = MaterialTheme.typography.labelMedium
                                 )
                             }
@@ -882,7 +889,11 @@ fun DiscoveredBoxCard(
                             .padding(horizontal = 4.dp, vertical = 1.dp)
                     ) {
                         Text(
-                            text = box.exposure ?: "outdoor",
+                            text = when (box.exposure?.lowercase(Locale.getDefault())) {
+                                "indoor" -> stringResource(R.string.discovery_exposure_indoor)
+                                "outdoor" -> stringResource(R.string.discovery_exposure_outdoor)
+                                else -> stringResource(R.string.discovery_exposure_outdoor)
+                            },
                             fontSize = 8.sp,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                             fontWeight = FontWeight.SemiBold
@@ -898,7 +909,7 @@ fun DiscoveredBoxCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Place,
-                            contentDescription = "Location",
+                            contentDescription = stringResource(R.string.cd_location),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(12.dp)
                         )
@@ -915,7 +926,7 @@ fun DiscoveredBoxCard(
                         if (distanceKm != null) {
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "(${String.format(Locale.US, "%.1f", distanceKm)} km away)",
+                                text = stringResource(R.string.discovery_distance_format, distanceKm),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
@@ -932,7 +943,7 @@ fun DiscoveredBoxCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Coords: $latStr, $lngStr",
+                                text = stringResource(R.string.discovery_coords_format, latStr, lngStr),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 10.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
@@ -940,7 +951,7 @@ fun DiscoveredBoxCard(
                             if (distanceKm != null) {
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "(${String.format(Locale.US, "%.1f", distanceKm)} km away)",
+                                    text = stringResource(R.string.discovery_distance_format, distanceKm),
                                     style = MaterialTheme.typography.bodySmall,
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
@@ -958,7 +969,7 @@ fun DiscoveredBoxCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Schedule,
-                        contentDescription = "Updated time",
+                        contentDescription = stringResource(R.string.cd_updated_time),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(12.dp)
                     )
@@ -973,13 +984,13 @@ fun DiscoveredBoxCard(
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             imageVector = Icons.Default.Warning,
-                            contentDescription = "Some metrics outdated",
+                            contentDescription = stringResource(R.string.discovery_some_metrics_outdated),
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(12.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Some metrics outdated",
+                            text = stringResource(R.string.discovery_some_metrics_outdated),
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
@@ -1007,7 +1018,7 @@ fun DiscoveredBoxCard(
                 val sensorTitles = box.sensors?.take(3)?.map { it.title } ?: emptyList()
                 if (sensorTitles.isNotEmpty()) {
                     Text(
-                        text = "Sensors: " + sensorTitles.joinToString(", "),
+                        text = stringResource(R.string.discovery_sensors_format, sensorTitles.joinToString(", ")),
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.primary,
                         maxLines = 1,
@@ -1025,7 +1036,7 @@ fun DiscoveredBoxCard(
             ) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                    contentDescription = if (isFavorite) "Remove Bookmark" else "Save Bookmark",
+                    contentDescription = if (isFavorite) stringResource(R.string.cd_remove_bookmark) else stringResource(R.string.cd_save_bookmark),
                     tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -1042,7 +1053,7 @@ private fun getCurrentGPSLocation(
     try {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
         if (locationManager == null) {
-            handleLocationFailure(viewModel, onResult)
+            handleLocationFailure(context, viewModel, onResult)
             return
         }
 
@@ -1101,7 +1112,7 @@ private fun getCurrentGPSLocation(
                                 onResult(label)
                             }
                         } else {
-                            handleLocationFailure(viewModel, onResult)
+                            handleLocationFailure(context, viewModel, onResult)
                         }
                     }
                 } else {
@@ -1129,7 +1140,7 @@ private fun getCurrentGPSLocation(
                             if (!triggered) {
                                 triggered = true
                                 locationManager.removeUpdates(listener)
-                                handleLocationFailure(viewModel, onResult)
+                                    handleLocationFailure(context, viewModel, onResult)
                             }
                         } catch (e: Exception) {
                             // ignore
@@ -1137,19 +1148,20 @@ private fun getCurrentGPSLocation(
                     }, 5000)
                 }
             } else {
-                handleLocationFailure(viewModel, onResult)
+                handleLocationFailure(context, viewModel, onResult)
             }
         }
     } catch (e: Throwable) {
         e.printStackTrace()
-        handleLocationFailure(viewModel, onResult)
+        handleLocationFailure(context, viewModel, onResult)
     }
 }
 
 private fun handleLocationFailure(
+    context: Context,
     viewModel: SenseBoxViewModel,
     onResult: (String) -> Unit
 ) {
     onResult("")
-    viewModel.setErrorMessage("Unable to determine current location. Please search manually using the search bar.")
+    viewModel.setErrorMessage(context.getString(R.string.discovery_error_location))
 }

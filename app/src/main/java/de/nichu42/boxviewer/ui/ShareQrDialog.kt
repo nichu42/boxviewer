@@ -14,10 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.data.api.SenseBox
 import de.nichu42.boxviewer.util.QrCodeCanvas
 import de.nichu42.boxviewer.util.QrCodeGenerator
@@ -53,7 +55,7 @@ fun ShareQrDialog(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Share senseBox",
+                text = stringResource(R.string.share_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -90,7 +92,7 @@ fun ShareQrDialog(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
-                label = { Text("Deep link", fontSize = 11.sp) }
+                label = { Text(stringResource(R.string.share_deep_link_label), fontSize = 11.sp) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -101,7 +103,7 @@ fun ShareQrDialog(
             ) {
                 Button(
                     onClick = {
-                        ShareUtils.copyToClipboard(context, "senseBox Link", link)
+                        ShareUtils.copyToClipboard(context, context.getString(R.string.share_clipboard_label), link)
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(10.dp),
@@ -109,11 +111,11 @@ fun ShareQrDialog(
                 ) {
                     Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Copy", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.action_copy), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Button(
                     onClick = {
-                        ShareUtils.shareText(context, "senseBox", summaryText)
+                        ShareUtils.shareText(context, context.getString(R.string.share_subject), summaryText)
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(10.dp),
@@ -121,7 +123,7 @@ fun ShareQrDialog(
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Share Link", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.action_share_link), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
 
@@ -152,7 +154,7 @@ fun ShareQrDialog(
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(context, "Failed to share QR image", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.share_qr_failed), Toast.LENGTH_SHORT).show()
                                 }
                             } finally {
                                 isExporting = false
@@ -166,7 +168,7 @@ fun ShareQrDialog(
                 ) {
                     Icon(Icons.Default.QrCode, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Share QR", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.action_share_qr), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
                 OutlinedButton(
                     onClick = {
@@ -188,15 +190,15 @@ fun ShareQrDialog(
                                 val savedUri = ShareUtils.saveQrToGallery(context, bitmap, fileName)
                                 withContext(Dispatchers.Main) {
                                     if (savedUri != null) {
-                                        Toast.makeText(context, "QR saved to Pictures/BoxViewer", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.share_qr_saved_success), Toast.LENGTH_SHORT).show()
                                     } else {
-                                        Toast.makeText(context, "Save to gallery requires Android 10 or newer", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.share_qr_save_requires_android_10), Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(context, "Failed to save QR image", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.share_qr_save_failed), Toast.LENGTH_SHORT).show()
                                 }
                             } finally {
                                 isExporting = false
@@ -210,7 +212,7 @@ fun ShareQrDialog(
                 ) {
                     Icon(Icons.Default.SaveAlt, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Save QR", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.action_save_qr), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
 
@@ -220,7 +222,7 @@ fun ShareQrDialog(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Close")
+                Text(stringResource(R.string.action_close))
             }
         }
     }

@@ -17,7 +17,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import androidx.core.graphics.toColorInt
+import de.nichu42.boxviewer.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,7 +31,7 @@ fun AqiInfoScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Air Quality Index Guide", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.aqi_info_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(
                         onClick = onBack,
@@ -37,7 +39,7 @@ fun AqiInfoScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.cd_back)
                         )
                     }
                 },
@@ -64,14 +66,14 @@ fun AqiInfoScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Understanding Air Quality Index (AQI)",
+                        text = stringResource(R.string.aqi_info_intro_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "The Air Quality Index is a standardized system used to report daily air quality and associate it with public health risks. BoxViewer synthesizes a local 'virtual' AQI sensor if a station publishes PM2.5 or PM10 particulate matter readings.",
+                        text = stringResource(R.string.aqi_info_intro_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -84,19 +86,19 @@ fun AqiInfoScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "InstantCast vs. NowCast",
+                        text = stringResource(R.string.aqi_info_cast_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     
                     Text(
-                        text = "InstantCast (Live Readings)",
+                        text = stringResource(R.string.aqi_info_instantcast_title),
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = "Directly translates the most recent single measurement value using standard breakpoints. Used on the main dashboard list and widgets for real-time responsiveness.",
+                        text = stringResource(R.string.aqi_info_instantcast_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -104,12 +106,12 @@ fun AqiInfoScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     
                     Text(
-                        text = "NowCast (Historical Analysis)",
+                        text = stringResource(R.string.aqi_info_nowcast_title),
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = "Uses the EPA's 12-hour weighted average algorithm. If air quality is changing rapidly, it puts more weight on recent hours; if stable, it weights them more evenly. Calculated and displayed when expanding detailed sensor cards.",
+                        text = stringResource(R.string.aqi_info_nowcast_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -122,13 +124,13 @@ fun AqiInfoScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Consolidated Virtual Sensor",
+                        text = stringResource(R.string.aqi_info_virtual_sensor_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "If a station contains both PM2.5 (fine particles) and PM10 (coarse particles), BoxViewer calculates the sub-index for both and automatically displays the worst-case (maximum) score. This ensures maximum protection and a clean layout.",
+                        text = stringResource(R.string.aqi_info_virtual_sensor_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -137,7 +139,7 @@ fun AqiInfoScreen(
 
             // Standards Header
             Text(
-                text = "REGIONAL AQI SPECIFICATIONS",
+                text = stringResource(R.string.aqi_info_regional_title),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -146,81 +148,81 @@ fun AqiInfoScreen(
 
             // US EPA
             AqiStandardDetailCard(
-                name = "US EPA AQI (United States)",
-                scale = "0 – 500 Scale",
+                name = stringResource(R.string.aqi_system_us_epa),
+                scale = stringResource(R.string.aqi_scale_us),
                 bands = listOf(
-                    AqiBandInfo("Good", "0–50", "#00E400"),
-                    AqiBandInfo("Moderate", "51–100", "#FFFF00", darkText = true),
-                    AqiBandInfo("Sensitive Groups", "101–150", "#FF7E00"),
-                    AqiBandInfo("Unhealthy", "151–200", "#FF0000"),
-                    AqiBandInfo("Very Unhealthy", "201–300", "#8F3F97"),
-                    AqiBandInfo("Hazardous", "301–500", "#7E0023")
+                    AqiBandInfo(stringResource(R.string.aqi_band_good), "0–50", "#00E400"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_moderate), "51–100", "#FFFF00", darkText = true),
+                    AqiBandInfo(stringResource(R.string.aqi_band_sensitive_groups), "101–150", "#FF7E00"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_unhealthy), "151–200", "#FF0000"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_very_unhealthy), "201–300", "#8F3F97"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_hazardous), "301–500", "#7E0023")
                 )
             )
 
             // UK DAQI
             AqiStandardDetailCard(
-                name = "UK DAQI (United Kingdom)",
-                scale = "1 – 10 Scale",
+                name = stringResource(R.string.aqi_system_uk_daqi),
+                scale = stringResource(R.string.aqi_scale_uk),
                 bands = listOf(
-                    AqiBandInfo("Low", "1–3", "#008000"),
-                    AqiBandInfo("Moderate", "4–6", "#FFFF00", darkText = true),
-                    AqiBandInfo("High", "7–9", "#FF0000"),
-                    AqiBandInfo("Very High", "10", "#800080")
+                    AqiBandInfo(stringResource(R.string.aqi_band_low), "1–3", "#008000"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_moderate), "4–6", "#FFFF00", darkText = true),
+                    AqiBandInfo(stringResource(R.string.aqi_band_high), "7–9", "#FF0000"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_very_high), "10", "#800080")
                 )
             )
 
             // European EAQI
             AqiStandardDetailCard(
-                name = "European EAQI (European Union)",
-                scale = "Qualitative Bands (No numeric index)",
+                name = stringResource(R.string.aqi_system_eu_eaqi),
+                scale = stringResource(R.string.aqi_scale_eu),
                 bands = listOf(
-                    AqiBandInfo("Very Good", "—", "#5AAA5F"),
-                    AqiBandInfo("Good", "—", "#A7D25C", darkText = true),
-                    AqiBandInfo("Moderate", "—", "#ECD347", darkText = true),
-                    AqiBandInfo("Poor", "—", "#EF9A3C"),
-                    AqiBandInfo("Very Poor", "—", "#E8665E"),
-                    AqiBandInfo("Extremely Poor", "—", "#B765A2")
+                    AqiBandInfo(stringResource(R.string.aqi_band_very_good), "—", "#5AAA5F"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_good), "—", "#A7D25C", darkText = true),
+                    AqiBandInfo(stringResource(R.string.aqi_band_moderate), "—", "#ECD347", darkText = true),
+                    AqiBandInfo(stringResource(R.string.aqi_band_poor), "—", "#EF9A3C"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_very_poor), "—", "#E8665E"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_extremely_poor), "—", "#B765A2")
                 )
             )
 
             // Canada AQHI
             AqiStandardDetailCard(
-                name = "Canada AQHI (Canada)",
-                scale = "1 – 10+ Scale (PM2.5 only)",
+                name = stringResource(R.string.aqi_system_canada_aqhi),
+                scale = stringResource(R.string.aqi_scale_canada),
                 bands = listOf(
-                    AqiBandInfo("Low Risk", "1–3", "#00E5FF", darkText = true),
-                    AqiBandInfo("Moderate Risk", "4–6", "#FBC02D", darkText = true),
-                    AqiBandInfo("High Risk", "7–10", "#E53935"),
-                    AqiBandInfo("Very High Risk", "10+", "#8E24AA")
+                    AqiBandInfo(stringResource(R.string.aqi_band_low_risk), "1–3", "#00E5FF", darkText = true),
+                    AqiBandInfo(stringResource(R.string.aqi_band_moderate_risk), "4–6", "#FBC02D", darkText = true),
+                    AqiBandInfo(stringResource(R.string.aqi_band_high_risk), "7–10", "#E53935"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_very_high_risk), "10+", "#8E24AA")
                 )
             )
 
             // India AQI
             AqiStandardDetailCard(
-                name = "India AQI (India)",
-                scale = "0 – 500 Scale",
+                name = stringResource(R.string.aqi_system_india_aqi),
+                scale = stringResource(R.string.aqi_scale_india),
                 bands = listOf(
-                    AqiBandInfo("Good", "0–50", "#4CAF50"),
-                    AqiBandInfo("Satisfactory", "51–100", "#8BC34A"),
-                    AqiBandInfo("Moderately Polluted", "101–200", "#FFEB3B", darkText = true),
-                    AqiBandInfo("Poor", "201–300", "#FF9800"),
-                    AqiBandInfo("Very Poor", "301–400", "#F44336"),
-                    AqiBandInfo("Severe", "401–500", "#B71C1C")
+                    AqiBandInfo(stringResource(R.string.aqi_band_good), "0–50", "#4CAF50"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_satisfactory), "51–100", "#8BC34A"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_moderately_polluted), "101–200", "#FFEB3B", darkText = true),
+                    AqiBandInfo(stringResource(R.string.aqi_band_poor), "201–300", "#FF9800"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_very_poor), "301–400", "#F44336"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_severe), "401–500", "#B71C1C")
                 )
             )
 
             // China AQI
             AqiStandardDetailCard(
-                name = "China AQI (China)",
-                scale = "0 – 500 Scale",
+                name = stringResource(R.string.aqi_system_china_aqi),
+                scale = stringResource(R.string.aqi_scale_china),
                 bands = listOf(
-                    AqiBandInfo("Excellent", "0–50", "#00E400"),
-                    AqiBandInfo("Good", "51–100", "#FFFF00", darkText = true),
-                    AqiBandInfo("Lightly Polluted", "101–150", "#FF7E00"),
-                    AqiBandInfo("Moderately Polluted", "151–200", "#FF0000"),
-                    AqiBandInfo("Heavily Polluted", "201–300", "#8F3F97"),
-                    AqiBandInfo("Severely Polluted", "301–500", "#7E0023")
+                    AqiBandInfo(stringResource(R.string.aqi_band_excellent), "0–50", "#00E400"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_good), "51–100", "#FFFF00", darkText = true),
+                    AqiBandInfo(stringResource(R.string.aqi_band_lightly_polluted), "101–150", "#FF7E00"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_moderately_polluted), "151–200", "#FF0000"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_heavily_polluted), "201–300", "#8F3F97"),
+                    AqiBandInfo(stringResource(R.string.aqi_band_severely_polluted), "301–500", "#7E0023")
                 )
             )
         }

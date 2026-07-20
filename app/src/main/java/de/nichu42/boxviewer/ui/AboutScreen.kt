@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.IntOffset
 import kotlin.math.roundToInt
 
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.annotation.StringRes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,7 +97,7 @@ fun AboutScreen(
             // App Branding Block - Modern, High-End Compose Vector Branding (Fully Crash-Proof)
             Image(
                 painter = painterResource(id = R.drawable.boxviewer_white_bg),
-                contentDescription = "BoxViewer Logo",
+                contentDescription = stringResource(R.string.cd_app_logo),
                 modifier = Modifier
                     .size(160.dp)
                     .clip(RoundedCornerShape(16.dp)),
@@ -103,7 +105,7 @@ fun AboutScreen(
             )
 
             Text(
-                text = "Version $versionName",
+                text = stringResource(R.string.about_version_label, versionName),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center
@@ -125,14 +127,14 @@ fun AboutScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "APP HOME & SUPPORT",
+                        text = stringResource(R.string.about_section_home_support),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = "BoxViewer is open-source and developed with love. Check out the project repository to contribute, report issues, or view the source code:",
+                        text = stringResource(R.string.about_home_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         lineHeight = 20.sp
@@ -158,12 +160,12 @@ fun AboutScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Language,
-                            contentDescription = "GitHub Project Page",
+                            contentDescription = stringResource(R.string.cd_github_project),
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Project Homepage (GitHub)",
+                            text = stringResource(R.string.about_link_github),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -171,14 +173,14 @@ fun AboutScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Support the Developer",
+                        text = stringResource(R.string.about_support_title),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "If you are happy with the app and would like to support the ongoing development, please consider donating:",
+                        text = stringResource(R.string.about_support_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
@@ -208,12 +210,12 @@ fun AboutScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Favorite,
-                                contentDescription = "Ko-fi",
+                                contentDescription = stringResource(R.string.cd_kofi),
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Support on Ko-fi",
+                                text = stringResource(R.string.about_link_kofi),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -237,12 +239,12 @@ fun AboutScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Favorite,
-                                contentDescription = "Liberapay",
+                                contentDescription = stringResource(R.string.cd_liberapay),
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Donate via Liberapay",
+                                text = stringResource(R.string.about_link_liberapay),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -265,21 +267,21 @@ fun AboutScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "Copyright (C) 2026 nichu42 and contributors",
+                        text = stringResource(R.string.about_copyright),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = "This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.",
+                        text = stringResource(R.string.about_gpl_summary_1),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.",
+                        text = stringResource(R.string.about_gpl_summary_2),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
@@ -295,7 +297,7 @@ fun AboutScreen(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.gplv3_with_text_136x68),
-                            contentDescription = "GPL v3 Logo",
+                            contentDescription = stringResource(R.string.cd_gpl_logo),
                             modifier = Modifier
                                 .height(64.dp)
                                 .fillMaxWidth(0.6f),
@@ -315,12 +317,12 @@ fun AboutScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Lock,
-                            contentDescription = "License",
+                            contentDescription = stringResource(R.string.cd_license),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "View Full License",
+                            text = stringResource(R.string.about_view_license),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -337,12 +339,12 @@ fun AboutScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Info,
-                            contentDescription = "Third-Party Licenses",
+                            contentDescription = stringResource(R.string.cd_third_party_licenses),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Third-Party Licenses",
+                            text = stringResource(R.string.about_third_party_licenses),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -364,14 +366,14 @@ fun AboutScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "DATA & ATTRIBUTION",
+                        text = stringResource(R.string.about_section_data_attribution),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = "This app utilizes the open API provided by openSenseMap, an open-source platform dedicated to collecting and exploring environmental sensor data from around the globe.",
+                        text = stringResource(R.string.about_data_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         lineHeight = 20.sp
@@ -398,7 +400,7 @@ fun AboutScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "OPENSENSEMAP NETWORK STATS",
+                                    text = stringResource(R.string.about_stats_header),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
@@ -411,7 +413,7 @@ fun AboutScreen(
                                     )
                                 } else if (statsError != null) {
                                     Text(
-                                        "Offline",
+                                        stringResource(R.string.about_stats_offline),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.error
                                     )
@@ -420,7 +422,7 @@ fun AboutScreen(
                             Spacer(modifier = Modifier.height(8.dp))
                             if (statsError != null) {
                                 Text(
-                                    text = "Failed to load database stats.",
+                                    text = stringResource(R.string.about_stats_failed),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -441,7 +443,7 @@ fun AboutScreen(
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
                                         Text(
-                                            text = "Stations",
+                                            text = stringResource(R.string.about_label_stations),
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -458,7 +460,7 @@ fun AboutScreen(
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
                                         Text(
-                                            text = "Measurements",
+                                            text = stringResource(R.string.about_label_measurements),
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -469,13 +471,13 @@ fun AboutScreen(
                                         modifier = Modifier.weight(1f)
                                     ) {
                                         Text(
-                                            text = "${globalStats?.measurementsLastMinute}/m",
+                                            text = stringResource(R.string.about_active_rate_value, globalStats?.measurementsLastMinute ?: "-"),
                                             style = MaterialTheme.typography.bodyLarge,
                                             fontWeight = FontWeight.Black,
                                             color = MaterialTheme.colorScheme.primary
                                         )
                                         Text(
-                                            text = "Active Rate",
+                                            text = stringResource(R.string.about_label_active_rate),
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -507,14 +509,14 @@ fun AboutScreen(
                     
                     Spacer(modifier = Modifier.height(14.dp))
                     Text(
-                        text = "What is openSenseMap?",
+                        text = stringResource(R.string.about_what_is_opensensemap),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Originally emerged from a research project at the University of Münster (Germany), openSenseMap has grown into one of the largest citizen-operated sensor networks in the world. It provides a free platform for schools, universities, scientists, and citizen enthusiasts to publish real-time environmental measurements—such as air quality, temperature, and humidity—and share them as Open Data.",
+                        text = stringResource(R.string.about_opensensemap_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
@@ -522,14 +524,14 @@ fun AboutScreen(
                     
                     Spacer(modifier = Modifier.height(14.dp))
                     Text(
-                        text = "Who operates it?",
+                        text = stringResource(R.string.about_who_operates),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "The platform is operated and maintained by openSenseLab gGmbH, a non-profit organization based in Münster, Germany, dedicated to promoting digital sovereignty, education, and public participation in scientific environmental monitoring.",
+                        text = stringResource(R.string.about_operator_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
@@ -537,14 +539,14 @@ fun AboutScreen(
                     
                     Spacer(modifier = Modifier.height(14.dp))
                     Text(
-                        text = "Support Open Data!",
+                        text = stringResource(R.string.about_support_opensensemap_title),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "openSenseMap is completely free to use and relies heavily on community contributions and donations to keep its servers running and its data accessible to all. If you love the environmental insights provided in this app, please consider supporting their project:",
+                        text = stringResource(R.string.about_support_opensensemap_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
@@ -575,12 +577,12 @@ fun AboutScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Language,
-                                contentDescription = "Website",
+                                contentDescription = stringResource(R.string.cd_website),
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Explore: opensensemap.org",
+                                text = stringResource(R.string.about_link_opensensemap),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -604,12 +606,12 @@ fun AboutScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Lightbulb,
-                                contentDescription = "Build",
+                                contentDescription = stringResource(R.string.cd_build),
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Build: sensebox.de",
+                                text = stringResource(R.string.about_link_sensebox),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -633,12 +635,12 @@ fun AboutScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Favorite,
-                                contentDescription = "Donate",
+                                contentDescription = stringResource(R.string.cd_donate),
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Donate via Betterplace",
+                                text = stringResource(R.string.about_link_betterplace),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -665,13 +667,13 @@ fun AboutScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.WarningAmber,
-                            contentDescription = "Attention Warning",
+                            contentDescription = stringResource(R.string.cd_attention_warning),
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "AFFILIATION DISCLAIMER",
+                            text = stringResource(R.string.about_disclaimer_title),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.error
@@ -679,7 +681,7 @@ fun AboutScreen(
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = "The BoxViewer app is an independent project and is not affiliated with, endorsed by, or connected to openSenseMap (openSenseLab gGmbH) or senseBox (Reedu GmbH & Co. KG) in any way.",
+                        text = stringResource(R.string.about_disclaimer_text),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 20.sp
@@ -697,7 +699,7 @@ fun LicenseScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    var licenseText by remember { mutableStateOf("Loading…") }
+    var licenseText by remember { mutableStateOf(context.getString(R.string.about_loading_license)) }
     LaunchedEffect(context, LocalConfiguration.current) {
         licenseText = loadLicenseText(context)
     }
@@ -707,7 +709,7 @@ fun LicenseScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("GNU General Public License", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.about_license_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(
                         onClick = onBack,
@@ -715,7 +717,7 @@ fun LicenseScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.cd_back)
                         )
                     }
                 },
@@ -773,7 +775,7 @@ private fun loadLicenseText(context: android.content.Context): String {
         reader.close()
         normalizeLicenseText(text)
     } catch (_: Exception) {
-        "Error loading license text."
+        context.getString(R.string.about_license_load_error)
     }
 }
 
@@ -898,13 +900,13 @@ private fun calcScrollDelta(scrollState: ScrollState, targetScroll: Int): Float 
 }
 
 // Custom Third Party Licenses Screen (Option B) - 100% stable, custom styled, robust
-enum class LibraryCategory(val displayName: String) {
-    CORE_UI("Core UI & Architecture"),
-    NETWORKING("Networking & Media"),
-    DATABASE_CONCURRENCY("Database & Concurrency"),
-    UTILITIES("Utilities & Codecs"),
-    DATA_SERVICES("Data & Geocoding Services"),
-    TESTING("Testing Frameworks")
+enum class LibraryCategory(@StringRes val displayNameRes: Int) {
+    CORE_UI(R.string.library_category_core_ui),
+    NETWORKING(R.string.library_category_networking),
+    DATABASE_CONCURRENCY(R.string.library_category_database_concurrency),
+    UTILITIES(R.string.library_category_utilities),
+    DATA_SERVICES(R.string.library_category_data_services),
+    TESTING(R.string.library_category_testing)
 }
 
 data class ThirdPartyLib(
@@ -1061,6 +1063,15 @@ fun ThirdPartyLicensesScreen(
                 category = LibraryCategory.CORE_UI
             ),
             ThirdPartyLib(
+                name = "AndroidX AppCompat",
+                author = "Google LLC",
+                description = "Backwards-compatible support library that powers the in-app language picker and per-app locale support across Android versions.",
+                licenseName = "Apache License 2.0",
+                licenseText = apache2,
+                url = "https://developer.android.com/jetpack/androidx/releases/appcompat",
+                category = LibraryCategory.CORE_UI
+            ),
+            ThirdPartyLib(
                 name = "Compose Material Icons Extended",
                 author = "Google LLC",
                 description = "Extended Material Design icon set used throughout the app for richer iconography.",
@@ -1120,7 +1131,7 @@ fun ThirdPartyLicensesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Third-Party Licenses", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.about_third_party_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(
                         onClick = onBack,
@@ -1128,7 +1139,7 @@ fun ThirdPartyLicensesScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.cd_back)
                         )
                     }
                 },
@@ -1150,7 +1161,7 @@ fun ThirdPartyLicensesScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = "We are deeply grateful for the talented creators and communities behind these open-source dependencies. They help make BoxViewer lightweight, robust, and beautiful.",
+                text = stringResource(R.string.about_third_party_intro),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 20.sp,
@@ -1166,7 +1177,7 @@ fun ThirdPartyLicensesScreen(
                 val sortedLibs = remember(libs) { libs.sortedBy { it.name } }
 
                 Text(
-                    text = category.displayName,
+                    text = stringResource(category.displayNameRes),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -1204,7 +1215,7 @@ fun ThirdPartyLicensesScreen(
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
-                                        text = "by ${lib.author}",
+                                        text = stringResource(R.string.about_library_author, lib.author),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.secondary
                                     )
@@ -1221,7 +1232,7 @@ fun ThirdPartyLicensesScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Language,
-                                        contentDescription = "Open Homepage",
+                                        contentDescription = stringResource(R.string.cd_open_homepage),
                                         tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -1256,7 +1267,7 @@ fun ThirdPartyLicensesScreen(
                                 )
 
                                 Text(
-                                    text = if (expanded) "Hide details" else "Show license",
+                                    text = if (expanded) stringResource(R.string.about_license_hide_details) else stringResource(R.string.about_license_show_license),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.SemiBold

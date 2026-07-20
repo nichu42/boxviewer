@@ -31,6 +31,8 @@ import kotlin.time.Duration.Companion.seconds
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.util.SensorDisplayConverter
 import de.nichu42.boxviewer.data.db.SavedBoxEntity
 import java.util.*
@@ -88,7 +90,7 @@ fun DashboardScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "My senseBoxes",
+                        stringResource(R.string.dashboard_title),
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.testTag("app_title")
                     )
@@ -101,7 +103,9 @@ fun DashboardScreen(
                         ) {
                             Icon(
                                 imageVector = if (isReorderMode) Icons.Default.Check else Icons.Default.SwapVert,
-                                contentDescription = if (isReorderMode) "Save Order" else "Reorder senseBoxes",
+                                contentDescription = stringResource(
+                                    if (isReorderMode) R.string.cd_save_order else R.string.cd_reorder_boxes
+                                ),
                                 tint = if (isReorderMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -111,7 +115,7 @@ fun DashboardScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = "Refresh all",
+                                contentDescription = stringResource(R.string.cd_refresh_all),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -164,7 +168,7 @@ fun DashboardScreen(
                                 IconButton(onClick = { viewModel.clearError() }) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Dismiss error",
+                                        contentDescription = stringResource(R.string.cd_dismiss_error),
                                         tint = MaterialTheme.colorScheme.onErrorContainer
                                     )
                                 }
@@ -194,21 +198,21 @@ fun DashboardScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.CloudQueue,
-                                    contentDescription = "No Saved senseBoxes",
+                                    contentDescription = stringResource(R.string.cd_no_saved_boxes),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "No senseBoxes added yet",
+                                text = stringResource(R.string.dashboard_empty_title),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "Discover public senseBoxes and bookmark them to customize your dashboard and home screen widgets.",
+                                text = stringResource(R.string.dashboard_empty_description),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
@@ -221,7 +225,7 @@ fun DashboardScreen(
                                 },
                                 shape = RoundedCornerShape(10.dp)
                             ) {
-                                Text("Add a senseBox")
+                                Text(stringResource(R.string.dashboard_empty_button))
                             }
 
                             Spacer(modifier = Modifier.height(32.dp))
@@ -240,14 +244,14 @@ fun DashboardScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Text(
-                                        text = "What is openSenseMap?",
+                                        text = stringResource(R.string.dashboard_info_title),
                                         style = MaterialTheme.typography.labelLarge,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = "openSenseMap is a global open data platform where thousands of people share environmental data from their own weather stations (senseBoxes).",
+                                        text = stringResource(R.string.dashboard_info_description_1),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         textAlign = TextAlign.Center,
@@ -255,7 +259,7 @@ fun DashboardScreen(
                                     )
                                     Spacer(modifier = Modifier.height(12.dp))
                                     Text(
-                                        text = "BoxViewer lets you explore these community stations, save them to a personal dashboard, and even add them as widgets to your home screen for real-time monitoring without opening the app.",
+                                        text = stringResource(R.string.dashboard_info_description_2),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         textAlign = TextAlign.Center,
@@ -289,7 +293,7 @@ fun DashboardScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Press and drag on a box's drag handle to reorder. Tap the bookmark button to easily remove/unfavorite a box without opening it. Tap the check button in the top bar to save.",
+                                    text = stringResource(R.string.dashboard_reorder_hint),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
@@ -492,7 +496,7 @@ fun SavedBoxCard(
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = box.exposure ?: "outdoor",
+                            text = exposureLabel(box.exposure),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                             fontWeight = FontWeight.SemiBold
@@ -505,7 +509,7 @@ fun SavedBoxCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Configure metrics to display",
+                            contentDescription = stringResource(R.string.cd_configure_metrics),
                             tint = if (isConfiguring) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(16.dp)
                         )
@@ -567,7 +571,9 @@ fun SavedBoxCard(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (allSelected) "Deselect All Metrics" else "Select All Metrics",
+                            text = stringResource(
+                                if (allSelected) R.string.dashboard_deselect_all_metrics else R.string.dashboard_select_all_metrics
+                            ),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -579,7 +585,7 @@ fun SavedBoxCard(
                 // 1. DRAGGABLE SELECTED METRICS SECTION
                 if (selectedSensorIdsState.isNotEmpty()) {
                     Text(
-                        text = "SELECTED METRICS (DRAG TO REORDER)",
+                        text = stringResource(R.string.dashboard_selected_metrics_header),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
@@ -670,7 +676,7 @@ fun SavedBoxCard(
 
                                             Icon(
                                                 imageVector = Icons.Default.Reorder,
-                                                contentDescription = "Drag to reorder",
+                                                contentDescription = stringResource(R.string.cd_drag_to_reorder),
                                                 tint = if (isBeingDragged) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                                                 modifier = Modifier
                                                     .size(28.dp)
@@ -723,7 +729,7 @@ fun SavedBoxCard(
                     }
                 } else {
                     Text(
-                        text = "No metrics selected to show.",
+                        text = stringResource(R.string.dashboard_no_metrics_selected),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(vertical = 4.dp)
@@ -736,7 +742,7 @@ fun SavedBoxCard(
                 val unselectedSensors = cachedSensors.filter { !selectedSensorIdsState.contains(it.sensorId) }
                 if (unselectedSensors.isNotEmpty()) {
                     Text(
-                        text = "AVAILABLE SENSORS (CHECK TO ADD)",
+                        text = stringResource(R.string.dashboard_available_sensors_header),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -790,7 +796,11 @@ fun SavedBoxCard(
                                             formatPressure = formatPressure
                                         )
                                         Text(
-                                            text = "Current: ${conversion.value} ${conversion.unit}",
+                                            text = stringResource(
+                                                R.string.dashboard_current_value_format,
+                                                conversion.value ?: stringResource(R.string.widget_no_value),
+                                                conversion.unit ?: ""
+                                            ),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -808,14 +818,14 @@ fun SavedBoxCard(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Done")
+                    Text(stringResource(R.string.dashboard_done))
                 }
             } else {
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 if (sensorsToDisplay.isEmpty()) {
                     Text(
-                        text = "No metrics configured or available. Tap gear icon to select display metrics.",
+                        text = stringResource(R.string.dashboard_no_metrics_available),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(vertical = 8.dp)
@@ -895,7 +905,7 @@ fun SavedBoxCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Location",
+                        contentDescription = stringResource(R.string.cd_location),
                         tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(14.dp)
                     )
@@ -916,7 +926,7 @@ fun SavedBoxCard(
                     if (measurementTime.isNotBlank()) {
                         Icon(
                             imageVector = Icons.Default.Sensors,
-                            contentDescription = "Data Updated",
+                            contentDescription = stringResource(R.string.cd_data_updated),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(12.dp)
                         )
@@ -932,6 +942,15 @@ fun SavedBoxCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun exposureLabel(exposure: String?): String {
+    return when (exposure) {
+        "indoor" -> stringResource(R.string.dashboard_exposure_indoor)
+        "outdoor" -> stringResource(R.string.dashboard_exposure_outdoor)
+        else -> exposure ?: stringResource(R.string.dashboard_exposure_outdoor)
     }
 }
 
@@ -992,7 +1011,7 @@ fun ReorderBoxRow(
                     )
                     box.exposure?.let {
                         Text(
-                            text = it,
+                            text = exposureLabel(it),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1010,14 +1029,14 @@ fun ReorderBoxRow(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Bookmark,
-                        contentDescription = "Remove Bookmark",
+                        contentDescription = stringResource(R.string.cd_remove_bookmark),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
 
                 Icon(
                     imageVector = Icons.Default.Reorder,
-                    contentDescription = "Drag handle to reorder senseBoxes",
+                    contentDescription = stringResource(R.string.cd_drag_handle_reorder),
                     tint = if (isBeingDragged) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = modifier
                         .size(36.dp)

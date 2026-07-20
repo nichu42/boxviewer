@@ -16,6 +16,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import kotlin.time.Duration.Companion.seconds
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,14 +30,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.util.SensorDisplayConverter
 import de.nichu42.boxviewer.data.api.Sensor
+import android.content.Context
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -92,10 +96,10 @@ fun BoxDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("senseBox Details", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.box_detail_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back))
                     }
                 },
                 actions = {
@@ -106,7 +110,7 @@ fun BoxDetailScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = "Sync Box",
+                                contentDescription = stringResource(R.string.cd_sync_box),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -116,7 +120,7 @@ fun BoxDetailScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Share,
-                                contentDescription = "Share",
+                                contentDescription = stringResource(R.string.cd_share),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -131,7 +135,7 @@ fun BoxDetailScreen(
                         ) {
                             Icon(
                                 imageVector = if (isFavorite) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                                contentDescription = "Bookmark Toggle",
+                                contentDescription = stringResource(R.string.cd_bookmark_toggle),
                                 tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -215,7 +219,11 @@ fun BoxDetailScreen(
                                                 .padding(horizontal = 10.dp, vertical = 4.dp)
                                         ) {
                                             Text(
-                                                text = box.exposure ?: "outdoor",
+                                                text = when (box.exposure?.lowercase(Locale.getDefault())) {
+                                                    "indoor" -> stringResource(R.string.discovery_exposure_indoor)
+                                                    "outdoor" -> stringResource(R.string.discovery_exposure_outdoor)
+                                                    else -> stringResource(R.string.discovery_exposure_outdoor)
+                                                },
                                                 style = MaterialTheme.typography.labelMedium,
                                                 fontWeight = FontWeight.Bold,
                                                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -231,7 +239,7 @@ fun BoxDetailScreen(
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 imageVector = Icons.Default.Schedule,
-                                                contentDescription = "Last Updated Icon",
+                                                contentDescription = stringResource(R.string.cd_last_updated),
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 modifier = Modifier.size(14.dp)
                                             )
@@ -248,13 +256,13 @@ fun BoxDetailScreen(
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 imageVector = Icons.Default.Sync,
-                                                contentDescription = "App Synced",
+                                                contentDescription = stringResource(R.string.cd_app_synced),
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                                 modifier = Modifier.size(14.dp)
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
                                             val syncedTime = remember(cachedSensors) {
-                                                "Synced: ${viewModel.formatAppSyncTime(cachedSensors)}"
+                                                context.getString(R.string.box_detail_synced_prefix, viewModel.formatAppSyncTime(cachedSensors))
                                             }
                                             Text(
                                                 text = syncedTime,
@@ -283,7 +291,7 @@ fun BoxDetailScreen(
                                         ) {
                                             SuggestionChip(
                                                 onClick = {},
-                                                label = { Text("Group: ${box.grouptag}") },
+                                                label = { Text(stringResource(R.string.box_detail_group, box.grouptag ?: "")) },
                                                 enabled = false
                                             )
                                         }
@@ -322,13 +330,13 @@ fun BoxDetailScreen(
                                             Spacer(modifier = Modifier.width(16.dp))
                                             Column {
                                                 Text(
-                                                    text = "Add to Dashboard",
+                                                    text = stringResource(R.string.box_detail_add_to_dashboard_title),
                                                     style = MaterialTheme.typography.titleMedium,
                                                     fontWeight = FontWeight.Bold,
                                                     color = MaterialTheme.colorScheme.onPrimaryContainer
                                                 )
                                                 Text(
-                                                    text = "Bookmark this station to save it to your dashboard and show it in your home screen widgets.",
+                                                    text = stringResource(R.string.box_detail_add_to_dashboard_hint),
                                                     style = MaterialTheme.typography.bodySmall,
                                                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                                                 )
@@ -351,7 +359,7 @@ fun BoxDetailScreen(
                                             .padding(14.dp)
                                     ) {
                                         Text(
-                                            "DEVICE LOCATION & LINK",
+                                            stringResource(R.string.box_detail_location_section_title),
                                             style = titleLabelStyle()
                                         )
                                         if (resolvedLocation.isNotBlank()) {
@@ -372,13 +380,13 @@ fun BoxDetailScreen(
                                         ) {
                                             Column {
                                                 Text(
-                                                    "Latitude: " + box.currentLocation?.latitude.toString(),
+                                                    stringResource(R.string.box_detail_latitude, box.currentLocation?.latitude.toString()),
                                                     style = MaterialTheme.typography.bodyMedium,
                                                     fontWeight = FontWeight.Medium,
                                                     color = MaterialTheme.colorScheme.onSurface
                                                 )
                                                 Text(
-                                                    "Longitude: " + box.currentLocation?.longitude.toString(),
+                                                    stringResource(R.string.box_detail_longitude, box.currentLocation?.longitude.toString()),
                                                     style = MaterialTheme.typography.bodyMedium,
                                                     fontWeight = FontWeight.Medium,
                                                     color = MaterialTheme.colorScheme.onSurface
@@ -394,7 +402,7 @@ fun BoxDetailScreen(
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Default.Place,
-                                                    contentDescription = "Map Location",
+                                                    contentDescription = stringResource(R.string.cd_map_location),
                                                     tint = MaterialTheme.colorScheme.secondary
                                                 )
                                             }
@@ -433,7 +441,7 @@ fun BoxDetailScreen(
                                                 )
                                                 Spacer(modifier = Modifier.width(4.dp))
                                                 Text(
-                                                    text = "OpenSenseMap",
+                                                    text = stringResource(R.string.box_detail_open_opensensemap),
                                                     fontSize = 11.sp,
                                                     fontWeight = FontWeight.Bold,
                                                     maxLines = 1
@@ -469,7 +477,7 @@ fun BoxDetailScreen(
                                                     modifier = Modifier.size(18.dp)
                                                 )
                                                 Spacer(modifier = Modifier.width(6.dp))
-                                                Text("View Map", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                                Text(stringResource(R.string.box_detail_view_map), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                             }
                                         }
                                     }
@@ -479,7 +487,10 @@ fun BoxDetailScreen(
                             // 3. SENSORS SECTION HEADER
                             item {
                                 Text(
-                                    text = "ACTIVE SENSORS (${(box.sensors?.size ?: 0) + (if (virtualAqiSensor != null) 1 else 0)})",
+                                    text = stringResource(
+                                        R.string.box_detail_active_sensors_format,
+                                        (box.sensors?.size ?: 0) + (if (virtualAqiSensor != null) 1 else 0)
+                                    ),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary,
@@ -501,7 +512,7 @@ fun BoxDetailScreen(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
-                                            "No sensor configuration data available.",
+                                            stringResource(R.string.box_detail_no_sensor_config),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -537,14 +548,14 @@ fun BoxDetailScreen(
                                         Spacer(modifier = Modifier.width(12.dp))
                                         Column {
                                             Text(
-                                                text = "Home Screen Widgets",
+                                                text = stringResource(R.string.box_detail_widget_title),
                                                 style = MaterialTheme.typography.labelLarge,
                                                 fontWeight = FontWeight.Bold,
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
                                             Text(
-                                                text = "To monitor this station on your home screen, go to your home screen, long-press an empty space, select 'Widgets', and look for BoxViewer. You can then select this senseBox in the widget configuration.",
+                                                text = stringResource(R.string.box_detail_widget_hint),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 lineHeight = 16.sp
@@ -557,7 +568,7 @@ fun BoxDetailScreen(
                     } ?: run {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text(
-                                text = errorMessage ?: "No senseBox Selected",
+                                text = errorMessage ?: stringResource(R.string.box_detail_no_box_selected),
                                 color = MaterialTheme.colorScheme.error,
                                 textAlign = TextAlign.Center
                             )
@@ -580,6 +591,7 @@ fun BoxDetailScreen(
 
 @Composable
 fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
+    val context = LocalContext.current
     val temperatureUnit by viewModel.temperatureUnit.collectAsStateWithLifecycle()
     val pressureUnit by viewModel.pressureUnit.collectAsStateWithLifecycle()
     val windUnit by viewModel.windUnit.collectAsStateWithLifecycle()
@@ -650,13 +662,17 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = if (sensor.id == "virtual_aqi") "Locally computed" else "Hardware: ${sensor.sensorType ?: "Generic Sensor"}",
+                        text = if (sensor.id == "virtual_aqi") {
+                            stringResource(R.string.sensor_locally_computed)
+                        } else {
+                            stringResource(R.string.sensor_hardware_format, sensor.sensorType ?: stringResource(R.string.sensor_generic))
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "Updated: ${formatRelativeTime(sensor.lastMeasurement?.createdAt)}",
+                        text = stringResource(R.string.sensor_updated_prefix, formatRelativeTime(context, sensor.lastMeasurement?.createdAt)),
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
@@ -699,11 +715,11 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                     Spacer(modifier = Modifier.height(12.dp))
 
                     val labelText = if (isLoadingHistory) {
-                        "FETCHING HISTORICAL MEASUREMENT TREND..."
+                        stringResource(R.string.sensor_history_fetching)
                     } else if (historicalMeasurements == null) {
-                        "HISTORICAL MEASUREMENT TREND (FALLBACK DATA)"
+                        stringResource(R.string.sensor_history_fallback)
                     } else {
-                        "HISTORICAL MEASUREMENT TREND"
+                        stringResource(R.string.sensor_history_title)
                     }
                     Text(
                         labelText,
@@ -804,7 +820,7 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                                         ) {
                                             Text(
-                                                text = "AQI NowCast",
+                                                text = stringResource(R.string.sensor_aqi_nowcast),
                                                 fontWeight = FontWeight.SemiBold,
                                                 color = textContrastColor.copy(alpha = 0.85f),
                                                 style = MaterialTheme.typography.labelMedium
@@ -827,7 +843,7 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
-                                            text = "12-hour weighted average · ${aqiSystem.label}",
+                                            text = stringResource(R.string.sensor_aqi_nowcast_subtitle, aqiSystem.label),
                                             color = textContrastColor.copy(alpha = 0.7f),
                                             style = MaterialTheme.typography.bodySmall
                                         )
@@ -844,12 +860,12 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Last Measurement Recorded:",
+                            text = stringResource(R.string.sensor_last_measurement_recorded),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         val formattedDate = remember(sensor.lastMeasurement?.createdAt) {
-                            formatIsoTimestamp(sensor.lastMeasurement?.createdAt)
+                            formatIsoTimestamp(context, sensor.lastMeasurement?.createdAt)
                         }
                         Text(
                             text = formattedDate,
@@ -885,7 +901,7 @@ fun SparklineWithScales(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                "No numerical data points recorded.",
+                stringResource(R.string.sensor_no_data_points),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -903,11 +919,12 @@ fun SparklineWithScales(
     val maxLabel = String.format(locale, "%.1f", maxVal) + unitStr
     val minLabel = String.format(locale, "%.1f", minVal) + unitStr
 
+    val context = LocalContext.current
     val startTime = remember(measurements) {
-        formatShortTime(measurements.firstOrNull()?.createdAt)
+        formatShortTime(context, measurements.firstOrNull()?.createdAt)
     }
     val endTime = remember(measurements) {
-        formatShortTime(measurements.lastOrNull()?.createdAt)
+        formatShortTime(context, measurements.lastOrNull()?.createdAt)
     }
 
     val strokeColor = MaterialTheme.colorScheme.primary
@@ -1056,19 +1073,19 @@ fun SparklineWithScales(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = startTime.ifEmpty { "Oldest" },
+                text = startTime.ifEmpty { stringResource(R.string.chart_oldest) },
                 fontSize = 9.sp,
                 color = textColor,
                 fontWeight = FontWeight.Medium
             )
             Text(
-                text = "${cleanData.size} measurements",
+                text = stringResource(R.string.chart_measurements_count, cleanData.size),
                 fontSize = 8.sp,
                 color = textColor.copy(alpha = 0.5f),
                 fontWeight = FontWeight.Normal
             )
             Text(
-                text = endTime.ifEmpty { "Latest" },
+                text = endTime.ifEmpty { stringResource(R.string.chart_latest) },
                 fontSize = 9.sp,
                 color = textColor,
                 fontWeight = FontWeight.Medium
@@ -1077,7 +1094,7 @@ fun SparklineWithScales(
     }
 }
 
-fun formatShortTime(isoString: String?): String {
+fun formatShortTime(context: Context, isoString: String?): String {
     if (isoString.isNullOrEmpty()) return ""
     return try {
         val cleanString = if (isoString.length >= 19) isoString.substring(0, 19) else isoString
@@ -1095,8 +1112,8 @@ fun formatShortTime(isoString: String?): String {
 
 
 
-fun formatIsoTimestamp(isoString: String?): String {
-    if (isoString.isNullOrEmpty()) return "Unknown"
+fun formatIsoTimestamp(context: Context, isoString: String?): String {
+    if (isoString.isNullOrEmpty()) return context.getString(R.string.time_unknown)
     return try {
         // Safe substring extraction
         val cleanString = if (isoString.length >= 19) isoString.substring(0, 19) else isoString
@@ -1112,34 +1129,34 @@ fun formatIsoTimestamp(isoString: String?): String {
     }
 }
 
-fun formatRelativeTime(isoString: String?): String {
-    if (isoString.isNullOrEmpty()) return "Never updated"
+fun formatRelativeTime(context: Context, isoString: String?): String {
+    if (isoString.isNullOrEmpty()) return context.getString(R.string.time_never_updated)
     return try {
         val cleanString = if (isoString.length >= 19) isoString.substring(0, 19) else isoString
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).apply {
             timeZone = TimeZone.getTimeZone("UTC")
             isLenient = true
         }
-        val date = inputFormat.parse(cleanString) ?: return "Never updated"
+        val date = inputFormat.parse(cleanString) ?: return context.getString(R.string.time_never_updated)
         val diffMs = System.currentTimeMillis() - date.time
-        if (diffMs < 0) return "Just now"
-        
+        if (diffMs < 0) return context.getString(R.string.time_just_now)
+
         val diffSec = diffMs / 1000L
-        if (diffSec < 60) return "Just now"
-        
+        if (diffSec < 60) return context.getString(R.string.time_just_now)
+
         val diffMin = diffSec / 60L
-        if (diffMin < 60) return "$diffMin min ago"
-        
+        if (diffMin < 60) return context.getString(R.string.time_minutes_ago, diffMin)
+
         val diffHours = diffMin / 60L
-        if (diffHours < 24) return "$diffHours hours ago"
-        
+        if (diffHours < 24) return context.getString(R.string.time_hours_ago, diffHours)
+
         val diffDays = diffHours / 24L
-        if (diffDays < 7) return "$diffDays days ago"
-        
+        if (diffDays < 7) return context.getString(R.string.time_days_ago, diffDays)
+
         val outputFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
         outputFormat.format(date)
     } catch (_: Exception) {
-        "Unknown"
+        context.getString(R.string.time_unknown)
     }
 }
 

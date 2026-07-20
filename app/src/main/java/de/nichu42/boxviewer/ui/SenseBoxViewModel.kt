@@ -13,6 +13,7 @@ import de.nichu42.boxviewer.util.AqiSystem
 import de.nichu42.boxviewer.util.AqiCalculator
 import de.nichu42.boxviewer.util.AqiResult
 import de.nichu42.boxviewer.util.SensorSortKey
+import de.nichu42.boxviewer.R
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -128,11 +129,11 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                         measurementsLastMinute = response[2]
                     )
                 } else {
-                    _statsError.value = "Invalid stats format returned by API."
+                    _statsError.value = getApplication<Application>().getString(R.string.error_invalid_stats_format)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _statsError.value = "Failed to load database stats: ${e.localizedMessage ?: e.message}"
+                _statsError.value = getApplication<Application>().getString(R.string.error_failed_to_load_stats, e.localizedMessage ?: e.message ?: "")
             } finally {
                 _isLoadingStats.value = false
             }
@@ -358,7 +359,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     fun searchByAddress(address: android.location.Address) {
         val lat = address.latitude
         val lng = address.longitude
-        val cityName = address.locality ?: address.subAdminArea ?: address.subLocality ?: address.getAddressLine(0) ?: "Selected Location"
+        val cityName = address.locality ?: address.subAdminArea ?: address.subLocality ?: address.getAddressLine(0) ?: getApplication<Application>().getString(R.string.selected_location)
         lastSearchedCoords.value = Pair(lng, lat)
         
         viewModelScope.launch {
@@ -389,7 +390,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = "Failed to search location: ${e.message}"
+                _errorMessage.value = getApplication<Application>().getString(R.string.error_failed_search_location, e.message ?: "")
             } finally {
                 _isLoading.value = false
             }
@@ -451,7 +452,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _previewError.value = "Couldn't load this senseBox. Check the link or your connection."
+                _previewError.value = getApplication<Application>().getString(R.string.error_could_not_load_sensebox)
             } finally {
                 _isPreviewLoading.value = false
             }
@@ -558,13 +559,14 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     fun formatLastUpdated(box: SenseBox): String {
         val cached = boxLastUpdatedTextCache[box.id]
         if (cached != null) return cached
+        val ctx = getApplication<Application>()
 
-        val date = getBoxLastUpdatedDate(box) ?: return "Never updated"
+        val date = getBoxLastUpdatedDate(box) ?: return ctx.getString(R.string.last_updated_never)
         val result = try {
-            val sdf = java.text.SimpleDateFormat("MMM d, yyyy - HH:mm", java.util.Locale.getDefault())
-            "Last updated: ${sdf.format(date)}"
+            val sdf = java.text.SimpleDateFormat(ctx.getString(R.string.date_format_full), java.util.Locale.getDefault())
+            ctx.getString(R.string.last_updated_format, sdf.format(date))
         } catch (_: Exception) {
-            "Never updated"
+            ctx.getString(R.string.last_updated_never)
         }
         boxLastUpdatedTextCache[box.id] = result
         return result
@@ -596,7 +598,8 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         }
         val maxDate = dates.maxOrNull() ?: return ""
         return try {
-            val sdf = java.text.SimpleDateFormat("MMM d, HH:mm", java.util.Locale.getDefault())
+            val ctx = getApplication<Application>()
+            val sdf = java.text.SimpleDateFormat(ctx.getString(R.string.date_format_short), java.util.Locale.getDefault())
             sdf.format(maxDate)
         } catch (_: Exception) {
             ""
@@ -604,15 +607,16 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun formatAppSyncTime(sensors: List<SensorCacheEntity>): String {
-        if (sensors.isEmpty()) return "Never"
-        val maxFetchedAt = sensors.maxOfOrNull { it.localFetchedAt } ?: return "Never"
-        if (maxFetchedAt == 0L) return "Never"
+        val ctx = getApplication<Application>()
+        if (sensors.isEmpty()) return ctx.getString(R.string.sync_time_never)
+        val maxFetchedAt = sensors.maxOfOrNull { it.localFetchedAt } ?: return ctx.getString(R.string.sync_time_never)
+        if (maxFetchedAt == 0L) return ctx.getString(R.string.sync_time_never)
 
         return try {
-            val sdf = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+            val sdf = java.text.SimpleDateFormat(ctx.getString(R.string.time_format), java.util.Locale.getDefault())
             sdf.format(java.util.Date(maxFetchedAt))
         } catch (_: Exception) {
-            "Never"
+            ctx.getString(R.string.sync_time_never)
         }
     }
 
@@ -900,7 +904,8 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
 
     fun getAddressFromLocation(lat: Double, lng: Double, onResult: (String) -> Unit) {
         viewModelScope.launch {
-            var label = "Location (${"%.4f".format(java.util.Locale.US, lat)}, ${"%.4f".format(java.util.Locale.US, lng)})"
+            val ctx = getApplication<Application>()
+            var label = ctx.getString(R.string.location_coordinates_label, "%.4f".format(java.util.Locale.US, lat), "%.4f".format(java.util.Locale.US, lng))
             try {
                 val fallbackLabel = reverseGeocodeWithFallback(lat, lng)
                 if (fallbackLabel.isNotBlank()) {
@@ -980,7 +985,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             }
 
             if (label.isBlank()) {
-                label = "Lat: ${"%.3f".format(java.util.Locale.US, lat)}, Lon: ${"%.3f".format(java.util.Locale.US, lng)}"
+                label = getApplication<Application>().getString(R.string.location_lat_lon_label, "%.3f".format(java.util.Locale.US, lat), "%.3f".format(java.util.Locale.US, lng))
             }
             boxAddressCache[boxId] = label
             onResult(label)
@@ -1003,7 +1008,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             }
 
             if (label.isBlank()) {
-                label = "Lat: ${"%.3f".format(java.util.Locale.US, lat)}, Lon: ${"%.3f".format(java.util.Locale.US, lng)}"
+                label = getApplication<Application>().getString(R.string.location_lat_lon_label, "%.3f".format(java.util.Locale.US, lat), "%.3f".format(java.util.Locale.US, lng))
             }
             boxFullAddressCache[boxId] = label
             onResult(label)
@@ -1144,7 +1149,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             } catch (e: Exception) {
                 e.printStackTrace()
                 if (!hasInitialValue) {
-                    _errorMessage.value = "Failed to load box details: ${e.message}"
+                    _errorMessage.value = getApplication<Application>().getString(R.string.error_failed_load_box_details, e.message ?: "")
                 }
             } finally {
                 _isLoading.value = false
@@ -1170,7 +1175,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = "Failed to update favorite: ${e.message}"
+                _errorMessage.value = getApplication<Application>().getString(R.string.error_failed_update_favorite, e.message ?: "")
             }
         }
     }
@@ -1214,11 +1219,11 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 _rawDiscoveredBoxes.value = results
                 resolveLocationsFor(results)
                 if (results.isEmpty()) {
-                    _errorMessage.value = "No senseBoxes found matching \"$query\""
+                    _errorMessage.value = getApplication<Application>().getString(R.string.error_no_senseboxes_matching, query)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = "Failed to search boxes: ${e.message}"
+                _errorMessage.value = getApplication<Application>().getString(R.string.error_failed_search_boxes, e.message ?: "")
             } finally {
                 _isLoading.value = false
             }
@@ -1251,13 +1256,13 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 
                 if (!found) {
                     _rawDiscoveredBoxes.value = emptyList()
-                    _errorMessage.value = "No nearby senseBoxes found within 500 km."
+                    _errorMessage.value = getApplication<Application>().getString(R.string.error_no_nearby_senseboxes)
                     _searchRadiusUsed.value = 500000
                     _searchRadiusKm.value = 500
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = "Failed to find nearby boxes: ${e.message}"
+                _errorMessage.value = getApplication<Application>().getString(R.string.error_failed_find_nearby_boxes, e.message ?: "")
             } finally {
                 _isLoading.value = false
             }
@@ -1310,11 +1315,11 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                     }
                 } else {
                     _rawDiscoveredBoxes.value = emptyList()
-                    _errorMessage.value = "Could not find location \"$locationName\" on the map. Please try a different city name."
+                    _errorMessage.value = getApplication<Application>().getString(R.string.error_could_not_find_location, locationName)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = "Failed to search location: ${e.message}"
+                _errorMessage.value = getApplication<Application>().getString(R.string.error_failed_search_location, e.message ?: "")
             } finally {
                 _isLoading.value = false
             }
@@ -1336,11 +1341,11 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 _rawDiscoveredBoxes.value = results
                 resolveLocationsFor(results)
                 if (results.isEmpty()) {
-                    _errorMessage.value = "No senseBoxes found within $radiusKm km of this location."
+                    _errorMessage.value = getApplication<Application>().getString(R.string.error_no_senseboxes_within_radius, radiusKm)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = "Failed to fetch boxes for radius $radiusKm km: ${e.message}"
+                _errorMessage.value = getApplication<Application>().getString(R.string.error_failed_fetch_boxes_radius, radiusKm, e.message ?: "")
             } finally {
                 _isLoading.value = false
             }
@@ -1356,7 +1361,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 SenseBoxWidgetProvider.updateAllWidgetsFromCache(getApplication())
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = "Failed to refresh: ${e.message}"
+                _errorMessage.value = getApplication<Application>().getString(R.string.error_failed_refresh, e.message ?: "")
             } finally {
                 _isLoading.value = false
             }

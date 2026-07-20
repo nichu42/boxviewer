@@ -46,6 +46,9 @@ import de.nichu42.boxviewer.data.db.DB_VERSION
 import de.nichu42.boxviewer.ui.SenseBoxViewModel
 import de.nichu42.boxviewer.ui.theme.MyApplicationTheme
 import de.nichu42.boxviewer.util.ApiLogger
+import de.nichu42.boxviewer.util.LocaleHelper
+import androidx.compose.ui.res.stringResource
+import de.nichu42.boxviewer.R
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainActivity : ComponentActivity() {
@@ -58,6 +61,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        LocaleHelper.applySavedLocale(this)
         installSplashScreen()
         super.onCreate(savedInstanceState)
         ApiLogger.init(applicationContext)
@@ -88,12 +92,9 @@ class MainActivity : ComponentActivity() {
                     AlertDialog(
                         onDismissRequest = { /* Prevent dismiss on click outside */ },
                         properties = androidx.compose.ui.window.DialogProperties(dismissOnClickOutside = false),
-                        title = { Text("Database Version Mismatch", fontWeight = FontWeight.Bold) },
+                        title = { Text(stringResource(R.string.db_version_mismatch_title), fontWeight = FontWeight.Bold) },
                         text = {
-                            Text(
-                                "The app database has been updated to a newer version. Your current app version is too old to read it.\n\n" +
-                                "To ensure stability, you can choose to start over fresh (which will clear your bookmarks and widget settings), or close the app and open the project page to install the update."
-                            )
+                            Text(stringResource(R.string.db_version_mismatch_message))
                         },
                         confirmButton = {
                             Button(
@@ -102,7 +103,7 @@ class MainActivity : ComponentActivity() {
                                     isDowngradedState = false
                                 }
                             ) {
-                                Text("Start Over")
+                                Text(stringResource(R.string.db_version_mismatch_start_over))
                             }
                         },
                         dismissButton = {
@@ -113,7 +114,7 @@ class MainActivity : ComponentActivity() {
                                     finish()
                                 }
                             ) {
-                                Text("Install Update")
+                                Text(stringResource(R.string.db_version_mismatch_install_update))
                             }
                         }
                     )
@@ -131,13 +132,13 @@ class MainActivity : ComponentActivity() {
                     if (showResetAlert) {
                         AlertDialog(
                             onDismissRequest = { showResetAlert = false },
-                            title = { Text("Database Updated", fontWeight = FontWeight.Bold) },
+                            title = { Text(stringResource(R.string.db_updated_title), fontWeight = FontWeight.Bold) },
                             text = {
-                                Text("The app database has been updated to a newer version. To ensure stability and compatibility, some configurations have been reset. Please configure your favorites and widgets again.")
+                                Text(stringResource(R.string.db_updated_message))
                             },
                             confirmButton = {
                                 Button(onClick = { showResetAlert = false }) {
-                                    Text("OK")
+                                    Text(stringResource(R.string.action_ok))
                                 }
                             }
                         )
@@ -185,8 +186,8 @@ class MainActivity : ComponentActivity() {
                             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ) {
                             NavigationBarItem(
-                                icon = { Icon(Icons.Default.Home, contentDescription = "Dashboard") },
-                                label = { Text("Home", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                icon = { Icon(Icons.Default.Home, contentDescription = stringResource(R.string.nav_dashboard)) },
+                                label = { Text(stringResource(R.string.nav_home), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
                                 selected = activeTab == "dashboard",
                                 colors = NavigationBarItemDefaults.colors(
                                     selectedIconColor = MaterialTheme.colorScheme.primary,
@@ -204,8 +205,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                             NavigationBarItem(
-                                icon = { Icon(Icons.Default.Search, contentDescription = "Discover") },
-                                label = { Text("Discover", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                icon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.nav_discover)) },
+                                label = { Text(stringResource(R.string.nav_discover), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
                                 selected = activeTab == "discovery",
                                 colors = NavigationBarItemDefaults.colors(
                                     selectedIconColor = MaterialTheme.colorScheme.primary,
@@ -223,8 +224,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                             NavigationBarItem(
-                                icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                                label = { Text("Settings", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                icon = { Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.nav_settings)) },
+                                label = { Text(stringResource(R.string.nav_settings), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
                                 selected = activeTab == "settings",
                                 colors = NavigationBarItemDefaults.colors(
                                     selectedIconColor = MaterialTheme.colorScheme.primary,
@@ -242,8 +243,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                             NavigationBarItem(
-                                icon = { Icon(Icons.Default.Info, contentDescription = "About") },
-                                label = { Text("About", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                                icon = { Icon(Icons.Default.Info, contentDescription = stringResource(R.string.nav_about)) },
+                                label = { Text(stringResource(R.string.nav_about), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
                                 selected = activeTab == "about",
                                 colors = NavigationBarItemDefaults.colors(
                                     selectedIconColor = MaterialTheme.colorScheme.primary,
@@ -439,7 +440,7 @@ class MainActivity : ComponentActivity() {
 
         if (id == null || !id.matches(Regex("^[0-9a-fA-F]{24}$"))) {
             if (id != null) {
-                Toast.makeText(this, "Invalid senseBox link", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.error_invalid_sensebox_link), Toast.LENGTH_SHORT).show()
             }
             return null
         }

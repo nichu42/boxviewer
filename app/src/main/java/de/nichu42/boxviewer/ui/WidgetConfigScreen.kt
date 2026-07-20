@@ -22,8 +22,10 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import de.nichu42.boxviewer.R
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -158,7 +160,7 @@ fun WidgetConfigScreen(
     LaunchedEffect(selectedBox) {
         val box = selectedBox ?: return@LaunchedEffect
         isLoading = true
-        statusMessage = "Loading sensors..."
+        statusMessage = context.getString(R.string.widget_status_loading_sensors)
         try {
             // First fetch latest from api to be accurate
             try {
@@ -252,10 +254,10 @@ fun WidgetConfigScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Customize Home Widget", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.widget_config_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onConfigCancelled) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Cancel")
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_cancel))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -287,7 +289,7 @@ fun WidgetConfigScreen(
                 // CHOOSE SENSEBOX (Data Selection)
                 item {
                     Text(
-                        "CHOOSE SENSEBOX",
+                        stringResource(R.string.widget_config_section_sensebox),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -300,7 +302,7 @@ fun WidgetConfigScreen(
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
                         ) {
                             Text(
-                                "No saved senseBoxes available. You must bookmark at least one senseBox on the Discovery tab first inside the app.",
+                                stringResource(R.string.widget_config_no_saved_boxes),
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(12.dp)
@@ -338,13 +340,13 @@ fun WidgetConfigScreen(
                                         Spacer(modifier = Modifier.width(12.dp))
                                         Column {
                                             Text(
-                                                text = selectedBox?.name ?: "Select a senseBox",
+                                                text = selectedBox?.name ?: stringResource(R.string.widget_config_select_sensebox_hint),
                                                 style = MaterialTheme.typography.bodyLarge,
                                                 fontWeight = FontWeight.Bold,
                                                 color = MaterialTheme.colorScheme.onSurface
                                             )
                                             Text(
-                                                text = "Exposure: ${selectedBox?.exposure ?: "outdoor"}",
+                                                text = stringResource(R.string.widget_config_exposure, selectedBox?.exposure ?: "outdoor"),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
@@ -352,7 +354,7 @@ fun WidgetConfigScreen(
                                     }
                                     Icon(
                                         imageVector = if (boxDropdownExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                        contentDescription = "Expand senseBox dropdown",
+                                        contentDescription = stringResource(R.string.cd_expand_dropdown),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
@@ -393,7 +395,7 @@ fun WidgetConfigScreen(
                                                             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                                                         )
                                                         Text(
-                                                            text = "Exposure: ${box.exposure ?: "outdoor"}",
+                                                            text = stringResource(R.string.widget_config_exposure, box.exposure ?: "outdoor"),
                                                             style = MaterialTheme.typography.bodySmall,
                                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                                         )
@@ -402,7 +404,7 @@ fun WidgetConfigScreen(
                                                 if (isSelected) {
                                                     Icon(
                                                         imageVector = Icons.Default.Check,
-                                                        contentDescription = "Selected",
+                                                        contentDescription = stringResource(R.string.cd_selected),
                                                         tint = MaterialTheme.colorScheme.primary,
                                                         modifier = Modifier.size(18.dp)
                                                     )
@@ -424,7 +426,7 @@ fun WidgetConfigScreen(
                 item {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "VISUALIZATION FORMAT",
+                        stringResource(R.string.widget_config_section_visualization),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -453,7 +455,7 @@ fun WidgetConfigScreen(
                             ) {
                                 Icon(Icons.AutoMirrored.Filled.List, contentDescription = null)
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("Metrics List", style = MaterialTheme.typography.labelMedium)
+                                Text(stringResource(R.string.widget_config_visualization_list), style = MaterialTheme.typography.labelMedium)
                             }
                         }
 
@@ -467,7 +469,7 @@ fun WidgetConfigScreen(
                                         selectedSensorIds = listOf(selectedSensorIds.first())
                                         Toast.makeText(
                                             context,
-                                            "Only one sensor shown; other selections dropped.",
+                                            context.getString(R.string.widget_config_grid_warning),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     } else if (selectedSensorIds.isEmpty() && availableSensors.isNotEmpty()) {
@@ -487,7 +489,7 @@ fun WidgetConfigScreen(
                             ) {
                                 Icon(Icons.Default.Star, contentDescription = null)
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("Single Highlight", style = MaterialTheme.typography.labelMedium)
+                                Text(stringResource(R.string.widget_config_visualization_grid), style = MaterialTheme.typography.labelMedium)
                             }
                         }
                     }
@@ -497,7 +499,7 @@ fun WidgetConfigScreen(
                 item {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        if (visualizationType == "GRID") "HIGHLIGHT METRIC" else "MONITORED METRICS",
+                        if (visualizationType == "GRID") stringResource(R.string.widget_config_section_highlight_metric) else stringResource(R.string.widget_config_section_monitored_metrics),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -506,7 +508,7 @@ fun WidgetConfigScreen(
                     
                     if (availableSensors.isEmpty()) {
                         Text(
-                            "Select a saved senseBox above to see available sensors.",
+                            stringResource(R.string.widget_config_select_sensebox_prompt),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -550,14 +552,14 @@ fun WidgetConfigScreen(
                                         Spacer(modifier = Modifier.width(12.dp))
                                         Column {
                                             Text(
-                                                text = currentSelectedSensor?.sensorTitle ?: "Choose a Sensor",
+                                                text = currentSelectedSensor?.sensorTitle ?: stringResource(R.string.widget_config_choose_sensor),
                                                 style = MaterialTheme.typography.bodyLarge,
                                                 fontWeight = FontWeight.Bold,
                                                 color = visuals.color
                                             )
                                             if (currentSelectedSensor != null) {
                                                 Text(
-                                                    text = if (currentSelectedSensor.sensorId == "virtual_aqi") "Locally computed" else "Unit: ${currentSelectedSensor.sensorUnit ?: ""} | Type: ${currentSelectedSensor.sensorType}",
+                                                    text = if (currentSelectedSensor.sensorId == "virtual_aqi") stringResource(R.string.sensor_locally_computed) else stringResource(R.string.widget_config_sensor_subtitle, currentSelectedSensor.sensorUnit ?: "", currentSelectedSensor.sensorType ?: ""),
                                                     style = MaterialTheme.typography.bodySmall,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
@@ -566,7 +568,7 @@ fun WidgetConfigScreen(
                                     }
                                     Icon(
                                         imageVector = if (dropdownExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                        contentDescription = "Expand dropdown",
+                                        contentDescription = stringResource(R.string.cd_expand_dropdown),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
@@ -608,7 +610,7 @@ fun WidgetConfigScreen(
                                                             color = if (isSelected) sVisuals.color else MaterialTheme.colorScheme.onSurface
                                                         )
                                                         Text(
-                                                            text = if (sensor.sensorId == "virtual_aqi") "Locally computed" else "Unit: ${sensor.sensorUnit ?: ""} | Type: ${sensor.sensorType}",
+                                                            text = if (sensor.sensorId == "virtual_aqi") stringResource(R.string.sensor_locally_computed) else stringResource(R.string.widget_config_sensor_subtitle, sensor.sensorUnit ?: "", sensor.sensorType ?: ""),
                                                             style = MaterialTheme.typography.bodySmall,
                                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                                         )
@@ -617,7 +619,7 @@ fun WidgetConfigScreen(
                                                 if (isSelected) {
                                                     Icon(
                                                         imageVector = Icons.Default.Check,
-                                                        contentDescription = "Selected",
+                                                        contentDescription = stringResource(R.string.cd_selected),
                                                         tint = MaterialTheme.colorScheme.primary,
                                                         modifier = Modifier.size(18.dp)
                                                     )
@@ -647,7 +649,7 @@ fun WidgetConfigScreen(
                                 // Monitored/Active Metrics (Drag and drop sortable list)
                                 if (selectedSensorIds.isNotEmpty()) {
                                     Text(
-                                        "MONITORED METRICS (DRAG ☰ TO REORDER)",
+                                        stringResource(R.string.widget_config_section_monitored_metrics_reorder),
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.primary
@@ -745,7 +747,7 @@ fun WidgetConfigScreen(
                                                                             ) {
                                                                                 Icon(
                                                                                     imageVector = Icons.Default.Info,
-                                                                                    contentDescription = "AQI Info",
+                                                                                    contentDescription = stringResource(R.string.cd_aqi_info),
                                                                                     tint = MaterialTheme.colorScheme.primary,
                                                                                     modifier = Modifier.size(16.dp)
                                                                                 )
@@ -753,7 +755,7 @@ fun WidgetConfigScreen(
                                                                         }
                                                                     }
                                                                     Text(
-                                                                        text = if (sensor.sensorId == "virtual_aqi") "Locally computed" else "Unit: ${sensor.sensorUnit ?: ""} | Type: ${sensor.sensorType}",
+                                                                        text = if (sensor.sensorId == "virtual_aqi") stringResource(R.string.sensor_locally_computed) else stringResource(R.string.widget_config_sensor_subtitle, sensor.sensorUnit ?: "", sensor.sensorType ?: ""),
                                                                         style = MaterialTheme.typography.bodySmall,
                                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                                     )
@@ -762,7 +764,7 @@ fun WidgetConfigScreen(
                                                             
                                                             Icon(
                                                                 imageVector = Icons.Default.Reorder,
-                                                                contentDescription = "Drag to reorder",
+                                                                contentDescription = stringResource(R.string.cd_drag_to_reorder),
                                                                 tint = if (isBeingDragged) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                                                                 modifier = Modifier
                                                                     .size(28.dp)
@@ -814,7 +816,7 @@ fun WidgetConfigScreen(
                                     Spacer(modifier = Modifier.height(4.dp))
                                 } else {
                                     Text(
-                                        "No monitored metrics selected. Check available metrics below to add them.",
+                                        stringResource(R.string.widget_config_no_metrics_selected),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -827,7 +829,7 @@ fun WidgetConfigScreen(
                                     }
                                     
                                     Text(
-                                        "ADD MORE METRICS",
+                                        stringResource(R.string.widget_config_section_add_metrics),
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -879,7 +881,7 @@ fun WidgetConfigScreen(
                                                             ) {
                                                                 Icon(
                                                                     imageVector = Icons.Default.Info,
-                                                                    contentDescription = "AQI Info",
+                                                                    contentDescription = stringResource(R.string.cd_aqi_info),
                                                                     tint = MaterialTheme.colorScheme.primary,
                                                                     modifier = Modifier.size(16.dp)
                                                                 )
@@ -887,7 +889,7 @@ fun WidgetConfigScreen(
                                                         }
                                                     }
                                                     Text(
-                                                        text = if (sensor.sensorId == "virtual_aqi") "Locally computed" else "Unit: ${sensor.sensorUnit ?: ""} | Type: ${sensor.sensorType}",
+                                                        text = if (sensor.sensorId == "virtual_aqi") stringResource(R.string.sensor_locally_computed) else stringResource(R.string.widget_config_sensor_subtitle, sensor.sensorUnit ?: "", sensor.sensorType ?: ""),
                                                         style = MaterialTheme.typography.bodySmall,
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
@@ -905,14 +907,14 @@ fun WidgetConfigScreen(
                 item {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "METRIC DISPLAY STYLE",
+                        stringResource(R.string.widget_config_section_metric_display_style),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        "Choose the visibility layout style for metrics in the widget.",
+                        stringResource(R.string.widget_config_metric_display_style_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -937,10 +939,10 @@ fun WidgetConfigScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 val currentLabel = when (metricDisplayMode) {
-                                    "LABEL_VALUE_UNIT" -> "Full Details"
-                                    "VALUE_UNIT" -> "Value & Unit"
-                                    "VALUE_ONLY" -> "Value only"
-                                    else -> "Full Details"
+                                    "LABEL_VALUE_UNIT" -> stringResource(R.string.widget_display_style_full_details)
+                                    "VALUE_UNIT" -> stringResource(R.string.widget_display_style_value_unit)
+                                    "VALUE_ONLY" -> stringResource(R.string.widget_display_style_value_only)
+                                    else -> stringResource(R.string.widget_display_style_full_details)
                                 }
                                 Text(
                                     text = currentLabel,
@@ -950,7 +952,7 @@ fun WidgetConfigScreen(
                                 )
                                 Icon(
                                     imageVector = if (displayStyleDropdownExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = "Expand metric display style dropdown",
+                                    contentDescription = stringResource(R.string.cd_expand_dropdown),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -964,9 +966,9 @@ fun WidgetConfigScreen(
                                 .background(MaterialTheme.colorScheme.surface)
                         ) {
                             listOf(
-                                "LABEL_VALUE_UNIT" to "Full Details",
-                                "VALUE_UNIT" to "Value & Unit",
-                                "VALUE_ONLY" to "Value only"
+                                "LABEL_VALUE_UNIT" to stringResource(R.string.widget_display_style_full_details),
+                                "VALUE_UNIT" to stringResource(R.string.widget_display_style_value_unit),
+                                "VALUE_ONLY" to stringResource(R.string.widget_display_style_value_only)
                             ).forEach { (mode, label) ->
                                 val isSelected = metricDisplayMode == mode
                                 DropdownMenuItem(
@@ -985,7 +987,7 @@ fun WidgetConfigScreen(
                                             if (isSelected) {
                                                 Icon(
                                                     imageVector = Icons.Default.Check,
-                                                    contentDescription = "Selected",
+                                                    contentDescription = stringResource(R.string.cd_selected),
                                                     tint = MaterialTheme.colorScheme.primary,
                                                     modifier = Modifier.size(18.dp)
                                                 )
@@ -1016,8 +1018,8 @@ fun WidgetConfigScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Conditional Formatting", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                Text("Colorize values based on sensor thresholds", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.widget_config_conditional_formatting_label), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.widget_config_conditional_formatting_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Switch(
                                 checked = useConditionalFormatting,
@@ -1031,14 +1033,14 @@ fun WidgetConfigScreen(
                 item {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "AQI VALUE DISPLAY",
+                        stringResource(R.string.widget_config_section_aqi_display),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        "Choose how the AQI (Instant) metric is shown in the widget when selected.",
+                        stringResource(R.string.widget_config_aqi_display_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1048,9 +1050,9 @@ fun WidgetConfigScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         listOf(
-                            "NUMBER_AND_LABEL" to "Number\n& label",
-                            "NUMBER_ONLY" to "Number\nonly",
-                            "LABEL_ONLY" to "Label\nonly"
+                            "NUMBER_AND_LABEL" to stringResource(R.string.widget_aqi_display_number_and_label),
+                            "NUMBER_ONLY" to stringResource(R.string.widget_aqi_display_number_only),
+                            "LABEL_ONLY" to stringResource(R.string.widget_aqi_display_label_only)
                         ).forEach { (mode, label) ->
                             val isSelected = aqiDisplayMode == mode
                             OutlinedCard(
@@ -1093,14 +1095,14 @@ fun WidgetConfigScreen(
                 item {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "WIDGET TEXT SCALING",
+                        stringResource(R.string.widget_config_section_text_scaling),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        "Adjust the relative text size of the widget to fit custom layouts perfectly. Tap-and-drag below.",
+                        stringResource(R.string.widget_config_text_scaling_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1119,7 +1121,7 @@ fun WidgetConfigScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Widget Text Scale",
+                                text = stringResource(R.string.widget_config_text_scale_label),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -1159,17 +1161,17 @@ fun WidgetConfigScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "60% (Compact)",
+                                stringResource(R.string.widget_config_text_scale_compact),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                "100% (Default)",
+                                stringResource(R.string.widget_config_text_scale_default),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                "200% (Double)",
+                                stringResource(R.string.widget_config_text_scale_double),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -1181,7 +1183,7 @@ fun WidgetConfigScreen(
                 item {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "WIDGET BACKGROUND COLOR",
+                        stringResource(R.string.widget_config_section_background_color),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -1200,7 +1202,7 @@ fun WidgetConfigScreen(
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             Text(
-                                "Select a Preset Palette",
+                                stringResource(R.string.widget_config_select_preset_palette),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1225,7 +1227,7 @@ fun WidgetConfigScreen(
                                             val isLightPreset = (color.red * 0.2126 + color.green * 0.7152 + color.blue * 0.0722) > 0.5
                                             Icon(
                                                 imageVector = Icons.Default.Check,
-                                                contentDescription = "Selected",
+                                                contentDescription = stringResource(R.string.cd_selected),
                                                 tint = if (isLightPreset) Color.Black else Color.White,
                                                 modifier = Modifier.size(18.dp)
                                             )
@@ -1255,7 +1257,7 @@ fun WidgetConfigScreen(
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Text(
-                                        text = "Advanced settings",
+                                        text = stringResource(R.string.widget_config_advanced_settings),
                                         style = MaterialTheme.typography.labelMedium,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.primary
@@ -1263,7 +1265,7 @@ fun WidgetConfigScreen(
                                 }
                                 Icon(
                                     imageVector = if (isCustomColorExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = if (isCustomColorExpanded) "Collapse advanced settings" else "Expand advanced settings",
+                                    contentDescription = if (isCustomColorExpanded) stringResource(R.string.cd_collapse) else stringResource(R.string.cd_expand),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -1273,7 +1275,7 @@ fun WidgetConfigScreen(
                                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.08f))
                                 
                                 Text(
-                                    "Interactive Color Wheel",
+                                    stringResource(R.string.widget_config_color_wheel),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1389,7 +1391,7 @@ fun WidgetConfigScreen(
                                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
 
                                 Text(
-                                    "Brightness Value",
+                                    stringResource(R.string.widget_config_brightness_value),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1403,7 +1405,7 @@ fun WidgetConfigScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.BrightnessLow,
-                                        contentDescription = "Low Brightness",
+                                        contentDescription = stringResource(R.string.cd_low_brightness),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -1421,13 +1423,13 @@ fun WidgetConfigScreen(
                                     
                                     Icon(
                                         imageVector = Icons.Default.BrightnessHigh,
-                                        contentDescription = "High Brightness",
+                                        contentDescription = stringResource(R.string.cd_high_brightness),
                                         tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     
                                     Text(
-                                        text = "${(currentBrightness * 100).toInt()}%",
+                                        text = stringResource(R.string.widget_config_percentage, (currentBrightness * 100).toInt()),
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface,
@@ -1438,7 +1440,7 @@ fun WidgetConfigScreen(
                                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                                 
                                 Text(
-                                    "Widget Transparency",
+                                    stringResource(R.string.widget_config_transparency),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1452,7 +1454,7 @@ fun WidgetConfigScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.InvertColors,
-                                        contentDescription = "Opaque",
+                                        contentDescription = stringResource(R.string.cd_opaque),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -1472,13 +1474,13 @@ fun WidgetConfigScreen(
                                     
                                     Icon(
                                         imageVector = Icons.Default.InvertColors,
-                                        contentDescription = "Transparent",
+                                        contentDescription = stringResource(R.string.cd_transparent),
                                         tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     
                                     Text(
-                                        text = "${((1f - widgetColor.alpha) * 100).toInt()}%",
+                                        text = stringResource(R.string.widget_config_percentage, ((1f - widgetColor.alpha) * 100).toInt()),
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface,
@@ -1494,7 +1496,7 @@ fun WidgetConfigScreen(
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            "HEX Color Code",
+                                            stringResource(R.string.widget_config_hex_color_code),
                                             style = MaterialTheme.typography.labelMedium,
                                             fontWeight = FontWeight.SemiBold,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1504,7 +1506,7 @@ fun WidgetConfigScreen(
                                             value = hexInputText,
                                             onValueChange = onHexChanged,
                                             modifier = Modifier.fillMaxWidth(),
-                                            placeholder = { Text("0F172A", color = de.nichu42.boxviewer.ui.theme.SensorTheme.getContrastColor(widgetColor).copy(alpha = 0.6f)) },
+                                            placeholder = { Text(stringResource(R.string.widget_config_hex_placeholder), color = de.nichu42.boxviewer.ui.theme.SensorTheme.getContrastColor(widgetColor).copy(alpha = 0.6f)) },
                                             leadingIcon = {
                                                 Text(
                                                     "#",
@@ -1534,7 +1536,7 @@ fun WidgetConfigScreen(
                                         )
                                         if (hexError) {
                                             Text(
-                                                "Ensure a valid 6-character hex code.",
+                                                stringResource(R.string.widget_config_hex_error),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.error,
                                                 modifier = Modifier.padding(top = 4.dp, start = 4.dp)
@@ -1551,7 +1553,7 @@ fun WidgetConfigScreen(
                 item {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "WIDGET HEADER LABELS",
+                        stringResource(R.string.widget_config_section_header_labels),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -1572,8 +1574,8 @@ fun WidgetConfigScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Show senseBox Name", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                    Text("Displays the senseBox name in the widget header", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(stringResource(R.string.widget_config_show_box_name), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                    Text(stringResource(R.string.widget_config_show_box_name_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 Switch(
                                     checked = showBoxName,
@@ -1587,8 +1589,8 @@ fun WidgetConfigScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Show Last Updated Time", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                    Text("Displays the last update timestamp in the widget header", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(stringResource(R.string.widget_config_show_update_time), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                    Text(stringResource(R.string.widget_config_show_update_time_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 Switch(
                                     checked = showUpdateTime,
@@ -1603,7 +1605,7 @@ fun WidgetConfigScreen(
                 item {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "WIDGET HEADER BUTTONS",
+                        stringResource(R.string.widget_config_section_header_buttons),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -1624,8 +1626,8 @@ fun WidgetConfigScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Show Refresh Button", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                    Text("Displays a sync icon to manually refresh on the widget", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(stringResource(R.string.widget_config_show_refresh_button), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                    Text(stringResource(R.string.widget_config_show_refresh_button_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 Switch(
                                     checked = showRefreshButton,
@@ -1639,8 +1641,8 @@ fun WidgetConfigScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Show Configuration Button", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                    Text("Displays a gear icon to configure widget settings", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(stringResource(R.string.widget_config_show_config_button), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                    Text(stringResource(R.string.widget_config_show_config_button_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 Switch(
                                     checked = showConfigButton,
@@ -1655,14 +1657,14 @@ fun WidgetConfigScreen(
                 item {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f))
                     Text(
-                        "REFRESH SYNC TIME INTERVAL",
+                        stringResource(R.string.widget_config_section_refresh_interval),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        "Configure how frequently the widget updates its sensors in the background. Tap-and-drag below.",
+                        stringResource(R.string.widget_config_refresh_interval_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1681,7 +1683,7 @@ fun WidgetConfigScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Frequency",
+                                text = stringResource(R.string.widget_config_refresh_interval_label),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -1695,7 +1697,7 @@ fun WidgetConfigScreen(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = "$refreshIntervalMinutes Minutes",
+                                    text = stringResource(R.string.widget_config_refresh_interval_minutes, refreshIntervalMinutes),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
@@ -1722,12 +1724,12 @@ fun WidgetConfigScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "5 Min (Fast refresh)",
+                                stringResource(R.string.widget_config_refresh_interval_fast),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                "60 Min (Eco-friendly)",
+                                stringResource(R.string.widget_config_refresh_interval_eco),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -1748,19 +1750,19 @@ fun WidgetConfigScreen(
                             onClick = onConfigCancelled,
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Discard")
+                            Text(stringResource(R.string.action_discard))
                         }
 
                         Button(
                             onClick = {
                                 val b = selectedBox
                                 if (b == null) {
-                                    statusMessage = "Select a senseBox first!"
+                                    statusMessage = context.getString(R.string.widget_status_select_sensebox)
                                     return@Button
                                 }
                                 coroutineScope.launch {
                                     isLoading = true
-                                    statusMessage = "Provisioning Widget..."
+                                    statusMessage = context.getString(R.string.widget_status_provisioning)
                                     try {
                                         val entity = WidgetConfigEntity(
                                             widgetId = appWidgetId,
@@ -1790,7 +1792,7 @@ fun WidgetConfigScreen(
                                         onConfigSaved()
                                     } catch (e: Exception) {
                                         e.printStackTrace()
-                                        statusMessage = "Save failed: ${e.message}"
+                                        statusMessage = context.getString(R.string.widget_status_save_failed, e.message ?: "")
                                     } finally {
                                         isLoading = false
                                     }
@@ -1801,7 +1803,7 @@ fun WidgetConfigScreen(
                                 .testTag("save_config_button"),
                             enabled = selectedBox != null && !isLoading
                         ) {
-                            Text("Apply Widget")
+                            Text(stringResource(R.string.action_apply_widget))
                         }
                     }
                 }
@@ -1813,7 +1815,7 @@ fun WidgetConfigScreen(
                 onDismissRequest = { showAqiInfoDialog = false },
                 title = {
                     Text(
-                        text = "Air Quality Index (AQI) Guide",
+                        text = stringResource(R.string.widget_config_aqi_guide_title),
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleMedium
                     )
@@ -1824,25 +1826,25 @@ fun WidgetConfigScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "The Air Quality Index is a virtual metric synthesized locally by BoxViewer when a station provides PM2.5 or PM10 particulate matter readings.",
+                            text = stringResource(R.string.widget_config_aqi_guide_intro),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "• InstantCast (Live Widget & Dashboard):\nCalculates the index immediately from the latest concentration reading.",
+                            text = stringResource(R.string.widget_config_aqi_guide_instantcast),
                             style = MaterialTheme.typography.bodySmall
                         )
                         Text(
-                            text = "• NowCast (Expanded Card History):\nApplies a 12-hour weighted average algorithm to smooth out temporary spikes.",
+                            text = stringResource(R.string.widget_config_aqi_guide_nowcast),
                             style = MaterialTheme.typography.bodySmall
                         )
                         Text(
-                            text = "• Consolidated Sensor:\nIf both PM2.5 and PM10 exist, it automatically reports the worst-case (maximum) index score.",
+                            text = stringResource(R.string.widget_config_aqi_guide_consolidated),
                             style = MaterialTheme.typography.bodySmall
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "You can customize the regional standard (US EPA, UK DAQI, European EAQI, Canada AQHI, India AQI, China AQI) under the general App Settings.",
+                            text = stringResource(R.string.widget_config_aqi_guide_customize),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -1851,7 +1853,7 @@ fun WidgetConfigScreen(
                 },
                 confirmButton = {
                     TextButton(onClick = { showAqiInfoDialog = false }) {
-                        Text("Got it")
+                        Text(stringResource(R.string.action_got_it))
                     }
                 }
             )
