@@ -49,9 +49,6 @@
     <string name="settings_language_description">Wähle die Sprache für die App-Benutzeroberfläche.</string>
     <string name="settings_text_scale_label">App-Textskalierung</string>
     <string name="settings_text_scale_description">Passe die relative Textgröße der App-Oberfläche an dein Gerät oder deine Leseentfernung an.</string>
-    <string name="settings_text_scale_compact">60%% (Kompakt)</string>
-    <string name="settings_text_scale_default">100%% (Standard)</string>
-    <string name="settings_text_scale_double">200%% (Doppelt)</string>
     <string name="settings_aqi_standard_label">AQI-Standard</string>
     <string name="settings_aqi_standard_description">Wähle die Berechnung des Luftqualitätsindex für AQI-Sensoren.</string>
     <string name="settings_temperature_unit_label">Temperatureinheit</string>
@@ -377,9 +374,6 @@
     <string name="widget_config_section_text_scaling">WIDGET-TEXTSKALIERUNG</string>
     <string name="widget_config_text_scaling_description">Passe die relative Textgröße des Widgets an, damit sie perfekt in benutzerdefinierte Layouts passt. Tippe und ziehe unten.</string>
     <string name="widget_config_text_scale_label">Widget-Textskalierung</string>
-    <string name="widget_config_text_scale_compact">60% (Kompakt)</string>
-    <string name="widget_config_text_scale_default">100% (Standard)</string>
-    <string name="widget_config_text_scale_double">200% (Doppelt)</string>
     <string name="widget_config_section_background_color">HINTERGRUNDFARBE DES WIDGETS</string>
     <string name="widget_config_select_preset_palette">Voreingestellte Palette auswählen</string>
     <string name="widget_config_advanced_settings">Erweiterte Einstellungen</string>
