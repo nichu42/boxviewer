@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
 import kotlin.time.Duration.Companion.seconds
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +41,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.util.SensorDisplayConverter
 import de.nichu42.boxviewer.data.api.Sensor
+import de.nichu42.boxviewer.data.api.Measurement
+import de.nichu42.boxviewer.util.SensorSortKey
+import de.nichu42.boxviewer.ui.theme.SensorTheme
 import android.content.Context
 import java.text.SimpleDateFormat
 import java.util.*
@@ -67,7 +71,7 @@ fun BoxDetailScreen(
     val savedBoxes by viewModel.savedBoxes.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
 
     var resolvedLocation by remember { mutableStateOf("") }
     val latitude = selectedBox?.currentLocation?.latitude
@@ -182,7 +186,7 @@ fun BoxDetailScreen(
                                     title = entity.sensorTitle,
                                     unit = entity.sensorUnit,
                                     sensorType = entity.sensorType,
-                                    lastMeasurement = de.nichu42.boxviewer.data.api.Measurement(
+                                    lastMeasurement = Measurement(
                                         value = entity.value,
                                         createdAt = entity.updatedAt
                                     )
@@ -218,8 +222,9 @@ fun BoxDetailScreen(
                                                 .background(MaterialTheme.colorScheme.primaryContainer)
                                                 .padding(horizontal = 10.dp, vertical = 4.dp)
                                         ) {
+                                            val locale = LocalLocale.current.platformLocale
                                             Text(
-                                                text = when (box.exposure?.lowercase(Locale.getDefault())) {
+                                                text = when (box.exposure?.lowercase(locale)) {
                                                     "indoor" -> stringResource(R.string.discovery_exposure_indoor)
                                                     "outdoor" -> stringResource(R.string.discovery_exposure_outdoor)
                                                     else -> stringResource(R.string.discovery_exposure_outdoor)
@@ -261,9 +266,10 @@ fun BoxDetailScreen(
                                                 modifier = Modifier.size(14.dp)
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
-                                            val syncedTime = remember(cachedSensors) {
-                                                context.getString(R.string.box_detail_synced_prefix, viewModel.formatAppSyncTime(cachedSensors))
-                                            }
+                                            val syncedTime = stringResource(
+                                                R.string.box_detail_synced_prefix,
+                                                viewModel.formatAppSyncTime(cachedSensors)
+                                            )
                                             Text(
                                                 text = syncedTime,
                                                 style = MaterialTheme.typography.bodySmall,
@@ -502,7 +508,7 @@ fun BoxDetailScreen(
                             // Canonical sort: Temperature → Humidity → PM10 → PM2.5 → AQI → Pressure → Wind → other
                             val sensorList = ((box.sensors?.filter { !it.id.isNullOrEmpty() } ?: emptyList()) +
                                 listOfNotNull(virtualAqiSensor))
-                                .sortedWith(compareBy({ de.nichu42.boxviewer.util.SensorSortKey.of(it.title) }, { it.title }))
+                                .sortedWith(compareBy({ SensorSortKey.of(it.title) }, { it.title }))
                             if (sensorList.isEmpty()) {
                                 item {
                                     Box(
@@ -638,7 +644,7 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Appropriate icon based on Sensor Title
-                val visuals = de.nichu42.boxviewer.ui.theme.SensorTheme.getVisuals(sensor.title)
+                val visuals = SensorTheme.getVisuals(sensor.title)
                 Box(
                     modifier = Modifier
                         .size(45.dp)
@@ -694,7 +700,7 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                         text = displayVal,
                         fontWeight = FontWeight.ExtraBold,
                         style = MaterialTheme.typography.titleLarge,
-                        color = de.nichu42.boxviewer.ui.theme.SensorTheme.getValueColor(sensor.title, sensor.lastMeasurement?.value, aqiSystem, sensor.unit)
+                        color = SensorTheme.getValueColor(sensor.title, sensor.lastMeasurement?.value, aqiSystem, sensor.unit)
                     )
                     Text(
                         text = displayUnit,
@@ -742,7 +748,7 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                         }
                     } else {
                         val rawMeasurements = historicalMeasurements ?: listOf(
-                            de.nichu42.boxviewer.data.api.Measurement(
+                            Measurement(
                                 value = sensor.lastMeasurement?.value,
                                 createdAt = sensor.lastMeasurement?.createdAt
                             )
@@ -799,13 +805,14 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
                                 viewModel.calculateNowCastForBox(rawVals)
                             }
                             if (nowCastResult.isAvailable) {
+                                val aqiLocale = LocalLocale.current.platformLocale
                                 val scoreText = if (nowCastResult.value != null) {
-                                    String.format(Locale.getDefault(), "%.0f", nowCastResult.value)
+                                    String.format(aqiLocale, "%.0f", nowCastResult.value)
                                 } else {
                                     ""
                                 }
                                 val badgeColor = Color(nowCastResult.colorHex.toColorInt())
-                                val textContrastColor = de.nichu42.boxviewer.ui.theme.SensorTheme.getContrastColor(badgeColor)
+                                val textContrastColor = SensorTheme.getContrastColor(badgeColor)
 
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Box(
@@ -884,7 +891,7 @@ fun SensorCard(sensor: Sensor, boxId: String, viewModel: SenseBoxViewModel) {
  */
 @Composable
 fun SparklineWithScales(
-    measurements: List<de.nichu42.boxviewer.data.api.Measurement>,
+    measurements: List<Measurement>,
     unit: String?
 ) {
     if (measurements.isEmpty()) return
@@ -919,12 +926,11 @@ fun SparklineWithScales(
     val maxLabel = String.format(locale, "%.1f", maxVal) + unitStr
     val minLabel = String.format(locale, "%.1f", minVal) + unitStr
 
-    val context = LocalContext.current
     val startTime = remember(measurements) {
-        formatShortTime(context, measurements.firstOrNull()?.createdAt)
+        formatShortTime(measurements.firstOrNull()?.createdAt)
     }
     val endTime = remember(measurements) {
-        formatShortTime(context, measurements.lastOrNull()?.createdAt)
+        formatShortTime(measurements.lastOrNull()?.createdAt)
     }
 
     val strokeColor = MaterialTheme.colorScheme.primary
@@ -1094,7 +1100,7 @@ fun SparklineWithScales(
     }
 }
 
-fun formatShortTime(context: Context, isoString: String?): String {
+fun formatShortTime(isoString: String?): String {
     if (isoString.isNullOrEmpty()) return ""
     return try {
         val cleanString = if (isoString.length >= 19) isoString.substring(0, 19) else isoString

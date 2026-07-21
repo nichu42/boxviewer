@@ -49,7 +49,6 @@ import de.nichu42.boxviewer.util.ApiLogger
 import de.nichu42.boxviewer.util.FontScaleHelper
 import de.nichu42.boxviewer.util.LocaleHelper
 import androidx.compose.ui.res.stringResource
-import de.nichu42.boxviewer.R
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainActivity : AppCompatActivity() {

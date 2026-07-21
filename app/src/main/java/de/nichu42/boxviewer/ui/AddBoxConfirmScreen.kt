@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalLocale
 import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.data.api.SenseBox
 
@@ -271,8 +272,9 @@ private fun BoxPreviewCard(
                 Spacer(modifier = Modifier.height(4.dp))
             } else {
                 box.currentLocation?.let { loc ->
-                    val latStr = String.format(java.util.Locale.getDefault(), "%.4f", loc.latitude)
-                    val lngStr = String.format(java.util.Locale.getDefault(), "%.4f", loc.longitude)
+                    val locale = LocalLocale.current.platformLocale
+                    val latStr = String.format(locale, "%.4f", loc.latitude)
+                    val lngStr = String.format(locale, "%.4f", loc.longitude)
                     Text(
                         text = "Coords: $latStr, $lngStr",
                         style = MaterialTheme.typography.bodySmall,

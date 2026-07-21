@@ -352,6 +352,63 @@ fun AboutScreen(
                 }
             }
 
+            // Translation Collaboration Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("about_translation_card"),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.about_section_translation),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = stringResource(R.string.about_translation_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        lineHeight = 20.sp
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Button(
+                        onClick = {
+                            try {
+                                uriHandler.openUri("https://poeditor.com/join/project/3BO0G8m3BZ")
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("link_poeditor")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Language,
+                            contentDescription = stringResource(R.string.cd_contribute_translations),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.about_link_translate),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+            }
+
             // 3. Data & Attribution Card (openSenseMap platform info)
             Card(
                 modifier = Modifier
@@ -699,7 +756,8 @@ fun LicenseScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    var licenseText by remember { mutableStateOf(context.getString(R.string.about_loading_license)) }
+    val loadingLicenseText = stringResource(R.string.about_loading_license)
+    var licenseText by remember { mutableStateOf(loadingLicenseText) }
     LaunchedEffect(context, LocalConfiguration.current) {
         licenseText = loadLicenseText(context)
     }
@@ -775,7 +833,7 @@ private fun loadLicenseText(context: android.content.Context): String {
         reader.close()
         normalizeLicenseText(text)
     } catch (_: Exception) {
-        context.getString(R.string.about_license_load_error)
+        context.resources.getString(R.string.about_license_load_error)
     }
 }
 

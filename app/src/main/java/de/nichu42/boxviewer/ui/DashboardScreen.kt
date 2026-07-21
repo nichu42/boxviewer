@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.zIndex
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -35,7 +36,6 @@ import androidx.compose.ui.res.stringResource
 import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.util.SensorDisplayConverter
 import de.nichu42.boxviewer.data.db.SavedBoxEntity
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -422,7 +422,10 @@ fun SavedBoxCard(
     val aqiSystem by viewModel.aqiSystem.collectAsStateWithLifecycle()
     var isConfiguring by remember { mutableStateOf(false) }
 
-    var resolvedLocation by remember { mutableStateOf(String.format(Locale.getDefault(), "Lat: %.3f, Lon: %.3f", box.latitude, box.longitude)) }
+    val locale = LocalLocale.current.platformLocale
+    var resolvedLocation by remember(locale, box.latitude, box.longitude) {
+        mutableStateOf(String.format(locale, "Lat: %.3f, Lon: %.3f", box.latitude, box.longitude))
+    }
     LaunchedEffect(box.boxId, box.latitude, box.longitude) {
         viewModel.getCityStateCountryFromLocation(box.boxId, box.latitude, box.longitude) { loc ->
             resolvedLocation = loc

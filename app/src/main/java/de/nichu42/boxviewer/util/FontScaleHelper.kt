@@ -6,6 +6,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import androidx.core.content.edit
 
 /**
  * Manages a user-defined app-wide text scale factor persisted in [app_prefs].
@@ -34,9 +35,9 @@ object FontScaleHelper {
     /** Persists the user's text scale choice. */
     fun setTextScale(context: Context, scale: Float) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putFloat(KEY_APP_TEXT_SCALE, scale.coerceIn(VALUE_RANGE))
-            .apply()
+            .edit {
+                putFloat(KEY_APP_TEXT_SCALE, scale.coerceIn(VALUE_RANGE))
+            }
     }
 
     /**

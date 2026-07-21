@@ -146,10 +146,18 @@ If you want to add a real linter (ktlint is the most popular choice) as a separa
 
 ## Translations / Localization
 
-BoxViewer currently ships English (default) and German (`values-de/`) translations. New languages are welcome and much appreciated.
+BoxViewer uses **POEditor** to collaboratively manage app translations. We welcome contributions for correcting existing strings or translating the app into new languages. 
 
-To add or improve a translation:
+### ✍️ How to Contribute Translations
+1. **Join the Translation Project**: Visit our public join portal on POEditor:
+   👉 **[Translate BoxViewer on POEditor](https://poeditor.com/join/project/3BO0G8m3BZ)**.
+2. **Submit Translations**: You can suggest corrections or translate untranslated strings directly on the web interface.
+3. **Adding a New Language**: You can suggest/request a new target language within the POEditor project portal. Once translations are complete, a developer will update the app's locale configuration and sync workflows to enable it.
+4. **Moderation**: All submitted translations go through a moderation queue to ensure accuracy and prevent spam before they are merged.
 
+*Alternatively, if you prefer editing XML resources directly, you can submit a Pull Request following the guidelines below:*
+
+### 🛠️ Manual Translation Guidelines (via XML)
 1. **Adding a new language:** copy `app/src/main/res/values/strings.xml` to `app/src/main/res/values-<lang>/strings.xml` (e.g., `values-fr/`, `values-es/`, `values-nl/`) and translate every string. The `<lang>` code follows Android's standard ISO 639-1 conventions. Do **not** add a new language by editing the existing `values-de/` directory.
 2. **Improving an existing translation:** edit the file directly in the appropriate `values-<lang>/` directory.
 3. **Do not translate keys, only values.** String keys (`R.string.dashboard_title`, etc.) are referenced from Kotlin code and must stay identical.

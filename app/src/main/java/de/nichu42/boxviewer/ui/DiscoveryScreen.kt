@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -43,7 +44,6 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.launch
 import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.data.api.SenseBox
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +55,10 @@ fun DiscoveryScreen(
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
+
+    val locatingMsg = stringResource(R.string.discovery_locating)
+    val unknownLocationMsg = stringResource(R.string.discovery_unknown_location)
+    val noBarcodeScannerMsg = stringResource(R.string.discovery_no_barcode_scanner)
 
     val discoveredBoxes by viewModel.discoveredBoxes.collectAsStateWithLifecycle()
     val savedBoxes by viewModel.savedBoxes.collectAsStateWithLifecycle()
@@ -83,7 +87,7 @@ fun DiscoveryScreen(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             if (isGranted) {
-                searchQuery = context.getString(R.string.discovery_locating)
+                searchQuery = locatingMsg
                 getCurrentGPSLocation(context, viewModel) { label ->
                     searchQuery = label
                 }
@@ -229,7 +233,7 @@ fun DiscoveryScreen(
                                     val fullLabel = listOfNotNull(city, state, country)
                                         .filter { it.isNotBlank() }
                                         .joinToString(", ")
-                                    val formattedLabel = firstAddress.getAddressLine(0) ?: fullLabel.ifBlank { context.getString(R.string.discovery_unknown_location) }
+                                    val formattedLabel = firstAddress.getAddressLine(0) ?: fullLabel.ifBlank { unknownLocationMsg }
                                     
                                     searchQuery = formattedLabel
                                     viewModel.searchByAddress(firstAddress)
@@ -311,7 +315,7 @@ fun DiscoveryScreen(
                                     IconButton(
                                         modifier = Modifier.testTag("gps_inline_button"),
                                         onClick = {
-                                            searchQuery = context.getString(R.string.discovery_locating)
+                                            searchQuery = locatingMsg
                                             viewModel.clearAutocomplete()
                                             val check = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
                                             if (check == PackageManager.PERMISSION_GRANTED) {
@@ -341,7 +345,7 @@ fun DiscoveryScreen(
                                             } catch (_: ActivityNotFoundException) {
                                                 Toast.makeText(
                                                     context,
-                                                    context.getString(R.string.discovery_no_barcode_scanner),
+                                                    noBarcodeScannerMsg,
                                                     Toast.LENGTH_LONG
                                                 ).show()
                                             }
@@ -384,7 +388,7 @@ fun DiscoveryScreen(
                                             .filter { it.isNotBlank() }
                                             .joinToString(", ")
                                         val formattedLabel = fullLabel.ifBlank {
-                                            address.getAddressLine(0) ?: context.getString(R.string.discovery_unknown_location)
+                                            address.getAddressLine(0) ?: unknownLocationMsg
                                         }
                                         val finalLabel = address.getAddressLine(0) ?: formattedLabel
                                         Pair(address, finalLabel)
@@ -888,8 +892,9 @@ fun DiscoveredBoxCard(
                             .background(MaterialTheme.colorScheme.secondaryContainer)
                             .padding(horizontal = 4.dp, vertical = 1.dp)
                     ) {
+                        val locale = LocalLocale.current.platformLocale
                         Text(
-                            text = when (box.exposure?.lowercase(Locale.getDefault())) {
+                            text = when (box.exposure?.lowercase(locale)) {
                                 "indoor" -> stringResource(R.string.discovery_exposure_indoor)
                                 "outdoor" -> stringResource(R.string.discovery_exposure_outdoor)
                                 else -> stringResource(R.string.discovery_exposure_outdoor)
@@ -936,8 +941,9 @@ fun DiscoveredBoxCard(
                     }
                 } else {
                     box.currentLocation?.let { loc ->
-                        val latStr = String.format(Locale.getDefault(), "%.4f", loc.latitude)
-                        val lngStr = String.format(Locale.getDefault(), "%.4f", loc.longitude)
+                        val listLocale = LocalLocale.current.platformLocale
+                        val latStr = String.format(listLocale, "%.4f", loc.latitude)
+                        val lngStr = String.format(listLocale, "%.4f", loc.longitude)
                         Row(
                             modifier = Modifier.padding(top = 2.dp),
                             verticalAlignment = Alignment.CenterVertically

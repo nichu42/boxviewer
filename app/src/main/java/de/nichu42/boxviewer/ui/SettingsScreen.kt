@@ -1,38 +1,76 @@
 package de.nichu42.boxviewer.ui
 
-import de.nichu42.boxviewer.util.AqiSystem
-
 import android.content.ClipData
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.TextFormat
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.WarningAmber
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.toClipEntry
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.ui.res.stringResource
 import de.nichu42.boxviewer.R
 import de.nichu42.boxviewer.util.ApiLogger
+import de.nichu42.boxviewer.util.AqiSystem
 import de.nichu42.boxviewer.util.CrashHandler
 import de.nichu42.boxviewer.util.FontScaleHelper
 import de.nichu42.boxviewer.util.LocaleHelper
@@ -48,6 +86,17 @@ fun SettingsScreen(
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
     val clipboardScope = rememberCoroutineScope()
+
+    val crashReportCopiedMsg = stringResource(R.string.settings_crash_report_copied)
+    val crashLogClearedMsg = stringResource(R.string.settings_crash_log_cleared)
+    val diagnosticsCopiedMsg = stringResource(R.string.settings_diagnostics_copied)
+    val apiLoggingEnabledMsg = stringResource(R.string.settings_api_logging_enabled)
+    val apiLoggingDisabledMsg = stringResource(R.string.settings_api_logging_disabled)
+    val logEmptyMsg = stringResource(R.string.settings_log_empty)
+    val logsCopiedMsg = stringResource(R.string.settings_logs_copied)
+    val shareApiLogsTitleMsg = stringResource(R.string.settings_share_api_logs_title)
+    val errorSharingLogsMsg = stringResource(R.string.settings_error_sharing_logs)
+    val logsClearedMsg = stringResource(R.string.settings_logs_cleared)
     var crashLog by remember { mutableStateOf<String?>(null) }
     val useConditionalFormatting by viewModel.useConditionalFormatting.collectAsStateWithLifecycle()
     val temperatureUnit by viewModel.temperatureUnit.collectAsStateWithLifecycle()
@@ -143,17 +192,59 @@ fun SettingsScreen(
                     // Language picker
                     var currentLocale by remember { mutableStateOf(LocaleHelper.getSavedLocale(context)) }
                     var languageExpanded by remember { mutableStateOf(false) }
+                    val uriHandler = LocalUriHandler.current
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                stringResource(R.string.settings_language_label),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    stringResource(R.string.settings_language_label),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                var showInfoDialog by remember { mutableStateOf(false) }
+                                IconButton(
+                                    onClick = { showInfoDialog = true },
+                                    modifier = Modifier.size(18.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Info,
+                                        contentDescription = stringResource(R.string.cd_contribute_translations),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                                if (showInfoDialog) {
+                                    AlertDialog(
+                                        onDismissRequest = { showInfoDialog = false },
+                                        title = { Text(stringResource(R.string.translation_contrib_title)) },
+                                        text = { Text(stringResource(R.string.translation_contrib_message)) },
+                                        confirmButton = {
+                                            TextButton(onClick = { showInfoDialog = false }) {
+                                                Text(stringResource(R.string.action_ok))
+                                            }
+                                        },
+                                        dismissButton = {
+                                            TextButton(
+                                                onClick = {
+                                                    showInfoDialog = false
+                                                    try {
+                                                        uriHandler.openUri("https://poeditor.com/join/project/3BO0G8m3BZ")
+                                                    } catch (e: Exception) {
+                                                        e.printStackTrace()
+                                                    }
+                                                }
+                                            ) {
+                                                Text(stringResource(R.string.translation_contrib_button))
+                                            }
+                                        }
+                                    )
+                                }
+                            }
                             Text(
                                 stringResource(R.string.settings_language_description),
                                 style = MaterialTheme.typography.bodySmall,
@@ -223,8 +314,9 @@ fun SettingsScreen(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
+                                val locale = LocalLocale.current.platformLocale
                                 Text(
-                                    text = String.format(java.util.Locale.getDefault(), "%.0f%%", textScale * 100),
+                                    text = String.format(locale, "%.0f%%", textScale * 100),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
@@ -413,7 +505,7 @@ fun SettingsScreen(
                                     clipboardScope.launch {
                                         clipboard.setClipEntry(ClipData.newPlainText("Crash report", it).toClipEntry())
                                     }
-                                        Toast.makeText(context, context.getString(R.string.settings_crash_report_copied), Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, crashReportCopiedMsg, Toast.LENGTH_SHORT).show()
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(
@@ -429,7 +521,7 @@ fun SettingsScreen(
                                 onClick = {
                                     CrashHandler.clearCrashLog(context)
                                     crashLog = null
-                                    Toast.makeText(context, context.getString(R.string.settings_crash_log_cleared), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, crashLogClearedMsg, Toast.LENGTH_SHORT).show()
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -455,7 +547,7 @@ fun SettingsScreen(
                             clipboardScope.launch {
                                 clipboard.setClipEntry(ClipData.newPlainText("Diagnostics", systemInfo).toClipEntry())
                             }
-                                Toast.makeText(context, context.getString(R.string.settings_diagnostics_copied), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, diagnosticsCopiedMsg, Toast.LENGTH_SHORT).show()
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -536,7 +628,7 @@ fun SettingsScreen(
                                 ApiLogger.setLoggingEnabled(checked)
                                 Toast.makeText(
                                     context,
-                                    if (checked) context.getString(R.string.settings_api_logging_enabled) else context.getString(R.string.settings_api_logging_disabled),
+                                    if (checked) apiLoggingEnabledMsg else apiLoggingDisabledMsg,
                                     Toast.LENGTH_SHORT
                                 ).show()
                             },
@@ -618,10 +710,10 @@ fun SettingsScreen(
                                         coroutineScope.launch {
                                             val logText = ApiLogger.getLogsText()
                                             if (logText.isEmpty()) {
-                                                Toast.makeText(context, context.getString(R.string.settings_log_empty), Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, logEmptyMsg, Toast.LENGTH_SHORT).show()
                                             } else {
                                                 clipboard.setClipEntry(ClipData.newPlainText("API Logs", logText).toClipEntry())
-                                                Toast.makeText(context, context.getString(R.string.settings_logs_copied), Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, logsCopiedMsg, Toast.LENGTH_SHORT).show()
                                             }
                                         }
                                     },
@@ -640,7 +732,7 @@ fun SettingsScreen(
                                         coroutineScope.launch {
                                             val logText = ApiLogger.getLogsText()
                                             if (logText.isEmpty()) {
-                                                Toast.makeText(context, context.getString(R.string.settings_log_empty), Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, logEmptyMsg, Toast.LENGTH_SHORT).show()
                                             } else {
                                                 try {
                                                     val sendIntent = android.content.Intent().apply {
@@ -650,12 +742,12 @@ fun SettingsScreen(
                                                     }
                                                     val shareIntent = android.content.Intent.createChooser(
                                                         sendIntent,
-                                                        context.getString(R.string.settings_share_api_logs_title)
+                                                        shareApiLogsTitleMsg
                                                     )
                                                     context.startActivity(shareIntent)
                                                 } catch (e: Exception) {
                                                     e.printStackTrace()
-                                                    Toast.makeText(context, context.getString(R.string.settings_error_sharing_logs), Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, errorSharingLogsMsg, Toast.LENGTH_SHORT).show()
                                                 }
                                             }
                                         }
@@ -675,7 +767,7 @@ fun SettingsScreen(
                                 onClick = {
                                     ApiLogger.clearLogs()
                                     logSizeStr = "0 B"
-                                    Toast.makeText(context, context.getString(R.string.settings_logs_cleared), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, logsClearedMsg, Toast.LENGTH_SHORT).show()
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer,

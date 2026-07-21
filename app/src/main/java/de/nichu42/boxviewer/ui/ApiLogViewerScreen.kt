@@ -53,6 +53,11 @@ fun ApiLogViewerScreen(
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
 
+    val logsClearedMsg = stringResource(R.string.api_log_logs_cleared)
+    val urlCopiedMsg = stringResource(R.string.api_log_url_copied)
+    val responseCopiedMsg = stringResource(R.string.api_log_response_copied)
+    val entryCopiedMsg = stringResource(R.string.api_log_entry_copied)
+
     var diagnostics by remember { mutableStateOf<Map<String, Any>?>(null) }
     var logEntries by remember { mutableStateOf<List<ApiLogger.ApiLogEntry>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -137,7 +142,7 @@ fun ApiLogViewerScreen(
                             ApiLogger.clearLogs()
                             logEntries = emptyList()
                             diagnostics = null
-                            Toast.makeText(ctx, ctx.getString(R.string.api_log_logs_cleared), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(ctx, logsClearedMsg, Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier.testTag("api_log_viewer_clear")
                     ) {
@@ -249,19 +254,19 @@ fun ApiLogViewerScreen(
                         onCopyUrl = {
                             scope.launch {
                                 clipboard.setClipEntry(ClipData.newPlainText("API Request URL", it).toClipEntry())
-                                Toast.makeText(ctx, ctx.getString(R.string.api_log_url_copied), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, urlCopiedMsg, Toast.LENGTH_SHORT).show()
                             }
                         },
                         onCopyResponse = {
                             scope.launch {
                                 clipboard.setClipEntry(ClipData.newPlainText("API Response", it).toClipEntry())
-                                Toast.makeText(ctx, ctx.getString(R.string.api_log_response_copied), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, responseCopiedMsg, Toast.LENGTH_SHORT).show()
                             }
                         },
                         onCopyAll = {
                             scope.launch {
                                 clipboard.setClipEntry(ClipData.newPlainText("API Log Item", it).toClipEntry())
-                                Toast.makeText(ctx, ctx.getString(R.string.api_log_entry_copied), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(ctx, entryCopiedMsg, Toast.LENGTH_SHORT).show()
                             }
                         }
                     )
@@ -277,7 +282,6 @@ fun DiagnosticsCollapsiblePanel(
     isExpanded: Boolean,
     onToggle: () -> Unit
 ) {
-    val ctx = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -324,10 +328,11 @@ fun DiagnosticsCollapsiblePanel(
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    val appVer = diagnostics["appVersion"] as? String ?: ctx.getString(R.string.time_unknown)
-                    val device = diagnostics["device"] as? String ?: ctx.getString(R.string.time_unknown)
-                    val sdk = diagnostics["androidSdk"]?.toString() ?: ctx.getString(R.string.time_unknown)
-                    val date = diagnostics["date"] as? String ?: ctx.getString(R.string.time_unknown)
+                    val timeUnknown = stringResource(R.string.time_unknown)
+                    val appVer = diagnostics["appVersion"] as? String ?: timeUnknown
+                    val device = diagnostics["device"] as? String ?: timeUnknown
+                    val sdk = diagnostics["androidSdk"]?.toString() ?: timeUnknown
+                    val date = diagnostics["date"] as? String ?: timeUnknown
 
                     DiagnosticsRow(label = stringResource(R.string.api_log_label_app_version), value = appVer)
                     DiagnosticsRow(label = stringResource(R.string.api_log_label_device_info), value = device)
@@ -751,7 +756,6 @@ fun ApiLogEntryRow(
     entry: ApiLogger.ApiLogEntry,
     onClick: () -> Unit
 ) {
-    val ctx = LocalContext.current
     val methodColor = when (entry.method.uppercase()) {
         "GET" -> Color(0xFF4CAF50)
         "POST" -> Color(0xFF2196F3)

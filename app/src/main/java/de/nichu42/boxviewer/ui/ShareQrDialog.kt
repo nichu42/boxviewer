@@ -37,6 +37,14 @@ fun ShareQrDialog(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+
+    val shareClipboardLabelMsg = stringResource(R.string.share_clipboard_label)
+    val shareSubjectMsg = stringResource(R.string.share_subject)
+    val shareQrFailedMsg = stringResource(R.string.share_qr_failed)
+    val shareQrSavedSuccessMsg = stringResource(R.string.share_qr_saved_success)
+    val shareQrSaveRequiresAndroid10Msg = stringResource(R.string.share_qr_save_requires_android_10)
+    val shareQrSaveFailedMsg = stringResource(R.string.share_qr_save_failed)
+
     val link = remember(box.id) { ShareUtils.buildBoxDeepLink(box.id) }
     val summaryText = remember(box) { ShareUtils.boxSummaryForSharing(box) }
     val fileName = remember(box.id) { "qr_${box.id}.png" }
@@ -103,7 +111,7 @@ fun ShareQrDialog(
             ) {
                 Button(
                     onClick = {
-                        ShareUtils.copyToClipboard(context, context.getString(R.string.share_clipboard_label), link)
+                        ShareUtils.copyToClipboard(context, shareClipboardLabelMsg, link)
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(10.dp),
@@ -115,7 +123,7 @@ fun ShareQrDialog(
                 }
                 Button(
                     onClick = {
-                        ShareUtils.shareText(context, context.getString(R.string.share_subject), summaryText)
+                        ShareUtils.shareText(context, shareSubjectMsg, summaryText)
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(10.dp),
@@ -154,7 +162,7 @@ fun ShareQrDialog(
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(context, context.getString(R.string.share_qr_failed), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, shareQrFailedMsg, Toast.LENGTH_SHORT).show()
                                 }
                             } finally {
                                 isExporting = false
@@ -190,15 +198,15 @@ fun ShareQrDialog(
                                 val savedUri = ShareUtils.saveQrToGallery(context, bitmap, fileName)
                                 withContext(Dispatchers.Main) {
                                     if (savedUri != null) {
-                                        Toast.makeText(context, context.getString(R.string.share_qr_saved_success), Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, shareQrSavedSuccessMsg, Toast.LENGTH_SHORT).show()
                                     } else {
-                                        Toast.makeText(context, context.getString(R.string.share_qr_save_requires_android_10), Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, shareQrSaveRequiresAndroid10Msg, Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(context, context.getString(R.string.share_qr_save_failed), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, shareQrSaveFailedMsg, Toast.LENGTH_SHORT).show()
                                 }
                             } finally {
                                 isExporting = false

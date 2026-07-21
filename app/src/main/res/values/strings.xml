@@ -1,11 +1,9 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">BoxViewer</string>
-
     <!-- Language picker labels -->
     <string name="language_system_default">System default</string>
     <string name="language_english">English</string>
     <string name="language_german">German</string>
-
     <!-- Dashboard -->
     <string name="dashboard_title">My senseBoxes</string>
     <string name="dashboard_empty_title">No senseBoxes added yet</string>
@@ -24,19 +22,16 @@
     <string name="dashboard_current_value_format">Current: %1$s %2$s</string>
     <string name="dashboard_done">Done</string>
     <string name="dashboard_exposure_outdoor">outdoor</string>
-
     <!-- Add Box -->
     <string name="add_box_title">Add senseBox</string>
     <string name="add_box_fetching">Fetching senseBox…</string>
     <string name="add_box_already_saved">Already in your senseBoxes</string>
-
     <!-- Main / Navigation -->
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_home">Home</string>
     <string name="nav_discover">Discover</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_about">About</string>
-
     <!-- Database version dialogs -->
     <string name="db_version_mismatch_title">Database Version Mismatch</string>
     <string name="db_version_mismatch_message">The app database has been updated to a newer version. Your current app version is too old to read it.\n\nTo ensure stability, you can choose to start over fresh (which will clear your bookmarks and widget settings), or close the app and open the project page to install the update.</string>
@@ -44,12 +39,9 @@
     <string name="db_version_mismatch_install_update">Install Update</string>
     <string name="db_updated_title">Database Updated</string>
     <string name="db_updated_message">The app database has been updated to a newer version. To ensure stability and compatibility, some configurations have been reset. Please configure your favorites and widgets again.</string>
-
     <!-- Errors -->
     <string name="error_invalid_sensebox_link">Invalid senseBox link</string>
-
     <!-- Settings -->
-    <string name="settings_title">Settings</string>
     <string name="settings_section_app_settings">APP SETTINGS</string>
     <string name="settings_app_theme_label">App Theme</string>
     <string name="settings_app_theme_description">Choose between light, dark, or system default visual styles.</string>
@@ -60,6 +52,13 @@
     <string name="settings_conditional_formatting_description">Colorize sensor values based on their current measurement level.</string>
     <string name="settings_language_label">Language</string>
     <string name="settings_language_description">Choose the language used for the app interface.</string>
+    <string name="cd_contribute_translations">Contribute translations</string>
+    <string name="translation_contrib_title">Help Translate BoxViewer</string>
+    <string name="translation_contrib_message">You can help translate BoxViewer, submit corrections, or add new languages! Click below to visit the POEditor public translation portal, or see our GitHub CONTRIBUTING.md for details.</string>
+    <string name="translation_contrib_button">Help Translate (POEditor)</string>
+    <string name="about_section_translation">TRANSLATION &amp; LOCALIZATION</string>
+    <string name="about_translation_description">Help translate BoxViewer into new languages or correct existing translations! We use POEditor to collaboratively manage our localization community.</string>
+    <string name="about_link_translate">Help Translate (POEditor)</string>
     <string name="settings_text_scale_label">App Text Scale</string>
     <string name="settings_text_scale_description">Adjust the relative text size of the app interface to fit your device or viewing distance.</string>
     <string name="settings_aqi_standard_label">AQI Standard</string>
@@ -72,7 +71,6 @@
     <string name="settings_format_pressure_description">Format pressure values with thousands separator (e.g., 1,013.25 hPa instead of 1013.25 hPa).</string>
     <string name="settings_wind_unit_label">Wind Speed Unit</string>
     <string name="settings_wind_unit_description">Choose the display scale for all wind speed sensors.</string>
-
     <!-- Unit symbols (kept consistent across locales) -->
     <string name="unit_celsius" translatable="false">°C</string>
     <string name="unit_fahrenheit" translatable="false">°F</string>
@@ -86,7 +84,6 @@
     <string name="unit_kmh" translatable="false">km/h</string>
     <string name="unit_mph" translatable="false">mph</string>
     <string name="unit_kn" translatable="false">kn</string>
-
     <!-- Settings: Diagnostics -->
     <string name="settings_section_diagnostics">DIAGNOSTICS &amp; BUG REPORTING</string>
     <string name="settings_crash_detected_title">A recent app crash has been detected locally.</string>
@@ -98,7 +95,6 @@
     <string name="settings_crash_log_cleared">Crash log cleared</string>
     <string name="settings_diagnostics_copied">Diagnostics copied to clipboard!</string>
     <string name="settings_copy_diagnostics_cd">Copy diagnostics</string>
-
     <!-- Settings: API Logging -->
     <string name="settings_section_api_logging">API DEBUG LOGGING</string>
     <string name="settings_api_logging_description">Capture raw JSON network requests, responses, and internal parsing metrics. Logs are saved locally in a JSON Lines format and can be shared to diagnose issues.</string>
@@ -116,12 +112,10 @@
     <string name="settings_share_api_logs_title">Share API Logs</string>
     <string name="settings_error_sharing_logs">Error sharing logs</string>
     <string name="settings_logs_cleared">Logs cleared</string>
-
     <!-- File size units -->
     <string name="file_size_bytes">%1$d B</string>
     <string name="file_size_kilobytes">%1$.1f KB</string>
     <string name="file_size_megabytes">%1$.1f MB</string>
-
     <!-- Discovery -->
     <string name="discovery_title">Discover senseBoxes</string>
     <string name="discovery_search_mode_location">City / Location</string>
@@ -135,12 +129,11 @@
     <string name="discovery_exposure_label">Exposure</string>
     <string name="discovery_exposure_outdoor">Outdoor</string>
     <string name="discovery_exposure_indoor">Indoor</string>
-    <string name="discovery_exposure_all">All</string>
     <string name="discovery_last_updated_limit">Last Updated Limit</string>
     <string name="discovery_last_updated_15m">Last 15 minutes</string>
     <string name="discovery_last_updated_30m">Last 30 minutes</string>
     <string name="discovery_last_updated_1h">Last 1 hour</string>
-    <string name="discovery_last_updated_hours">Last %1$d hours</string>
+    <string name="discovery_last_updated_hours" tools:ignore="PluralsCandidate">Last %1$d hours</string>
     <string name="discovery_last_updated_24h">Last 24 hours (1 day)</string>
     <string name="discovery_last_updated_all_time">All Time</string>
     <string name="discovery_radius_label">Search Radius</string>
@@ -155,7 +148,7 @@
     <string name="discovery_found_count">FOUND %1$d SENSEBOXES</string>
     <string name="discovery_search_radius_format">Search radius: %1$d km</string>
     <string name="discovery_save_hint">Tap the bookmark icon to save a station to your list.</string>
-    <string name="discovery_show_more_format">Show More (%1$d remaining)</string>
+    <string name="discovery_show_more_format" tools:ignore="PluralsCandidate">Show More (%1$d remaining)</string>
     <string name="discovery_distance_format">(%1$.1f km away)</string>
     <string name="discovery_coords_format">Coords: %1$s, %2$s</string>
     <string name="discovery_some_metrics_outdated">Some metrics outdated</string>
@@ -166,11 +159,6 @@
     <string name="discovery_15m_short">15 m</string>
     <string name="discovery_2km_short">2 km</string>
     <string name="discovery_250km_short">250 km</string>
-    <string name="discovery_permission_rationale">Location permission is required to discover senseBoxes near you. Please grant permission in app settings.</string>
-    <string name="discovery_grant_permission">Grant Location Permission</string>
-    <string name="discovery_no_address">No address found for current location.</string>
-    <string name="discovery_location_unavailable">Location unavailable.</string>
-
     <!-- Content descriptions -->
     <string name="cd_search">Search</string>
     <string name="cd_run_search">Run Search</string>
@@ -184,15 +172,12 @@
     <string name="cd_discover">Discover</string>
     <string name="cd_show_more">Show more</string>
     <string name="cd_updated_time">Updated time</string>
-    <string name="cd_some_metrics_outdated">Some metrics outdated</string>
     <string name="cd_save_bookmark">Save Bookmark</string>
-
     <!-- Content descriptions -->
     <string name="cd_info">info</string>
     <string name="cd_view_api_logs">View API Logs</string>
     <string name="cd_crash_detected_warning">Crash Detected Warning</string>
     <string name="dashboard_exposure_indoor">indoor</string>
-
     <!-- Widget layout placeholder strings (replaced at runtime by RemoteViews) -->
     <string name="widget_default_box_name" translatable="false">senseBox</string>
     <string name="widget_updated_just_now">Updated just now</string>
@@ -202,7 +187,6 @@
     <string name="widget_sensor_category_icon">Sensor category icon</string>
     <string name="widget_select_sensor">Select Sensor</string>
     <string name="widget_no_value" translatable="false">--</string>
-
     <!-- Default placeholder sensor titles (German, matching openSenseMap conventions) -->
     <string name="widget_placeholder_temperature" translatable="false">Temperatur</string>
     <string name="widget_placeholder_humidity" translatable="false">Feuchte</string>
@@ -210,11 +194,9 @@
     <string name="widget_placeholder_pressure" translatable="false">Druck</string>
     <string name="widget_placeholder_pm25" translatable="false">PM2.5</string>
     <string name="widget_placeholder_pm10" translatable="false">PM10</string>
-
     <string name="widget_name_small">senseBox Info (Small 2x1)</string>
     <string name="widget_name_medium">senseBox Info (Medium 3x2)</string>
     <string name="widget_name_large">senseBox Info (Large 4x3)</string>
-
     <!-- Common actions -->
     <string name="action_cancel">Cancel</string>
     <string name="action_retry">Retry</string>
@@ -222,7 +204,6 @@
     <string name="action_view_details">View Details</string>
     <string name="action_add_to_dashboard">Add to Dashboard</string>
     <string name="action_ok">OK</string>
-
     <!-- Content descriptions -->
     <string name="cd_save_order">Save Order</string>
     <string name="cd_reorder_boxes">Reorder senseBoxes</string>
@@ -256,7 +237,6 @@
     <string name="cd_open_homepage">Open homepage</string>
     <string name="cd_third_party_licenses">Third-party licenses</string>
     <string name="cd_website">Website</string>
-
     <!-- Box detail screen -->
     <string name="box_detail_title">senseBox Details</string>
     <string name="box_detail_synced_prefix">Synced: %1$s</string>
@@ -273,7 +253,6 @@
     <string name="box_detail_widget_title">Home Screen Widgets</string>
     <string name="box_detail_widget_hint">To monitor this station on your home screen, go to your home screen, long-press an empty space, select \'Widgets\', and look for BoxViewer. You can then select this senseBox in the widget configuration.</string>
     <string name="box_detail_no_box_selected">No senseBox Selected</string>
-
     <!-- Sensor cards -->
     <string name="sensor_locally_computed">Locally computed</string>
     <string name="sensor_hardware_format">Hardware: %1$s</string>
@@ -286,20 +265,17 @@
     <string name="sensor_aqi_nowcast_subtitle">12-hour weighted average · %1$s</string>
     <string name="sensor_last_measurement_recorded">Last Measurement Recorded:</string>
     <string name="sensor_no_data_points">No numerical data points recorded.</string>
-
     <!-- Chart -->
     <string name="chart_oldest">Oldest</string>
     <string name="chart_latest">Latest</string>
-    <string name="chart_measurements_count">%1$d measurements</string>
-
+    <string name="chart_measurements_count" tools:ignore="PluralsCandidate">%1$d measurements</string>
     <!-- Time formatting -->
     <string name="time_unknown">Unknown</string>
     <string name="time_never_updated">Never updated</string>
     <string name="time_just_now">Just now</string>
     <string name="time_minutes_ago">%1$d min ago</string>
-    <string name="time_hours_ago">%1$d hours ago</string>
-    <string name="time_days_ago">%1$d days ago</string>
-
+    <string name="time_hours_ago" tools:ignore="PluralsCandidate">%1$d hours ago</string>
+    <string name="time_days_ago" tools:ignore="PluralsCandidate">%1$d days ago</string>
     <!-- API log viewer -->
     <string name="api_log_title">API Debug Logs</string>
     <string name="cd_refresh_logs">Refresh Logs</string>
@@ -335,7 +311,7 @@
     <string name="api_log_filter_client_error">Client Error (4xx)</string>
     <string name="api_log_filter_server_error">Server Error (5xx)</string>
     <string name="api_log_filter_failed">Failed/Exceptions</string>
-    <string name="api_log_search_placeholder">Search logs (URL, JSON, code...)</string>
+    <string name="api_log_search_placeholder">Search logs (URL, JSON, code…)</string>
     <string name="cd_clear_search">Clear Search</string>
     <string name="api_log_status_filter_label">Status: %1$s</string>
     <string name="api_log_request_details">Request Details</string>
@@ -361,7 +337,6 @@
     <string name="api_log_help_parsing">Data Parsing Failure: The app failed to read the JSON response. This usually indicates that the openSenseMap API structure has changed, and BoxViewer requires an update.</string>
     <string name="api_log_help_http_error">HTTP Error (%1$d): The server returned an unsuccessful status code. Check if the service is online.</string>
     <string name="api_log_help_unknown">Unknown Error: A client-side or network exception was caught. Check if your connection is stable.</string>
-
     <!-- AQI info screen -->
     <string name="aqi_info_title">Air Quality Index Guide</string>
     <string name="aqi_info_intro_title">Understanding Air Quality Index (AQI)</string>
@@ -410,7 +385,6 @@
     <string name="aqi_band_lightly_polluted">Lightly Polluted</string>
     <string name="aqi_band_heavily_polluted">Heavily Polluted</string>
     <string name="aqi_band_severely_polluted">Severely Polluted</string>
-
     <!-- Widget configuration -->
     <string name="widget_config_title">Customize Home Widget</string>
     <string name="widget_config_section_sensebox">CHOOSE SENSEBOX</string>
@@ -479,11 +453,10 @@
     <string name="action_apply_widget">Apply Widget</string>
     <string name="action_discard">Discard</string>
     <string name="action_got_it">Got it</string>
-    <string name="widget_status_loading_sensors">Loading sensors...</string>
+    <string name="widget_status_loading_sensors">Loading sensors…</string>
     <string name="widget_status_select_sensebox">Select a senseBox first!</string>
-    <string name="widget_status_provisioning">Provisioning Widget...</string>
+    <string name="widget_status_provisioning">Provisioning Widget…</string>
     <string name="widget_status_save_failed">Save failed: %1$s</string>
-
     <!-- Share QR dialog -->
     <string name="share_title">Share senseBox</string>
     <string name="share_deep_link_label">Deep link</string>
@@ -497,7 +470,6 @@
     <string name="share_qr_saved_success">QR saved to Pictures/BoxViewer</string>
     <string name="share_qr_save_requires_android_10">Save to gallery requires Android 10 or newer</string>
     <string name="share_qr_save_failed">Failed to save QR image</string>
-
     <!-- Errors / status -->
     <string name="error_invalid_stats_format">Invalid stats format returned by API.</string>
     <string name="error_failed_to_load_stats">Failed to load database stats: %1$s</string>
@@ -508,13 +480,11 @@
     <string name="error_failed_search_boxes">Failed to search boxes: %1$s</string>
     <string name="error_no_nearby_senseboxes">No nearby senseBoxes found within 500 km.</string>
     <string name="error_failed_find_nearby_boxes">Failed to find nearby boxes: %1$s</string>
-    <string name="error_no_senseboxes_near_location">No senseBoxes found within 500 km of "%1$s".</string>
     <string name="error_could_not_find_location">Could not find location "%1$s" on the map. Please try a different city name.</string>
     <string name="error_failed_search_location">Failed to search location: %1$s</string>
-    <string name="error_no_senseboxes_within_radius">No senseBoxes found within %1$s km of this location.</string>
-    <string name="error_failed_fetch_boxes_radius">Failed to fetch boxes for radius %1$s km: %2$s</string>
+    <string name="error_no_senseboxes_within_radius">No senseBoxes found within %1$d km of this location.</string>
+    <string name="error_failed_fetch_boxes_radius">Failed to fetch boxes for radius %1$d km: %2$s</string>
     <string name="error_failed_refresh">Failed to refresh: %1$s</string>
-
     <!-- Date/time formatting -->
     <string name="date_format_full">MMM d, yyyy - HH:mm</string>
     <string name="date_format_short">MMM d, HH:mm</string>
@@ -523,36 +493,23 @@
     <string name="last_updated_format">Last updated: %1$s</string>
     <string name="sync_time_never">Never</string>
     <string name="widget_updated_at">Updated %1$s</string>
-    <string name="widget_updated_none">Updated --:--</string>
+    <string name="widget_updated_none">Updated —:—</string>
     <string name="widget_no_active_sensor">No active sensor</string>
     <string name="selected_location">Selected Location</string>
     <string name="location_coordinates_label">Location (%1$s, %2$s)</string>
     <string name="location_lat_lon_label">Lat: %1$s, Lon: %2$s</string>
-
     <string name="exposure_outdoor">Outdoor</string>
     <string name="exposure_indoor">Indoor</string>
     <string name="exposure_all">All</string>
-
     <string name="cd_cancel">Cancel</string>
     <string name="cd_expand_dropdown">Expand dropdown</string>
     <string name="cd_low_brightness">Low Brightness</string>
     <string name="cd_high_brightness">High Brightness</string>
     <string name="cd_opaque">Opaque</string>
     <string name="cd_transparent">Transparent</string>
-
     <!-- About -->
-    <string name="about_title">About BoxViewer</string>
     <string name="about_version_label">Version %1$s</string>
-    <string name="about_developer_label">Made with care by nichu42</string>
     <string name="about_support_title">Support &amp; Feedback</string>
-    <string name="about_rate_us">Rate on GitHub</string>
-    <string name="about_report_bug">Report a bug</string>
-    <string name="about_request_feature">Request a feature</string>
-    <string name="about_legal_title">Legal</string>
-    <string name="about_privacy_policy">Privacy Policy</string>
-    <string name="about_terms_of_service">Terms of Service</string>
-    <string name="about_open_source_licenses">Open Source Licenses</string>
-    <string name="about_gpl_license">GNU General Public License</string>
     <string name="about_disclaimer_title">AFFILIATION DISCLAIMER</string>
     <string name="about_disclaimer_text">The BoxViewer app is an independent project and is not affiliated with, endorsed by, or connected to openSenseMap (openSenseLab gGmbH) or senseBox (Reedu GmbH &amp; Co. KG) in any way.</string>
     <string name="about_third_party_title">Third-Party Licenses</string>
@@ -569,7 +526,7 @@
     <string name="about_support_description">If you are happy with the app and would like to support the ongoing development, please consider donating:</string>
     <string name="about_link_kofi">Support on Ko-fi</string>
     <string name="about_link_liberapay">Donate via Liberapay</string>
-    <string name="about_copyright">Copyright (C) 2026 nichu42 and contributors</string>
+    <string name="about_copyright">Copyright © 2026 nichu42 and contributors</string>
     <string name="about_gpl_summary_1">This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</string>
     <string name="about_gpl_summary_2">This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</string>
     <string name="about_view_license">View Full License</string>
@@ -592,7 +549,6 @@
     <string name="about_link_opensensemap">Explore: opensensemap.org</string>
     <string name="about_link_sensebox">Build: sensebox.de</string>
     <string name="about_link_betterplace">Donate via Betterplace</string>
-
     <!-- Library categories -->
     <string name="library_category_core_ui">Core UI &amp; Architecture</string>
     <string name="library_category_networking">Networking &amp; Media</string>

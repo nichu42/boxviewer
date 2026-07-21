@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,6 +61,12 @@ fun WidgetConfigScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+
+    val loadingSensorsMsg = stringResource(R.string.widget_status_loading_sensors)
+    val gridWarningMsg = stringResource(R.string.widget_config_grid_warning)
+    val selectSenseboxMsg = stringResource(R.string.widget_status_select_sensebox)
+    val provisioningMsg = stringResource(R.string.widget_status_provisioning)
+    val saveFailedFormat = stringResource(R.string.widget_status_save_failed)
 
     val widgetBgColors = listOf(
         Color(0xFF0F172A), // Slate Dark
@@ -160,7 +167,7 @@ fun WidgetConfigScreen(
     LaunchedEffect(selectedBox) {
         val box = selectedBox ?: return@LaunchedEffect
         isLoading = true
-        statusMessage = context.getString(R.string.widget_status_loading_sensors)
+        statusMessage = loadingSensorsMsg
         try {
             // First fetch latest from api to be accurate
             try {
@@ -469,7 +476,7 @@ fun WidgetConfigScreen(
                                         selectedSensorIds = listOf(selectedSensorIds.first())
                                         Toast.makeText(
                                             context,
-                                            context.getString(R.string.widget_config_grid_warning),
+                                            gridWarningMsg,
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     } else if (selectedSensorIds.isEmpty() && availableSensors.isNotEmpty()) {
@@ -1134,8 +1141,9 @@ fun WidgetConfigScreen(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
+                                val locale = LocalLocale.current.platformLocale
                                 Text(
-                                    text = String.format(java.util.Locale.getDefault(), "%.0f%%", textScale * 100),
+                                    text = String.format(locale, "%.0f%%", textScale * 100),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
@@ -1736,12 +1744,12 @@ fun WidgetConfigScreen(
                             onClick = {
                                 val b = selectedBox
                                 if (b == null) {
-                                    statusMessage = context.getString(R.string.widget_status_select_sensebox)
+                                    statusMessage = selectSenseboxMsg
                                     return@Button
                                 }
                                 coroutineScope.launch {
                                     isLoading = true
-                                    statusMessage = context.getString(R.string.widget_status_provisioning)
+                                    statusMessage = provisioningMsg
                                     try {
                                         val entity = WidgetConfigEntity(
                                             widgetId = appWidgetId,
@@ -1771,7 +1779,7 @@ fun WidgetConfigScreen(
                                         onConfigSaved()
                                     } catch (e: Exception) {
                                         e.printStackTrace()
-                                        statusMessage = context.getString(R.string.widget_status_save_failed, e.message ?: "")
+                                        statusMessage = String.format(saveFailedFormat, e.message ?: "")
                                     } finally {
                                         isLoading = false
                                     }

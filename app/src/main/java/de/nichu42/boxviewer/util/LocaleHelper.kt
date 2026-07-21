@@ -4,9 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
 import androidx.core.os.LocaleListCompat
 import de.nichu42.boxviewer.R
-import java.util.Locale
 
 /**
  * Manages the app's per-app locale preference.
@@ -32,10 +32,7 @@ object LocaleHelper {
     data class SupportedLocale(
         val tag: String,
         val displayNameRes: Int
-    ) {
-        val isSystemDefault: Boolean
-            get() = tag == SYSTEM_DEFAULT
-    }
+    )
 
     /**
      * Reads the saved language tag from prefs and applies it.
@@ -55,9 +52,9 @@ object LocaleHelper {
      */
     fun setLanguage(context: Context, tag: String) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString(KEY_APP_LANGUAGE, tag)
-            .commit()
+            .edit(commit = true) {
+                putString(KEY_APP_LANGUAGE, tag)
+            }
         applyLocale(tag)
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
             context.findActivity()?.recreate()

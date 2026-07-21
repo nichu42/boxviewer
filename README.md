@@ -33,7 +33,7 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 *   **📈 Rich Telemetry Analysis**: Deep telemetry streams visualization including units, last updated timestamps, coordinates, station type, and exposure type (indoor vs. outdoor).
 *   **🔍 Smart Discovery Engine**: Locate public senseBoxes from the openSenseMap community using direct search by name/ID, location address auto-complete, or on-demand GPS discovery.
 *   **🌡️ Local Unit Conversion**: Per-sensor unit switching for temperature (°C/°F/K), pressure (hPa/mbar/Pa/inHg/mmHg), and wind (m/s/km/h/mph/kn) performed entirely on-device.
-*   **🌐 Multi-Language Support**: BoxViewer currently ships in English and German and is prepared for additional languages.
+*   **🌐 Multi-Language Support**: BoxViewer currently ships in English and German and is prepared for additional languages (see below)
 *   **🔗 Quick Sharing & Deep Linking**: Generate local QR codes to share senseBox stations. Recipients scan the code or open a sharing web link to view the station directly inside the BoxViewer app.
 *   **🔋 Battery & API-Friendly**: Seamless local SQLite caching (`SensorCacheEntity`) and awake-on-unlock widget refresh logic ensure you get fresh data without draining your battery or hammering openSenseMap servers.
 *   **🔒 Privacy-First & De-Googled Friendly**: 100% free of Google Play Services (GMS) dependencies in the app code. Core functionality relies on the native Android `LocationManager` and direct openSenseMap APIs. Address search and location labels may use the device’s native geocoder (ROM-dependent backend) or an OpenStreetMap-based fallback; see the Privacy Policy for details. Zero telemetry, analytics, or third-party trackers.
@@ -126,6 +126,16 @@ BoxViewer features a built-in Air Quality Index engine that supports six major i
 *   **InstantCast**: The live virtual sensor value displayed on the dashboard cards and home screen widgets represents the **InstantCast** (instantaneous concentration converted directly to the selected AQI standard).
 *   **NowCast**: When expanding a detailed sensor card, BoxViewer pulls up to 12 hours of historical readings and applies the official **NowCast** algorithm (a weighted rolling average designed by the EPA to smooth out short-term noise and spikes) to display a true 12-hour AQI NowCast banner.
 *   **Customization**: You can switch between the six AQI standards under the **AQI Standard** setting.
+
+---
+
+## 🌐 Translation & Localization
+
+Help make BoxViewer accessible to everyone! We collaboratively translate the app using **POEditor**. You can help translate the app, submit corrections, or suggest new languages on our POEditor project page:
+
+👉 **[Help Translate BoxViewer on POEditor](https://poeditor.com/join/project/3BO0G8m3BZ)**
+
+For more details on translating and how the sync workflow works, check our [CONTRIBUTING.md](./CONTRIBUTING.md#translations--localization).
 
 ---
 
