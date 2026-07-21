@@ -9,6 +9,7 @@
 </p>
 
 <p align="center">
+  <a href="https://play.google.com/store/apps/details?id=de.nichu42.boxviewer"><img src="https://img.shields.io/badge/Google%20Play-Open%20Testing-3DDC84?style=for-the-badge&logo=google-play&logoColor=white" alt="Google Play Open Testing" /></a>
   <a href="https://github.com/nichu42/boxviewer/releases"><img src="https://img.shields.io/badge/Download-Stable%20APK-success?style=for-the-badge&logo=android&logoColor=white" alt="Download Stable APK" /></a>
   <a href="https://obtainium.imranr.dev/"><img src="https://img.shields.io/badge/Obtainium-Compatible-purple?style=for-the-badge&logo=android&logoColor=white" alt="Obtainium Compatible" /></a>
 </p>
@@ -45,6 +46,9 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 ## ⬇️ Download & Install
 
 BoxViewer is distributed as an independent APK package and is compatible with Android 7.0 (API 24) and above.
+
+### 🧪 Google Play Open Testing
+*   **[Join Open Testing on Google Play](https://play.google.com/store/apps/details?id=de.nichu42.boxviewer)**: Open testing builds may receive new features and fixes earlier than stable GitHub release APKs.
 
 ### 🚀 Direct Download
 You can download stable APKs directly from GitHub — no account required:
