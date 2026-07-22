@@ -32,7 +32,8 @@ object LocaleHelper {
         SupportedLocale(tag = "hu", displayNameRes = R.string.language_hungarian),
         SupportedLocale(tag = "it", displayNameRes = R.string.language_italian),
         SupportedLocale(tag = "nl", displayNameRes = R.string.language_dutch),
-        SupportedLocale(tag = "pl", displayNameRes = R.string.language_polish)
+        SupportedLocale(tag = "pl", displayNameRes = R.string.language_polish),
+        SupportedLocale(tag = "es", displayNameRes = R.string.language_spanish)
     )
 
     data class SupportedLocale(

@@ -10,6 +10,7 @@
     <string name="language_italian">Italienisch</string>
     <string name="language_dutch">Niederländisch</string>
     <string name="language_polish">Polnisch</string>
+    <string name="language_spanish">Spanisch</string>
     <string name="dashboard_title">Meine senseBoxes</string>
     <string name="dashboard_empty_title">Noch keine senseBoxes hinzugefügt</string>
     <string name="dashboard_empty_description">Entdecke öffentliche senseBoxes und speichere sie als Lesezeichen, um dein Dashboard und deine Widgets auf dem Startbildschirm anzupassen.</string>

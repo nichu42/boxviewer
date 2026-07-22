@@ -10,6 +10,7 @@
     <string name="language_italian">Italian</string>
     <string name="language_dutch">Dutch</string>
     <string name="language_polish">Polish</string>
+    <string name="language_spanish">Spanish</string>
     <!-- Dashboard -->
     <string name="dashboard_title">My senseBoxes</string>
     <string name="dashboard_empty_title">No senseBoxes added yet</string>

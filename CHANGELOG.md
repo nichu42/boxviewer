@@ -11,9 +11,9 @@ All notable changes to the BoxViewer project will be documented in this file.
 
 ### Added
 - **Expanded System Diagnostics**: System Diagnostics copy action now includes active home screen widget counts, system locale, app preferences, database state, and saved crash stack traces.
-- **6 New Locales Supported**: Prepared language picker, resource infrastructure, and POEditor sync for Czech (`cs`), French (`fr`), Hungarian (`hu`), Italian (`it`), Dutch (`nl`), and Polish (`pl`).
+- **7 New Locales Supported**: Prepared language picker and resource infrastructure for Czech (`cs`), Spanish (`es`), French (`fr`), Hungarian (`hu`), Italian (`it`), Dutch (`nl`), and Polish (`pl`).
 
-## [0.50] - 2026-07-20
+## [0.50] - 2026-07-21
 
 ### Added
 - **Multi-Language Support**: Added full Android localization infrastructure with POEditor-managed translations. English is the source/fallback language; German is the first target language.
