@@ -1,6 +1,8 @@
-name: Build and Release APK
+name: Build and Release APK & AAB
 
 on:
+  release:
+    types: [published, prereleased]
   push:
     tags:
       - 'v*.*'
@@ -31,13 +33,13 @@ jobs:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
         run: echo "$KEYSTORE_B64" | base64 -d > my-upload-key.jks
 
-      - name: Build release APK
+      - name: Build release APK and AAB
         env:
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m" -Dorg.gradle.workers.max=2 --warning-mode all
+          ./gradlew assembleRelease bundleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m" -Dorg.gradle.workers.max=2 --warning-mode all
 
       - name: Extract version name
         id: version
@@ -56,9 +58,17 @@ jobs:
           path: BoxViewer-${{ steps.version.outputs.version }}.apk
 
       - name: Upload release APK to GitHub Releases
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v3
         with:
-          name: ${{ github.ref_name }}
           files: BoxViewer-${{ steps.version.outputs.version }}.apk
-          generate_release_notes: true
+
+      - name: Upload AAB to Google Play Open Testing
+        if: (github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v')) && secrets.GCP_SERVICE_ACCOUNT_KEY != ''
+        uses: r2da/google-play-publisher@v1
+        with:
+          service-account-json-raw: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          package-name: de.nichu42.boxviewer
+          aab-file: app/build/outputs/bundle/release/app-release.aab
+          track: beta
+          status: completed
