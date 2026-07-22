@@ -34,7 +34,7 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 *   **📈 Rich Telemetry Analysis**: Deep telemetry streams visualization including units, last updated timestamps, coordinates, station type, and exposure type (indoor vs. outdoor).
 *   **🔍 Smart Discovery Engine**: Locate public senseBoxes from the openSenseMap community using direct search by name/ID, location address auto-complete, or on-demand GPS discovery.
 *   **🌡️ Local Unit Conversion**: Per-sensor unit switching for temperature (°C/°F/K), pressure (hPa/mbar/Pa/inHg/mmHg), and wind (m/s/km/h/mph/kn) performed entirely on-device.
-*   **🌐 Multi-Language Support**: BoxViewer currently ships in English and German and is prepared for additional languages (see below)
+*   **🌐 Multi-Language Support**: BoxViewer supports 8 languages (English, German, Czech, Spanish, French, Hungarian, Italian, Dutch, Polish) with POEditor translation integration.
 *   **🔗 Quick Sharing & Deep Linking**: Generate local QR codes to share senseBox stations. Recipients scan the code or open a sharing web link to view the station directly inside the BoxViewer app.
 *   **🔋 Battery & API-Friendly**: Seamless local SQLite caching (`SensorCacheEntity`) and awake-on-unlock widget refresh logic ensure you get fresh data without draining your battery or hammering openSenseMap servers.
 *   **🔒 Privacy-First & De-Googled Friendly**: 100% free of Google Play Services (GMS) dependencies in the app code. Core functionality relies on the native Android `LocationManager` and direct openSenseMap APIs. Address search and location labels may use the device’s native geocoder (ROM-dependent backend) or an OpenStreetMap-based fallback; see the Privacy Policy for details. Zero telemetry, analytics, or third-party trackers.
@@ -45,21 +45,25 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 
 ## ⬇️ Download & Install
 
-BoxViewer is distributed as an independent APK package and is compatible with Android 7.0 (API 24) and above.
+BoxViewer is compatible with Android 7.0 (API 24) and above and is distributed via Google Play as well as direct APK downloads.
 
-### 🧪 Google Play Open Testing
-*   **[Join Open Testing on Google Play](https://play.google.com/store/apps/details?id=de.nichu42.boxviewer)**: Open testing builds may receive new features and fixes earlier than stable GitHub release APKs.
+### 🧪 Google Play (Open Beta)
+<a href="https://play.google.com/store/apps/details?id=de.nichu42.boxviewer">
+  <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="80" />
+</a>
 
-### 🚀 Direct Download
-You can download stable APKs directly from GitHub — no account required:
+*   Opt-in directly on Google Play to test the latest beta builds (no sign-up or approval required).
 
-*   **[Download Stable APKs](https://github.com/nichu42/boxviewer/releases)**: Recommended for most users. Contains vetted, officially tagged stable releases.
+### 🚀 Direct Download & GitHub Releases
+You can download APK packages directly from the **[GitHub Releases](https://github.com/nichu42/boxviewer/releases)** page:
+*   **Latest Releases**: Official stable releases, tested and recommended for general use.
+*   **Pre-Releases**: Early test builds (Open Beta) published in parallel with the Google Play Open Testing track for users who prefer to try the newest features immediately.
 
 ### 🔄 Automatic Updates with Obtainium
-To receive automatic updates on de-googled systems, we recommend using **[Obtainium](https://obtainium.imranr.dev/)**:
-1. Copy the GitHub repository link: `https://github.com/nichu42/boxviewer`
-2. Open Obtainium and select **Add App**.
-3. Paste the URL and click **Add** to start tracking releases.
+To receive automatic updates on de-googled ROMs or without Google Play Services, we recommend using **[Obtainium](https://obtainium.imranr.dev/)**:
+1. Copy the repository URL: `https://github.com/nichu42/boxviewer`
+2. Open Obtainium, tap **Add App**, and paste the URL.
+3. Obtainium will automatically track GitHub releases (including pre-releases if enabled).
 
 ---
 
@@ -71,24 +75,6 @@ BoxViewer is developed with love as an open-source project. If you are happy wit
   <a href="https://ko-fi.com/nichu42"><img src="https://img.shields.io/badge/Support_on_Ko--fi-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Support on Ko-fi" /></a>
   <a href="https://liberapay.com/nichu42"><img src="https://img.shields.io/badge/Donate_via_Liberapay-F6C915?style=for-the-badge&logo=liberapay&logoColor=black" alt="Donate via Liberapay" /></a>
 </p>
-
----
-
-<details>
-<summary>🛠️ <b>Technical Architecture & Tech Stack (For Developers)</b></summary>
-<br>
-
-BoxViewer adheres to the strict guidelines of modern Android architecture (MVVM / Clean Architecture style) enabling clean decoupling between database layers, networking models, and the UI.
-
-*   **UI Framework**: [Jetpack Compose](https://developer.android.com/jetcompose) (declarative UI with type-safe compose navigation).
-*   **Architecture**: `ViewModel` + `StateFlow` + structured asynchronous coroutine builders (`lifecycleScope`, `collectAsStateWithLifecycle`).
-*   **Local Persistence Layer**: [Room Database](https://developer.android.com/training/data-storage/room) using Kotlin Symbol Processing (KSP) compilation to persist configurations, widgets, and offline caches.
-*   **Networking Server-Client**: [Retrofit 3](https://square.github.io/retrofit/) coupled with [OkHttp 5](https://square.github.io/okhttp/) and [Moshi](https://github.com/square/moshi) to carry out efficient JSON processing of the openSenseMap API.
-*   **Asynchrony Core**: Kotlin [Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) & [Flow](https://kotlinlang.org/docs/flow.html).
-*   **QR Code Utilities**: [ZXing Core](https://github.com/zxing/zxing) barcode image processing library for local generation of station QR sharing codes.
-*   **Core Security Integration**: Secrets Gradle Plugin configured with safe `.env` runtime configurations to decouple keys and configurations from version-control processes.
-*   **Local Testing Ecosystem**: Fully integrated [Robolectric](https://robolectric.org/) testing suites running on high-speed headless JVM surfaces combined with [Roborazzi](https://github.com/takahirom/roborazzi) for visual screenshot regression testing.
-</details>
 
 ---
 
@@ -140,6 +126,24 @@ Help make BoxViewer accessible to everyone! We collaboratively translate the app
 👉 **[Help Translate BoxViewer on POEditor](https://poeditor.com/join/project/3BO0G8m3BZ)**
 
 For more details on translating and how the sync workflow works, check our [CONTRIBUTING.md](./CONTRIBUTING.md#translations--localization).
+
+---
+
+<details>
+<summary>🛠️ <b>Technical Architecture & Tech Stack (For Developers)</b></summary>
+<br>
+
+BoxViewer adheres to modern Android architecture guidelines (MVVM / Clean Architecture) with clean decoupling between database, networking, and presentation layers.
+
+*   **UI Framework**: [Jetpack Compose](https://developer.android.com/jetcompose) (declarative UI with type-safe Compose Navigation).
+*   **Architecture**: `ViewModel` + `StateFlow` + structured asynchronous coroutines (`lifecycleScope`, `collectAsStateWithLifecycle`).
+*   **Local Persistence Layer**: [Room Database](https://developer.android.com/training/data-storage/room) compiled with KSP to manage configurations, widgets, and offline caches.
+*   **Networking**: [Retrofit 3](https://square.github.io/retrofit/) with [OkHttp 5](https://square.github.io/okhttp/) and [Moshi](https://github.com/square/moshi) for JSON parsing of the openSenseMap API.
+*   **Asynchrony**: Kotlin [Coroutines](https://kotlinlang.org/docs/coroutines-overview.html) & [Flow](https://kotlinlang.org/docs/flow.html).
+*   **QR Code Generation**: [ZXing Core](https://github.com/zxing/zxing) library for local station QR code generation.
+*   **Configuration & Secrets**: Secrets Gradle Plugin using `.env` runtime configurations to decouple build configuration.
+*   **Testing Suite**: [Robolectric](https://robolectric.org/) JVM testing combined with [Roborazzi](https://github.com/takahirom/roborazzi) for visual screenshot regression testing.
+</details>
 
 ---
 
