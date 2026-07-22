@@ -1,3 +1,629 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">"BoxViewer"</string>
+
+    <!-- Language picker labels -->
+    <string name="language_system_default">"Domyślny systemowy"</string>
+    <string name="language_english">"Angielski"</string>
+    <string name="language_german">"Niemiecki"</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">"Moje senseBox"</string>
+    <string name="dashboard_empty_title">"Nie dodano jeszcze żadnych senseBox"</string>
+    <string name="dashboard_empty_description">"Odkryj publiczne senseBox i zapisz je jako zakładki, aby dostosować pulpit i widżety na ekranie głównym."</string>
+    <string name="dashboard_empty_button">"Dodaj senseBox"</string>
+    <string name="dashboard_info_title">"Czym jest openSenseMap?"</string>
+    <string name="dashboard_info_description_1">"openSenseMap to ogólnoświatowa platforma otwartych danych, na której tysiące ludzi dzielą się danymi środowiskowymi ze swoich własnych stacji pogodowych (senseBox)."</string>
+    <string name="dashboard_info_description_2">"BoxViewer pozwala Ci przeglądać te stacje społecznościowe, zapisywać je na osobistym pulpice, a nawet dodawać jako widżety na ekranie głównym, aby monitorować je w czasie rzeczywistym bez otwierania aplikacji."</string>
+    <string name="dashboard_reorder_hint">"Naciśnij i przeciągnij uchwyt pola, aby zmienić kolejność. Stuknij przycisk zakładki, aby usunąć pole. Stuknij przycisk zaznaczenia, aby zapisać."</string>
+    <string name="dashboard_select_all_metrics">"Wybierz wszystkie metryki"</string>
+    <string name="dashboard_deselect_all_metrics">"Odznacz wszystkie metryki"</string>
+    <string name="dashboard_selected_metrics_header">"WYBRANE METRYKI (PRZECIĄGNIJ, ABY POSORTOWAĆ)"</string>
+    <string name="dashboard_available_sensors_header">"DOSTĘPNE SENSORY (WYBIERZ, ABY DODAĆ)"</string>
+    <string name="dashboard_no_metrics_selected">"Nie wybrano żadnych metryk do wyświetlenia."</string>
+    <string name="dashboard_no_metrics_available">"Brak skonfigurowanych lub dostępnych metryk. Stuknij ikonę koła zębatego, aby wybrać metryki do wyświetlenia."</string>
+    <string name="dashboard_current_value_format">"Aktualnie: %1$s %2$s"</string>
+    <string name="dashboard_done">"Gotowe"</string>
+    <string name="dashboard_exposure_outdoor">"zewnętrzny"</string>
+
+    <!-- Add Box -->
+    <string name="add_box_title">"Dodaj senseBox"</string>
+    <string name="add_box_fetching">"Ładowanie senseBox…"</string>
+    <string name="add_box_already_saved">"Już w Twoich senseBox"</string>
+
+    <!-- Main / Navigation -->
+    <string name="nav_dashboard">"Pulpit"</string>
+    <string name="nav_home">"Strona główna"</string>
+    <string name="nav_discover">"Odkryj"</string>
+    <string name="nav_settings">"Ustawienia"</string>
+    <string name="nav_about">"O aplikacji"</string>
+
+    <!-- Database version dialogs -->
+    <string name="db_version_mismatch_title">"Niezgodna wersja bazy danych"</string>
+    <string name="db_version_mismatch_message">"Baza danych aplikacji została zaktualizowana do nowszej wersji. Twoja obecna wersja aplikacji jest zbyt stara, aby ją odczytać. Aby zapewnić stabilność, możesz zacząć od nowa (co spowoduje usunięcie Twoich zakładek i ustawień widżetów) lub zamknąć aplikację i otworzyć stronę projektu, aby zainstalować aktualizację."</string>
+    <string name="db_version_mismatch_start_over">"Zacznij od nowa"</string>
+    <string name="db_version_mismatch_install_update">"Zainstaluj aktualizację"</string>
+    <string name="db_updated_title">"Baza danych zaktualizowana"</string>
+    <string name="db_updated_message">"Baza danych aplikacji została zaktualizowana do nowszej wersji. Aby zapewnić stabilność i zgodność, niektóre konfiguracje zostały zresetowane. Skonfiguruj ponownie swoje ulubione i widżety."</string>
+
+    <!-- Errors -->
+    <string name="error_invalid_sensebox_link">"Nieprawidłowy link senseBox"</string>
+
+    <!-- Settings -->
+    <string name="settings_title">"Ustawienia"</string>
+
+    <!-- Settings -->
+    <string name="settings_section_app_settings">"USTAWIENIA APLIKACJI"</string>
+    <string name="settings_app_theme_label">"Wygląd aplikacji"</string>
+    <string name="settings_app_theme_description">"Wybierz jasny, ciemny lub domyślny dla systemu styl wizualny."</string>
+    <string name="settings_theme_system">"Systemowy"</string>
+    <string name="settings_theme_light">"Jasny"</string>
+    <string name="settings_theme_dark">"Ciemny"</string>
+    <string name="settings_conditional_formatting_label">"Formatowanie warunkowe"</string>
+    <string name="settings_conditional_formatting_description">"Koloruj wartości sensorów na podstawie ich bieżącego odczytu."</string>
+    <string name="settings_language_label">"Język"</string>
+    <string name="settings_language_description">"Wybierz język interfejsu aplikacji."</string>
+    <string name="settings_aqi_standard_label">"Standard AQI"</string>
+    <string name="settings_aqi_standard_description">"Wybierz sposób obliczania indeksu jakości powietrza dla sensorów AQI."</string>
+    <string name="settings_temperature_unit_label">"Jednostka temperatury"</string>
+    <string name="settings_temperature_unit_description">"Wybierz skalę wyświetlania dla wszystkich sensorów temperatury."</string>
+    <string name="settings_pressure_unit_label">"Jednostka ciśnienia atmosferycznego"</string>
+    <string name="settings_pressure_unit_description">"Wybierz skalę wyświetlania dla wszystkich sensorów ciśnienia atmosferycznego."</string>
+    <string name="settings_format_pressure_label">"Formatuj ciśnienie atmosferyczne"</string>
+    <string name="settings_format_pressure_description">"Formatuj wartości ciśnienia z separatorem tysięcy (np. 1.013,25 hPa zamiast 1013,25 hPa)."</string>
+    <string name="settings_wind_unit_label">"Jednostka prędkości wiatru"</string>
+    <string name="settings_wind_unit_description">"Wybierz skalę wyświetlania dla wszystkich sensorów prędkości wiatru."</string>
+
+    <!-- Unit symbols (kept consistent across locales) -->
+    <string name="unit_celsius" translatable="false">"°C"</string>
+    <string name="unit_fahrenheit" translatable="false">"°F"</string>
+    <string name="unit_kelvin" translatable="false">"K"</string>
+    <string name="unit_hpa" translatable="false">"hPa"</string>
+    <string name="unit_pa" translatable="false">"Pa"</string>
+    <string name="unit_mbar" translatable="false">"mbar"</string>
+    <string name="unit_inhg" translatable="false">"inHg"</string>
+    <string name="unit_mmhg" translatable="false">"mmHg"</string>
+    <string name="unit_ms" translatable="false">"m/s"</string>
+    <string name="unit_kmh" translatable="false">"km/h"</string>
+    <string name="unit_mph" translatable="false">"mph"</string>
+    <string name="unit_kn" translatable="false">"kn"</string>
+
+    <!-- Settings: Diagnostics -->
+    <string name="settings_section_diagnostics">"DIAGNOSTYKA I RAPORTY O BŁĘDACH"</string>
+    <string name="settings_crash_detected_title">"Wykryto ostatnią awarię aplikacji lokalnie."</string>
+    <string name="settings_copy_crash_log">"Kopiuj dziennik awarii"</string>
+    <string name="settings_clear_log">"Wyczyść dziennik"</string>
+    <string name="settings_no_crashes">"Nie wykryto awarii. Aplikacja działa płynnie! Jeśli napotkasz błędy, możesz skopiować standardowe informacje systemowe, aby pomóc nam zdiagnozować problem."</string>
+    <string name="settings_copy_system_diagnostics">"Kopiuj informacje diagnostyczne systemu"</string>
+    <string name="settings_crash_report_copied">"Skopiowano raport o awarii do schowka!"</string>
+    <string name="settings_crash_log_cleared">"Wyczyszczono dziennik awarii"</string>
+    <string name="settings_diagnostics_copied">"Skopiowano diagnozę do schowka!"</string>
+    <string name="settings_copy_diagnostics_cd">"Kopiuj diagnozę"</string>
+
+    <!-- Settings: API Logging -->
+    <string name="settings_section_api_logging">"REJESTROWANIE DEBUGOWANIA API"</string>
+    <string name="settings_api_logging_description">"Rejestruje surowe żądania sieciowe JSON, odpowiedzi i wewnętrzne metryki analizy. Logi są zapisywane lokalnie w formacie JSON Lines i można je udostępniać w celu diagnozowania problemów."</string>
+    <string name="settings_enable_api_logging">"Włącz logowanie API"</string>
+    <string name="settings_current_size_format">"Aktualny rozmiar: %1$s"</string>
+    <string name="settings_api_logging_enabled">"Logowanie API włączone"</string>
+    <string name="settings_api_logging_disabled">"Logowanie API wyłączone"</string>
+    <string name="settings_max_log_entries">"Maksymalna liczba wpisów logu"</string>
+    <string name="settings_view_api_logs">"Wyświetl logi API"</string>
+    <string name="settings_copy_logs">"Kopiuj logi"</string>
+    <string name="settings_share_logs">"Udostępnij logi"</string>
+    <string name="settings_clear_api_logs">"Wyczyść logi API"</string>
+    <string name="settings_log_empty">"Log jest pusty!"</string>
+    <string name="settings_logs_copied">"Skopiowano logi do schowka!"</string>
+    <string name="settings_share_api_logs_title">"Udostępnij logi API"</string>
+    <string name="settings_error_sharing_logs">"Błąd podczas udostępniania logów"</string>
+    <string name="settings_logs_cleared">"Wyczyszczono logi"</string>
+
+    <!-- File size units -->
+    <string name="file_size_bytes">"%1$d B"</string>
+    <string name="file_size_kilobytes">"%1$.1f KB"</string>
+    <string name="file_size_megabytes">"%1$.1f MB"</string>
+
+    <!-- Discovery -->
+    <string name="discovery_title">"Odkryj senseBoxy"</string>
+    <string name="discovery_search_mode_location">"Miasto / Miejscowość"</string>
+    <string name="discovery_search_mode_box_id">"Nazwa / ID senseBox"</string>
+    <string name="discovery_placeholder_city">"Wprowadź miasto"</string>
+    <string name="discovery_placeholder_box_id">"Szukaj według nazwy / ID senseBox"</string>
+    <string name="discovery_locating">"Określanie lokalizacji…"</string>
+    <string name="discovery_no_barcode_scanner">"Nie znaleziono aplikacji do skanowania kodów kreskowych. Zainstaluj jedną (np. Binary Eye lub Barcode Scanner)."</string>
+    <string name="discovery_unknown_location">"Nieznana lokalizacja"</string>
+    <string name="discovery_search_filters">"Filtr wyszukiwania"</string>
+    <string name="discovery_exposure_label">"Typ lokalizacji"</string>
+    <string name="discovery_exposure_outdoor">"Zewnętrzna"</string>
+    <string name="discovery_exposure_indoor">"Wewnętrzna"</string>
+    <string name="discovery_exposure_all">"Wszystkie"</string>
+    <string name="discovery_last_updated_limit">"Okres aktualizacji"</string>
+    <string name="discovery_last_updated_15m">"Ostatnie 15 minut"</string>
+    <string name="discovery_last_updated_30m">"Ostatnie 30 minut"</string>
+    <string name="discovery_last_updated_1h">"Ostatnia godzina"</string>
+    <string name="discovery_last_updated_hours">"Ostatnie %1$d godzin"</string>
+    <string name="discovery_last_updated_24h">"Ostatnie 24 godziny (1 dzień)"</string>
+    <string name="discovery_last_updated_all_time">"Cały okres"</string>
+    <string name="discovery_radius_label">"Promień wyszukiwania"</string>
+    <string name="discovery_radius_format">"%1$d km"</string>
+    <string name="discovery_results_filtered_out">"Wyniki przefiltrowane"</string>
+    <string name="discovery_no_senseboxes_found">"Nie znaleziono senseBoxów"</string>
+    <string name="discovery_no_results_location_hint">"Spróbuj wyszukać inny obszar powyżej, wyszukaj według współrzędnych lub użyj przycisku GPS, aby znaleźć stacje."</string>
+    <string name="discovery_no_results_box_hint">"Sprawdź pisownię nazwy lub zweryfikuj 24-znakowe szesnastkowe ID senseBox."</string>
+    <string name="discovery_button_discover">"Odkryj senseBoxy"</string>
+    <string name="discovery_button_find_box">"Znajdź nazwę / ID senseBox"</string>
+    <string name="discovery_empty_box_hint">"Wprowadź nazwę senseBox lub 24-znakowe ID senseBox. Pamiętaj, aby zapisać stacje, które chcesz zachować, jako zakładki!"</string>
+    <string name="discovery_found_count">"ZNALEZIONE SENSEBOXY: %1$d"</string>
+    <string name="discovery_search_radius_format">"Promień wyszukiwania: %1$d km"</string>
+    <string name="discovery_save_hint">"Stuknij ikonę zakładki, aby zapisać stację na swojej liście."</string>
+    <string name="discovery_show_more_format">"Pokaż więcej (pozostało %1$d)"</string>
+    <string name="discovery_distance_format">"(%1$.1f km stąd)"</string>
+    <string name="discovery_coords_format">"Współrzędne: %1$s, %2$s"</string>
+    <string name="discovery_some_metrics_outdated">"Niektóre pomiary są przestarzałe"</string>
+    <string name="discovery_sensors_format">"Czujniki: %1$s"</string>
+    <string name="discovery_error_location">"Nie udało się określić bieżącej lokalizacji. Wyszukaj ręcznie za pomocą paska wyszukiwania."</string>
+    <string name="discovery_empty_location_hint">"Wyszukaj miasto lub kliknij ikonę GPS powyżej, aby znaleźć stacje pogodowe w pobliżu. Zapisz ulubione jako zakładki, aby zabezpieczyć je w swoim pulpicie."</string>
+    <string name="discovery_results_filtered_message">"Znaleźliśmy %1$d senseBoxów, ale zostały one odfiltrowane przez obecne filtry wyszukiwania. Spróbuj zmienić 'Ostatnia aktualizacja' na 'Cały okres' lub 'Typ lokalizacji' na 'Wszystkie'."</string>
+    <string name="discovery_15m_short">"15 m"</string>
+    <string name="discovery_2km_short">"2 km"</string>
+    <string name="discovery_250km_short">"250 km"</string>
+    <string name="discovery_permission_rationale">"Uprawnienie do lokalizacji jest wymagane do odkrywania senseBoxów w pobliżu. Przyznaj uprawnienie w ustawieniach aplikacji."</string>
+    <string name="discovery_grant_permission">"Przyznaj uprawnienie do lokalizacji"</string>
+    <string name="discovery_no_address">"Nie znaleziono adresu dla bieżącej lokalizacji."</string>
+    <string name="discovery_location_unavailable">"Lokalizacja niedostępna."</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_search">"Szukaj"</string>
+    <string name="cd_run_search">"Rozpocznij wyszukiwanie"</string>
+    <string name="cd_clear">"Wyczyść"</string>
+    <string name="cd_use_gps">"Użyj lokalizacji GPS"</string>
+    <string name="cd_scan_qr">"Skanuj kod QR"</string>
+    <string name="cd_filters">"Filtry"</string>
+    <string name="cd_expand">"Rozwiń"</string>
+    <string name="cd_collapse">"Zwinić"</string>
+    <string name="cd_search_off">"Wybierz"</string>
+    <string name="cd_discover">"Odkryj"</string>
+    <string name="cd_show_more">"Pokaż więcej"</string>
+    <string name="cd_updated_time">"Czas aktualizacji"</string>
+    <string name="cd_some_metrics_outdated">"Niektóre pomiary są przestarzałe"</string>
+    <string name="cd_save_bookmark">"Zapisz zakładkę"</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_info">"Informacje"</string>
+    <string name="cd_view_api_logs">"Pokaż dzienniki API"</string>
+    <string name="cd_crash_detected_warning">"Wykryto ostrzeżenie o awarii"</string>
+    <string name="dashboard_exposure_indoor">"wewnątrz"</string>
+
+    <!-- Widget layout placeholder strings (replaced at runtime by RemoteViews) -->
+    <string name="widget_default_box_name" translatable="false">"senseBox"</string>
+    <string name="widget_updated_just_now">"Właśnie zaktualizowano"</string>
+    <string name="widget_refresh">"Aktualizuj widżet"</string>
+    <string name="widget_configure">"Skonfiguruj widżet"</string>
+    <string name="widget_sensor_type">"Typ sensora"</string>
+    <string name="widget_sensor_category_icon">"Ikona kategorii sensora"</string>
+    <string name="widget_select_sensor">"Wybierz sensor"</string>
+    <string name="widget_no_value" translatable="false">"--"</string>
+
+    <!-- Default placeholder sensor titles (German, matching openSenseMap conventions) -->
+    <string name="widget_placeholder_temperature" translatable="false">"Temperatur"</string>
+    <string name="widget_placeholder_humidity" translatable="false">"Feuchte"</string>
+    <string name="widget_placeholder_illumination" translatable="false">"Beleuchtung"</string>
+    <string name="widget_placeholder_pressure" translatable="false">"Druck"</string>
+    <string name="widget_placeholder_pm25" translatable="false">"PM2.5"</string>
+    <string name="widget_placeholder_pm10" translatable="false">"PM10"</string>
+    <string name="widget_name_small">"senseBox Info (Mały 2x1)"</string>
+    <string name="widget_name_medium">"senseBox Info (Średni 3x2)"</string>
+    <string name="widget_name_large">"senseBox Info (Duży 4x3)"</string>
+
+    <!-- Common actions -->
+    <string name="action_cancel">"Anuluj"</string>
+    <string name="action_retry">"Powtórz"</string>
+    <string name="action_close">"Zamknij"</string>
+    <string name="action_view_details">"Pokaż szczegóły"</string>
+    <string name="action_add_to_dashboard">"Dodaj do pulpitu"</string>
+    <string name="action_ok">"OK"</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_save_order">"Zapisz kolejność"</string>
+    <string name="cd_reorder_boxes">"Zmień kolejność senseBoxów"</string>
+    <string name="cd_refresh_all">"Zaktualizuj wszystkie"</string>
+    <string name="cd_dismiss_error">"Zamknij błąd"</string>
+    <string name="cd_no_saved_boxes">"Brak zapisanych senseBoxów"</string>
+    <string name="cd_configure_metrics">"Skonfiguruj wyświetlane pomiary"</string>
+    <string name="cd_location">"Lokalizacja"</string>
+    <string name="cd_data_updated">"Dane zaktualizowane"</string>
+    <string name="cd_remove_bookmark">"Usuń zakładkę"</string>
+    <string name="cd_drag_handle_reorder">"Przeciągnij uchwyt, aby zmienić kolejność senseBoxów"</string>
+    <string name="cd_drag_to_reorder">"Przeciągnij, aby zmienić kolejność"</string>
+    <string name="cd_back">"Wstecz"</string>
+    <string name="cd_sync_box">"Synchronizuj box"</string>
+    <string name="cd_share">"Udostępnij"</string>
+    <string name="cd_bookmark_toggle">"Przełącznik zakładek"</string>
+    <string name="cd_last_updated">"Ostatnia aktualizacja"</string>
+    <string name="cd_app_synced">"Aplikacja zsynchronizowana"</string>
+    <string name="cd_map_location">"Lokalizacja na mapie"</string>
+    <string name="cd_aqi_info">"Informacje o AQI"</string>
+    <string name="cd_selected">"Wybrano"</string>
+    <string name="cd_app_logo">"Logo aplikacji BoxViewer"</string>
+    <string name="cd_attention_warning">"Uwaga ostrzeżenie"</string>
+    <string name="cd_build">"Wersja"</string>
+    <string name="cd_donate">"Darowizny"</string>
+    <string name="cd_github_project">"Projekt GitHub"</string>
+    <string name="cd_gpl_logo">"Logo GPL v3"</string>
+    <string name="cd_kofi">"Ko-fi"</string>
+    <string name="cd_liberapay">"Liberapay"</string>
+    <string name="cd_license">"Licencja"</string>
+    <string name="cd_open_homepage">"Otwórz stronę główną"</string>
+    <string name="cd_third_party_licenses">"Licencje firm trzecich"</string>
+    <string name="cd_website">"Strona internetowa"</string>
+
+    <!-- Box detail screen -->
+    <string name="box_detail_title">"Szczegóły senseBox"</string>
+    <string name="box_detail_synced_prefix">"Zsynchronizowano: %1$s"</string>
+    <string name="box_detail_group">"Grupa: %1$s"</string>
+    <string name="box_detail_add_to_dashboard_title">"Dodaj do pulpitu"</string>
+    <string name="box_detail_add_to_dashboard_hint">"Dodaj tę stację do zakładek, aby zapisać ją na pulpicie i wyświetlać w widżetach na ekranie głównym."</string>
+    <string name="box_detail_location_section_title">"LOKALIZACJA URZĄDZENIA I LINK"</string>
+    <string name="box_detail_latitude">"Szerokość geograficzna: %1$s"</string>
+    <string name="box_detail_longitude">"Długość geograficzna: %1$s"</string>
+    <string name="box_detail_open_opensensemap">"OpenSenseMap"</string>
+    <string name="box_detail_view_map">"Pokaż mapę"</string>
+    <string name="box_detail_active_sensors_format">"AKTYWNE CZUJNIKI (%1$d)"</string>
+    <string name="box_detail_no_sensor_config">"Brak dostępnych danych konfiguracji czujnika."</string>
+    <string name="box_detail_widget_title">"Widżety ekranu głównego"</string>
+    <string name="box_detail_widget_hint">"Aby monitorować tę stację na ekranie głównym, przejdź do ekranu głównego, przytrzymaj puste miejsce, wybierz \"Widżety\" i poszukaj BoxViewer. Następnie możesz wybrać ten senseBox w konfiguracji widżetu."</string>
+    <string name="box_detail_no_box_selected">"Nie wybrano senseBoxa"</string>
+
+    <!-- Sensor cards -->
+    <string name="sensor_locally_computed">"Obliczono lokalnie"</string>
+    <string name="sensor_hardware_format">"Sprzęt: %1$s"</string>
+    <string name="sensor_generic">"Czujnik ogólny"</string>
+    <string name="sensor_updated_prefix">"Zaktualizowano: %1$s"</string>
+    <string name="sensor_history_fetching">"POBIERANIE TRENDU HISTORYCZNYCH POMIARÓW…"</string>
+    <string name="sensor_history_fallback">"TREND HISTORYCZNYCH POMIARÓW (DANE ZAPASOWE)"</string>
+    <string name="sensor_history_title">"TREND HISTORYCZNYCH POMIARÓW"</string>
+    <string name="sensor_aqi_nowcast">"AQI NowCast"</string>
+    <string name="sensor_aqi_nowcast_subtitle">"12-godzinna średnia ważona · %1$s"</string>
+    <string name="sensor_last_measurement_recorded">"Ostatnio zarejestrowany pomiar:"</string>
+    <string name="sensor_no_data_points">"Nie zarejestrowano żadnych numerycznych punktów danych."</string>
+
+    <!-- Chart -->
+    <string name="chart_oldest">"Najstarsze"</string>
+    <string name="chart_latest">"Najnowsze"</string>
+    <string name="chart_measurements_count">"%1$d pomiarów"</string>
+
+    <!-- Time formatting -->
+    <string name="time_unknown">"Nieznane"</string>
+    <string name="time_never_updated">"Jeszcze nigdy nie zaktualizowano"</string>
+    <string name="time_just_now">"Przed chwilą"</string>
+    <string name="time_minutes_ago">"%1$d min temu"</string>
+    <string name="time_hours_ago">"%1$d godz. temu"</string>
+    <string name="time_days_ago">"%1$d dni temu"</string>
+
+    <!-- API log viewer -->
+    <string name="api_log_title">"Dzienniki debugowania API"</string>
+    <string name="cd_refresh_logs">"Aktualizuj dzienniki"</string>
+    <string name="cd_clear_logs">"Wyczyść dzienniki"</string>
+    <string name="api_log_logs_cleared">"Wyczyszczono dzienniki"</string>
+    <string name="api_log_empty">"Brak zarejestrowanych dzienników.
+Włącz rejestrowanie API w ustawieniach."</string>
+    <string name="api_log_no_matches">"Nie znaleziono pasujących dzienników."</string>
+    <string name="api_log_url_copied">"Skopiowano adres URL"</string>
+    <string name="api_log_response_copied">"Skopiowano odpowiedź JSON"</string>
+    <string name="api_log_entry_copied">"Skopiowano wpis dziennika"</string>
+    <string name="cd_diagnostics">"Diagnostyka"</string>
+    <string name="api_log_diagnostics_title">"Informacje diagnostyczne systemu"</string>
+    <string name="api_log_label_app_version">"Wersja aplikacji"</string>
+    <string name="api_log_label_device_info">"Informacje o urządzeniu"</string>
+    <string name="api_log_label_android_sdk">"Android SDK"</string>
+    <string name="api_log_label_start_timestamp">"Znacznik czasu uruchomienia"</string>
+    <string name="cd_stats">"Statystyki"</string>
+    <string name="api_log_stats_title">"Statystyki wydajności API"</string>
+    <string name="api_log_metric_requests">"Żądania"</string>
+    <string name="api_log_metric_success_rate">"Wskaźnik sukcesu"</string>
+    <string name="api_log_metric_avg_latency">"Średnie opóźnienie"</string>
+    <string name="api_log_metric_failed">"Nie powiodło się"</string>
+    <string name="api_log_status_distribution">"Rozkład statusów"</string>
+    <string name="api_log_legend_success">"Sukces (%1$d)"</string>
+    <string name="api_log_legend_client_error">"Błąd klienta (%1$d)"</string>
+    <string name="api_log_legend_server_error">"Błąd serwera (%1$d)"</string>
+    <string name="api_log_legend_failed">"Nie powiodło się (%1$d)"</string>
+    <string name="api_log_top_endpoints">"Najczęstsze punkty końcowe"</string>
+    <string name="api_log_count_format">"%1$dx"</string>
+    <string name="api_log_latency_format">"%1$dms"</string>
+    <string name="filter_all">"Wszystkie"</string>
+    <string name="api_log_filter_success">"Sukces (2xx)"</string>
+    <string name="api_log_filter_client_error">"Błąd klienta (4xx)"</string>
+    <string name="api_log_filter_server_error">"Błąd serwera (5xx)"</string>
+    <string name="api_log_filter_failed">"Nie powiodło się / Wyjątki"</string>
+    <string name="api_log_search_placeholder">"Przeszukaj dzienniki (URL, JSON, kod...)"</string>
+    <string name="cd_clear_search">"Wyczyść wyszukiwanie"</string>
+    <string name="api_log_status_filter_label">"Status: %1$s"</string>
+    <string name="api_log_request_details">"Szczegóły żądania"</string>
+    <string name="api_log_status_format">"Status %1$d"</string>
+    <string name="api_log_network_error">"Błąd sieci"</string>
+    <string name="api_log_label_request_url">"Adres URL żądania"</string>
+    <string name="api_log_label_timestamp">"Znacznik czasu"</string>
+    <string name="api_log_label_app_state">"Stan aplikacji"</string>
+    <string name="api_log_label_network_exception">"Wyjątek sieciowy / klienta"</string>
+    <string name="cd_help">"Pomoc"</string>
+    <string name="api_log_troubleshooting_title">"Sugestia rozwiązywania problemów"</string>
+    <string name="api_log_label_parsing_result">"Wynik parsowania Moshi / Metryki"</string>
+    <string name="api_log_response_body_payload">"Payload odpowiedzi"</string>
+    <string name="api_log_copy_url">"Kopiuj adres URL"</string>
+    <string name="api_log_copy_json">"Kopiuj JSON"</string>
+    <string name="api_log_copy_entire_log">"Kopiuj cały dziennik"</string>
+    <string name="api_log_help_404">"Nie znaleziono (404): Żądany identyfikator senseBox lub zasób nie istnieje w openSenseMap. Jeśli to widget, sprawdź identyfikator box w ustawieniach konfiguracji widgetu."</string>
+    <string name="api_log_help_429">"Przekroczono limit żądań (429): Aplikacja wysłała zbyt wiele zapytań. Odczekaj chwilę przed ponownym pobraniem danych. Ograniczenie jest aktywne, aby oszczędzać baterię i przestrzegać limitów API."</string>
+    <string name="api_log_help_5xx">"Błąd serwera (%1$d): Serwer openSenseMap ma problemy. Możesz sprawdzić status serwera, odwiedzając stronę opensensemap.org w przeglądarce."</string>
+    <string name="api_log_help_offline">"Sieć offline: Aplikacja nie może rozpoznać nazwy serwera. Upewnij się, że Twój telefon ma połączenie z internetem oraz że Twój VPN lub zapora sieciowa nie blokują aplikacji BoxViewer."</string>
+    <string name="api_log_help_timeout">"Przekroczono czas oczekiwania na połączenie: Połączenie trwało zbyt długo. Dzieje się tak przy słabym połączeniu mobilnym lub gdy serwery openSenseMap są przeciążone."</string>
+    <string name="api_log_help_refused">"Odrzucono połączenie: Nie udało się połączyć z serwerem openSenseMap. Serwer może być niedostępny z powodu prac konserwacyjnych."</string>
+    <string name="api_log_help_parsing">"Błąd analizy danych: Aplikacja nie mogła odczytać odpowiedzi JSON. Zazwyczaj oznacza to, że struktura API openSenseMap uległa zmianie i BoxViewer wymaga aktualizacji."</string>
+    <string name="api_log_help_http_error">"Błąd HTTP (%1$d): Serwer zwrócił nieprawidłowy kod statusu. Sprawdź, czy usługa jest online."</string>
+    <string name="api_log_help_unknown">"Nieznany błąd: Wystąpił wyjątek po stronie klienta lub sieci. Sprawdź, czy Twoje połączenie jest stabilne."</string>
+
+    <!-- AQI info screen -->
+    <string name="aqi_info_title">"Przewodnik po indeksie jakości powietrza"</string>
+    <string name="aqi_info_intro_title">"Zrozumienie indeksu jakości powietrza (AQI)"</string>
+    <string name="aqi_info_intro_description">"Indeks jakości powietrza to standaryzowany system służący do informowania o codziennej jakości powietrza i powiązania jej z zagrożeniami dla zdrowia publicznego. BoxViewer tworzy lokalny 'wirtualny' czujnik AQI, gdy stacja publikuje wartości pyłu zawieszonego PM2.5 lub PM10."</string>
+    <string name="aqi_info_cast_title">"InstantCast a NowCast"</string>
+    <string name="aqi_info_instantcast_title">"InstantCast (dane na żywo)"</string>
+    <string name="aqi_info_instantcast_description">"Przetwarza najnowszy pojedynczy pomiar bezpośrednio przy użyciu standardowych wartości granicznych. Używany na głównym pulpicie i w widżetach w celu uzyskania czasu reakcji w czasie rzeczywistym."</string>
+    <string name="aqi_info_nowcast_title">"NowCast (analiza historyczna)"</string>
+    <string name="aqi_info_nowcast_description">"Wykorzystuje 12-godzinny algorytm średniej ważonej EPA. Jeśli jakość powietrza gwałtownie się zmienia, większą wagę przywiązuje się do ostatnich godzin; jeśli jest stabilna, wagi są bardziej równomierne. Obliczany i wyświetlany po rozwinięciu szczegółowych kart czujników."</string>
+    <string name="aqi_info_virtual_sensor_title">"Skonsolidowany czujnik wirtualny"</string>
+    <string name="aqi_info_virtual_sensor_description">"Jeśli stacja zawiera zarówno PM2.5 (pył zawieszony drobny), jak i PM10 (pył zawieszony gruby), BoxViewer oblicza cząstkowy indeks dla obu i automatycznie wyświetla najgorszą wartość (maksimum). Zapewnia to maksymalną ochronę i przejrzysty układ."</string>
+    <string name="aqi_info_regional_title">"REGIONALNE SPECYFIKACJE AQI"</string>
+    <string name="aqi_system_us_epa">"US EPA AQI (Stany Zjednoczone)"</string>
+    <string name="aqi_scale_us">"Skala 0 – 500"</string>
+    <string name="aqi_system_uk_daqi">"UK DAQI (Wielka Brytania)"</string>
+    <string name="aqi_scale_uk">"Skala 1 – 10"</string>
+    <string name="aqi_system_eu_eaqi">"Europejski EAQI (Unia Europejska)"</string>
+    <string name="aqi_scale_eu">"Pasma jakościowe (brak indeksu numerycznego)"</string>
+    <string name="aqi_system_canada_aqhi">"Kanada AQHI (Kanada)"</string>
+    <string name="aqi_scale_canada">"Skala 1 – 10+ (tylko PM2.5)"</string>
+    <string name="aqi_system_india_aqi">"Indie AQI (Indie)"</string>
+    <string name="aqi_scale_india">"Skala 0 – 500"</string>
+    <string name="aqi_system_china_aqi">"Chiny AQI (Chiny)"</string>
+    <string name="aqi_scale_china">"Skala 0 – 500"</string>
+    <string name="aqi_band_good">"Dobry"</string>
+    <string name="aqi_band_moderate">"Umiarkowany"</string>
+    <string name="aqi_band_sensitive_groups">"Wrażliwe grupy"</string>
+    <string name="aqi_band_unhealthy">"Niezdrowy"</string>
+    <string name="aqi_band_very_unhealthy">"Bardzo niezdrowy"</string>
+    <string name="aqi_band_hazardous">"Niebezpieczny"</string>
+    <string name="aqi_band_low">"Niski"</string>
+    <string name="aqi_band_high">"Wysoki"</string>
+    <string name="aqi_band_very_high">"Bardzo wysoki"</string>
+    <string name="aqi_band_very_good">"Bardzo dobry"</string>
+    <string name="aqi_band_poor">"Zły"</string>
+    <string name="aqi_band_very_poor">"Bardzo zły"</string>
+    <string name="aqi_band_extremely_poor">"Ekstremalnie zły"</string>
+    <string name="aqi_band_low_risk">"Niskie ryzyko"</string>
+    <string name="aqi_band_moderate_risk">"Umiarkowane ryzyko"</string>
+    <string name="aqi_band_high_risk">"Wysokie ryzyko"</string>
+    <string name="aqi_band_very_high_risk">"Bardzo wysokie ryzyko"</string>
+    <string name="aqi_band_satisfactory">"Zadowalający"</string>
+    <string name="aqi_band_moderately_polluted">"Umiarkowanie zanieczyszczony"</string>
+    <string name="aqi_band_severe">"Poważny"</string>
+    <string name="aqi_band_excellent">"Doskonały"</string>
+    <string name="aqi_band_lightly_polluted">"Lekko zanieczyszczony"</string>
+    <string name="aqi_band_heavily_polluted">"Silnie zanieczyszczony"</string>
+    <string name="aqi_band_severely_polluted">"Bardzo mocno zanieczyszczony"</string>
+
+    <!-- Widget configuration -->
+    <string name="widget_config_title">"Dostosuj widget ekranu głównego"</string>
+    <string name="widget_config_section_sensebox">"WYBIERZ SENSEBOX"</string>
+    <string name="widget_config_no_saved_boxes">"Brak zapisanych senseBoxów. Najpierw zapisz co najmniej jedną senseBox jako ulubioną w zakładce Odkryj w aplikacji."</string>
+    <string name="widget_config_select_sensebox_hint">"Wybierz senseBox"</string>
+    <string name="widget_config_exposure">"Ekspozycja: %1$s"</string>
+    <string name="widget_config_section_visualization">"FORMAT WIZUALIZACJI"</string>
+    <string name="widget_config_visualization_list">"Lista metryk"</string>
+    <string name="widget_config_visualization_grid">"Pojedynczy znacznik"</string>
+    <string name="widget_config_grid_warning">"Wyświetlano tylko jeden czujnik; inne opcje wyboru zostały odrzucone."</string>
+    <string name="widget_config_section_highlight_metric">"WYRÓŻNIJ METRYKĘ"</string>
+    <string name="widget_config_section_monitored_metrics">"MONITOROWANE METRYKI"</string>
+    <string name="widget_config_select_sensebox_prompt">"Wybierz zapisaną senseBox powyżej, aby zobaczyć dostępne czujniki."</string>
+    <string name="widget_config_choose_sensor">"Wybierz czujnik"</string>
+    <string name="widget_config_sensor_subtitle">"Jednostka: %1$s | Typ: %2$s"</string>
+    <string name="widget_config_section_monitored_metrics_reorder">"MONITOROWANE METRYKI (PRZECIAGNIJ ☰ ABY ZMIENIĆ KOLEJNOŚĆ)"</string>
+    <string name="widget_config_no_metrics_selected">"Nie wybrano monitorowanych metryk. Sprawdź dostępne metryki poniżej, aby je dodać."</string>
+    <string name="widget_config_section_add_metrics">"DODAJ WIĘCEJ METRYK"</string>
+    <string name="widget_config_section_metric_display_style">"STYL WYŚWIETLANIA METRYKI"</string>
+    <string name="widget_config_metric_display_style_description">"Wybierz styl układu widoczności metryk w widżecie."</string>
+    <string name="widget_display_style_full_details">"Pełne szczegóły"</string>
+    <string name="widget_display_style_value_unit">"Wartość i jednostka"</string>
+    <string name="widget_display_style_value_only">"Tylko wartość"</string>
+    <string name="widget_config_conditional_formatting_label">"Formatowanie warunkowe"</string>
+    <string name="widget_config_conditional_formatting_description">"Koloruj wartości na podstawie progów czujnika"</string>
+    <string name="widget_config_section_aqi_display">"WYŚWIETLANIE WARTOŚCI AQI"</string>
+    <string name="widget_config_aqi_display_description">"Wybierz, jak metrika AQI (aktualna) ma być wyświetlana w widżecie, jeśli jest wybrana."</string>
+    <string name="widget_aqi_display_number_and_label">"Liczba i etykieta"</string>
+    <string name="widget_aqi_display_number_only">"Tylko liczba"</string>
+    <string name="widget_aqi_display_label_only">"Tylko etykieta"</string>
+    <string name="widget_config_section_text_scaling">"SKALOWANIE TEKSTU WIDŻETU"</string>
+    <string name="widget_config_text_scaling_description">"Dostosuj względny rozmiar tekstu widżetu, aby idealnie pasował do niestandardowych układów. Stuknij i przeciągnij poniżej."</string>
+    <string name="widget_config_text_scale_label">"Skalowanie tekstu widżetu"</string>
+    <string name="widget_config_text_scale_compact">"60% (Kompaktowy)"</string>
+    <string name="widget_config_text_scale_default">"100% (Standardowy)"</string>
+    <string name="widget_config_text_scale_double">"200% (Podwójny)"</string>
+    <string name="widget_config_section_background_color">"KOLOR TŁA WIDŻETU"</string>
+    <string name="widget_config_select_preset_palette">"Wybierz wstępnie ustawioną paletę"</string>
+    <string name="widget_config_advanced_settings">"Zaawansowane ustawienia"</string>
+    <string name="widget_config_color_wheel">"Interaktywne koło kolorów"</string>
+    <string name="widget_config_brightness_value">"Wartość jasności"</string>
+    <string name="widget_config_transparency">"Przezroczystość widgetu"</string>
+    <string name="widget_config_percentage">"%1$s%%"</string>
+    <string name="widget_config_hex_color_code">"Kod koloru HEX"</string>
+    <string name="widget_config_hex_placeholder">"0F172A"</string>
+    <string name="widget_config_hex_error">"Wprowadź poprawny 6-znakowy kod heksadecymalny."</string>
+    <string name="widget_config_section_header_labels">"ETYKIETA NAGŁÓWKA WIDGETU"</string>
+    <string name="widget_config_show_box_name">"Pokaż nazwę senseBox"</string>
+    <string name="widget_config_show_box_name_description">"Wyświetla nazwę senseBox w nagłówku widgetu"</string>
+    <string name="widget_config_show_update_time">"Pokaż czas ostatniej aktualizacji"</string>
+    <string name="widget_config_show_update_time_description">"Wyświetla znacznik czasu ostatniej aktualizacji w nagłówku widgetu"</string>
+    <string name="widget_config_section_header_buttons">"PRZYCISKI NAGŁÓWKA WIDGETU"</string>
+    <string name="widget_config_show_refresh_button">"Pokaż przycisk aktualizacji"</string>
+    <string name="widget_config_show_refresh_button_description">"Wyświetla ikonę synchronizacji do ręcznego odświeżania widgetu"</string>
+    <string name="widget_config_show_config_button">"Pokaż przycisk konfiguracji"</string>
+    <string name="widget_config_show_config_button_description">"Wyświetla ikonę koła zębatego do konfigurowania ustawień widgetu"</string>
+    <string name="widget_config_section_refresh_interval">"INTERWAŁ CZASOWY AKTUALIZACJI"</string>
+    <string name="widget_config_refresh_interval_description">"Skonfiguruj, jak często widget aktualizuje swoje czujniki w tle. Dotknij i przeciągnij poniżej."</string>
+    <string name="widget_config_refresh_interval_label">"Częstotliwość"</string>
+    <string name="widget_config_refresh_interval_minutes">"%1$s minut"</string>
+    <string name="widget_config_refresh_interval_fast">"5 min (Szybka aktualizacja)"</string>
+    <string name="widget_config_refresh_interval_eco">"60 min (Oszczędzanie energii)"</string>
+    <string name="widget_config_aqi_guide_title">"Przewodnik po indeksie jakości powietrza (AQI)"</string>
+    <string name="widget_config_aqi_guide_intro">"Indeks jakości powietrza to wirtualna metryka syntetyzowana lokalnie przez BoxViewer, gdy stacja dostarcza pomiary pyłu zawieszonego PM2.5 lub PM10."</string>
+    <string name="widget_config_aqi_guide_instantcast">"• InstantCast (Widget na żywo i pulpit):
+Natychmiast oblicza indeks z najnowszej wartości stężenia."</string>
+    <string name="widget_config_aqi_guide_nowcast">"• NowCast (Zaawansowana historia map):
+Stosuje 12-godzinny algorytm średniej ważonej w celu wygładzenia tymczasowych szczytów."</string>
+    <string name="widget_config_aqi_guide_consolidated">"• Czujnik skonsolidowany:
+Jeśli obecne są zarówno PM2.5, jak i PM10, automatycznie zgłaszany jest najmniej korzystny (maksymalny) wartość indeksu."</string>
+    <string name="widget_config_aqi_guide_customize">"Możesz dostosować regionalny standard (US EPA, UK DAQI, European EAQI, Canada AQHI, India AQI, China AQI) w ogólnych ustawieniach aplikacji."</string>
+    <string name="action_apply_widget">"Zastosuj widget"</string>
+    <string name="action_discard">"Odrzuć"</string>
+    <string name="action_got_it">"Zrozumiałem"</string>
+    <string name="widget_status_loading_sensors">"Ładowanie czujników..."</string>
+    <string name="widget_status_select_sensebox">"Najpierw wybierz senseBox!"</string>
+    <string name="widget_status_provisioning">"Wdrażanie widgetu..."</string>
+    <string name="widget_status_save_failed">"Zapisywanie nie powiodło się: %1$s"</string>
+
+    <!-- Share QR dialog -->
+    <string name="share_title">"Udostępnij senseBox"</string>
+    <string name="share_deep_link_label">"Głęboki link"</string>
+    <string name="share_clipboard_label">"Link senseBox"</string>
+    <string name="share_subject">"senseBox"</string>
+    <string name="action_copy">"Kopiuj"</string>
+    <string name="action_share_link">"Udostępnij link"</string>
+    <string name="action_share_qr">"Udostępnij kod QR"</string>
+    <string name="action_save_qr">"Zapisz kod QR"</string>
+    <string name="share_qr_failed">"Udostępnianie obrazu QR nie powiodło się"</string>
+    <string name="share_qr_saved_success">"Kod QR został zapisany w Obrazy/BoxViewer"</string>
+    <string name="share_qr_save_requires_android_10">"Zapisywanie w galerii wymaga systemu Android 10 lub nowszego"</string>
+    <string name="share_qr_save_failed">"Zapisywanie obrazu QR nie powiodło się"</string>
+
+    <!-- Errors / status -->
+    <string name="error_invalid_stats_format">"Nieprawidłowy format statystyk zwrócony przez API."</string>
+    <string name="error_failed_to_load_stats">"Ładowanie statystyk bazy danych nie powiodło się: %1$s"</string>
+    <string name="error_could_not_load_sensebox">"Nie udało się załadować tej senseBox. Sprawdź link lub połączenie."</string>
+    <string name="error_failed_load_box_details">"Ładowanie szczegółów boxa nie powiodło się: %1$s"</string>
+    <string name="error_failed_update_favorite">"Aktualizacja ulubionego nie powiodła się: %1$s"</string>
+    <string name="error_no_senseboxes_matching">"Nie znaleziono senseBox pasującej do %1$s"</string>
+    <string name="error_failed_search_boxes">"Wyszukiwanie boxów nie powiodło się: %1$s"</string>
+    <string name="error_no_nearby_senseboxes">"Nie znaleziono senseBox w promieniu 500 km."</string>
+    <string name="error_failed_find_nearby_boxes">"Wyszukiwanie pobliskich boxów nie powiodło się: %1$s"</string>
+    <string name="error_no_senseboxes_near_location">"Nie znaleziono senseBox w promieniu 500 km od %1$s."</string>
+    <string name="error_could_not_find_location">"Nie udało się znaleźć lokalizacji %1$s na mapie. Spróbuj wpisać inną nazwę miasta."</string>
+    <string name="error_failed_search_location">"Wyszukiwanie lokalizacji nie powiodło się: %1$s"</string>
+    <string name="error_no_senseboxes_within_radius">"Nie znaleziono senseBoxów w promieniu %1$s km od tej lokalizacji."</string>
+    <string name="error_failed_fetch_boxes_radius">"Nie udało się pobrać stacji dla promienia %1$s km: %2$s"</string>
+    <string name="error_failed_refresh">"Aktualizacja nie powiodła się: %1$s"</string>
+
+    <!-- Date/time formatting -->
+    <string name="date_format_full">"d MMM yyyy - HH:mm"</string>
+    <string name="date_format_short">"d MMM, HH:mm"</string>
+    <string name="time_format">"HH:mm"</string>
+    <string name="last_updated_never">"Nigdy nie zaktualizowano"</string>
+    <string name="last_updated_format">"Ostatnia aktualizacja: %1$s"</string>
+    <string name="sync_time_never">"Nigdy"</string>
+    <string name="widget_updated_at">"Zaktualizowano %1$s"</string>
+    <string name="widget_updated_none">"Zaktualizowano --:--"</string>
+    <string name="widget_no_active_sensor">"Brak aktywnego czujnika"</string>
+    <string name="selected_location">"Wybrana lokalizacja"</string>
+    <string name="location_coordinates_label">"Lokalizacja (%1$s, %2$s)"</string>
+    <string name="location_lat_lon_label">"Szerokość geograficzna: %1$s, Długość geograficzna: %2$s"</string>
+    <string name="exposure_outdoor">"Na zewnątrz"</string>
+    <string name="exposure_indoor">"Wewnątrz"</string>
+    <string name="exposure_all">"Wszystkie"</string>
+    <string name="cd_cancel">"Anuluj"</string>
+    <string name="cd_expand_dropdown">"Rozwiń menu"</string>
+    <string name="cd_low_brightness">"Niska jasność"</string>
+    <string name="cd_high_brightness">"Wysoka jasność"</string>
+    <string name="cd_opaque">"Nieprzezroczysty"</string>
+    <string name="cd_transparent">"Przezroczysty"</string>
+
+    <!-- About -->
+    <string name="about_title">"O aplikacji BoxViewer"</string>
+
+    <!-- About -->
+    <string name="about_version_label">"Wersja %1$s"</string>
+    <string name="about_developer_label">"Stworzone z dbałością przez nichu42"</string>
+    <string name="about_support_title">"Wsparcie i opinie"</string>
+    <string name="about_rate_us">"Oceń na GitHubie"</string>
+    <string name="about_report_bug">"Zgłoś błąd"</string>
+    <string name="about_request_feature">"Prośba o funkcję"</string>
+    <string name="about_legal_title">"Informacje prawne"</string>
+    <string name="about_privacy_policy">"Polityka prywatności"</string>
+    <string name="about_terms_of_service">"Warunki korzystania"</string>
+    <string name="about_open_source_licenses">"Licencje open source"</string>
+    <string name="about_gpl_license">"GNU General Public License"</string>
+    <string name="about_disclaimer_title">"ZASTRZEŻENIE DOTYCZĄCE POWIĄZAŃ"</string>
+    <string name="about_disclaimer_text">"Aplikacja BoxViewer jest niezależnym projektem i nie jest w żaden sposób powiązana z openSenseMap (openSenseLab gGmbH) ani senseBox (Reedu GmbH &amp; Co. KG), nie jest przez nie wspierana ani z nimi stowarzyszona."</string>
+    <string name="about_third_party_title">"Licencje firm trzecich"</string>
+    <string name="about_third_party_intro">"Jesteśmy głęboko wdzięczni utalentowanym deweloperom i społecznościom stojącym za tymi zależnościami open source. Pomagają oni utrzymać lekkość, niezawodność i atrakcyjność aplikacji BoxViewer."</string>
+    <string name="about_library_author">"przez %1$s"</string>
+    <string name="about_license_title">"GNU General Public License"</string>
+    <string name="about_license_hide_details">"Ukryj szczegóły"</string>
+    <string name="about_license_show_license">"Wyświetl licencję"</string>
+    <string name="about_license_load_error">"Błąd podczas ładowania tekstu licencji."</string>
+    <string name="about_loading_license">"Ładowanie..."</string>
+    <string name="about_section_home_support">"STRONA GŁÓWNA APLIKACI I WSPARCIE"</string>
+    <string name="about_home_description">"BoxViewer jest oprogramowaniem typu open-source stworzonym z miłością. Odwiedź repozytorium projektu, aby pomóc, zgłosić błąd lub przejrzeć kod źródłowy:"</string>
+    <string name="about_link_github">"Strona główna projektu (GitHub)"</string>
+    <string name="about_support_description">"Jeśli lubisz tę aplikację i chcesz wesprzeć dalszy rozwój, rozważ przekazanie darowizny:"</string>
+    <string name="about_link_kofi">"Wspomóż na Ko-fi"</string>
+    <string name="about_link_liberapay">"Przekaż darowiznę przez Liberapay"</string>
+    <string name="about_copyright">"Copyright (C) 2026 nichu42 i współtwórcy"</string>
+    <string name="about_gpl_summary_1">"Ten program jest wolnym oprogramowaniem: możesz go rozpowszechniać dalej i/lub modyfikować na warunkach Powszechnej Licencji Publicznej GNU, opublikowanej przez Fundację Wolnego Oprogramowania, według wersji 3 tej licencji lub (według Twojego wyboru) którejkolwiek późniejszej wersji."</string>
+    <string name="about_gpl_summary_2">"Ten program jest rozpowszechniany z nadzieją, że będzie przydatny, ale BEZ JAKIEJKOLWIEK GWARANCJI; nawet bez domyślnej gwarancji PRZYDATNOŚCI HANDLOWEJ lub PRZYDATNOŚCI DO OKREŚLONEGO CELU. Więcej szczegółów znajdziesz w Powszechnej Licencji Publicznej GNU."</string>
+    <string name="about_view_license">"Wyświetl pełną licencję"</string>
+    <string name="about_third_party_licenses">"Licencje stron trzecich"</string>
+    <string name="about_section_data_attribution">"DANE I ŹRÓDŁA"</string>
+    <string name="about_data_description">"Ta aplikacja korzysta z otwartego API openSenseMap, platformy open-source do zbierania i przeglądania danych z czujników środowiskowych z całego świata."</string>
+    <string name="about_stats_header">"STATYSTYKI SIECI OPENSENSEMAP"</string>
+    <string name="about_stats_offline">"Offline"</string>
+    <string name="about_stats_failed">"Błąd podczas ładowania statystyk bazy danych."</string>
+    <string name="about_label_stations">"Stacje"</string>
+    <string name="about_label_measurements">"Pomiary"</string>
+    <string name="about_active_rate_value">"%1$s/m"</string>
+    <string name="about_label_active_rate">"Aktywna stawka"</string>
+    <string name="about_what_is_opensensemap">"Czym jest openSenseMap?"</string>
+    <string name="about_opensensemap_description">"Początkowo wywodzący się z projektu badawczego Uniwersytetu w Münster, openSenseMap stał się jedną z największych na świecie sieci czujników prowadzonych przez społeczność. Oferuje bezpłatną platformę dla szkół, uniwersytetów, naukowców i zainteresowanych obywateli do publikowania danych środowiskowych w czasie rzeczywistym – takich jak jakość powietrza, temperatura i wilgotność – oraz dzielenia się nimi jako otwartymi danymi (Open Data)."</string>
+    <string name="about_who_operates">"Kto to prowadzi?"</string>
+    <string name="about_operator_description">"Platforma jest prowadzona i utrzymywana przez openSenseLab gGmbH, organizację non-profit z siedzibą w Münster, która opowiada się za suwerennością cyfrową, edukacją i udziałem społecznym w naukowym monitorowaniu środowiska."</string>
+    <string name="about_support_opensensemap_title">"Wspieraj Open Data!"</string>
+    <string name="about_support_opensensemap_description">"openSenseMap jest całkowicie darmowa i w dużej mierze zależy od wkładu społeczności oraz darowizn, aby utrzymać serwery i udostępnić dane wszystkim. Jeśli podoba Ci się wgląd w środowisko zapewniany w tej aplikacji, wspomóż ich projekt:"</string>
+    <string name="about_link_opensensemap">"Odkryj: opensensemap.org"</string>
+    <string name="about_link_sensebox">"Zbuduj: sensebox.de"</string>
+    <string name="about_link_betterplace">"Przekaż darowiznę przez Betterplace"</string>
+
+    <!-- Library categories -->
+    <string name="library_category_core_ui">"Główny interfejs i architektura"</string>
+    <string name="library_category_networking">"Sieć i media"</string>
+    <string name="library_category_database_concurrency">"Baza danych i współbieżność"</string>
+    <string name="library_category_utilities">"Narzędzia i kodeki"</string>
+    <string name="library_category_data_services">"Usługi danych i geokodowania"</string>
+    <string name="library_category_testing">"Frameworki testowe"</string>
+    <string name="settings_text_scale_label">"Skalowanie tekstu aplikacji"</string>
+    <string name="settings_text_scale_description">"Dostosuj względny rozmiar tekstu interfejsu aplikacji do swojego urządzenia lub odległości czytania."</string>
+    <string name="settings_text_scale_compact">"60%% (Kompaktowy)"</string>
+    <string name="settings_text_scale_default">"100%% (Standardowy)"</string>
+    <string name="settings_text_scale_double">"200%% (Podwójny)"</string>
+    <string name="cd_contribute_translations">"Współtwórz tłumaczenia"</string>
+    <string name="translation_contrib_title">"Pomóż przetłumaczyć BoxViewer"</string>
+    <string name="translation_contrib_message">"Możesz pomóc przetłumaczyć BoxViewer, przesłać poprawki lub dodać nowe języki! Kliknij poniżej, aby odwiedzić publiczny portal tłumaczeń POEditor lub przeczytaj nasz plik CONTRIBUTING.md na GitHubie, aby uzyskać szczegóły."</string>
+    <string name="translation_contrib_button">"Pomóż w tłumaczeniu (POEditor)"</string>
+    <string name="about_section_translation">"TŁUMACZENIE I LOKALIZACJA"</string>
+    <string name="about_translation_description">"Pomóż przetłumaczyć BoxViewer na nowe języki lub poprawić istniejące tłumaczenia! Używamy POEditora do wspólnego zarządzania naszą społecznością tłumaczy."</string>
+    <string name="about_link_translate">"Pomóż w tłumaczeniu (POEditor)"</string>
+    <string name="language_czech">"Czeski"</string>
+    <string name="language_french">"Francuski"</string>
+    <string name="language_hungarian">"Węgierski"</string>
+    <string name="language_italian">"Włoski"</string>
+    <string name="language_dutch">"Holenderski"</string>
+    <string name="language_polish">"Polski"</string>
+    <string name="language_spanish">"Hiszpański"</string>
 </resources>

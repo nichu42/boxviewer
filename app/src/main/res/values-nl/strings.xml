@@ -1,3 +1,629 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">"BoxViewer"</string>
+
+    <!-- Language picker labels -->
+    <string name="language_system_default">"Systeemstandaard"</string>
+    <string name="language_english">"Engels"</string>
+    <string name="language_german">"Duits"</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">"Mijn senseBoxes"</string>
+    <string name="dashboard_empty_title">"Nog geen senseBoxes toegevoegd"</string>
+    <string name="dashboard_empty_description">"Ontdek openbare senseBoxes en sla ze op als bladwijzer om je dashboard en widgets op het startscherm aan te passen."</string>
+    <string name="dashboard_empty_button">"senseBox toevoegen"</string>
+    <string name="dashboard_info_title">"Wat is openSenseMap?"</string>
+    <string name="dashboard_info_description_1">"openSenseMap is een wereldwijd open-dataplatform waar duizenden mensen milieugegevens delen van hun eigen weerstations (senseBoxes)."</string>
+    <string name="dashboard_info_description_2">"Met BoxViewer kun je deze community-stations verkennen, opslaan op je persoonlijke dashboard en zelfs toevoegen als widgets op je startscherm om ze in real-time te bewaken zonder de app te openen."</string>
+    <string name="dashboard_reorder_hint">"Houd een vakgreep ingedrukt en sleep deze om de volgorde te wijzigen. Tik op de bladwijzerknop om een box te verwijderen. Tik op de vinkknop om op te slaan."</string>
+    <string name="dashboard_select_all_metrics">"Alle metriek selecteren"</string>
+    <string name="dashboard_deselect_all_metrics">"Alle metriek deselecteren"</string>
+    <string name="dashboard_selected_metrics_header">"GESELECTEERDE METRIEK (SLEEP OM TE SORTEREN)"</string>
+    <string name="dashboard_available_sensors_header">"BESCHIKBARE SENSOREN (SELECTEER OM TOE TE VOEGEN)"</string>
+    <string name="dashboard_no_metrics_selected">"Geen metriek geselecteerd om weer te geven."</string>
+    <string name="dashboard_no_metrics_available">"Geen metriek geconfigureerd of beschikbaar. Tik op het tandwielicoon om weer te geven metriek te selecteren."</string>
+    <string name="dashboard_current_value_format">"Huidig: %1$s %2$s"</string>
+    <string name="dashboard_done">"Klaar"</string>
+    <string name="dashboard_exposure_outdoor">"buiten"</string>
+
+    <!-- Add Box -->
+    <string name="add_box_title">"senseBox toevoegen"</string>
+    <string name="add_box_fetching">"senseBox laden…"</string>
+    <string name="add_box_already_saved">"Al in je senseBoxes"</string>
+
+    <!-- Main / Navigation -->
+    <string name="nav_dashboard">"Dashboard"</string>
+    <string name="nav_home">"Startpagina"</string>
+    <string name="nav_discover">"Ontdekken"</string>
+    <string name="nav_settings">"Instellingen"</string>
+    <string name="nav_about">"Over"</string>
+
+    <!-- Database version dialogs -->
+    <string name="db_version_mismatch_title">"Niet-overeenkomende databaseversie"</string>
+    <string name="db_version_mismatch_message">"De app-database is bijgewerkt naar een nieuwere versie. Je huidige app-versie is te oud om deze te lezen. Om de stabiliteit te waarborgen, kun je ofwel helemaal opnieuw beginnen (waardoor je bladwijzers en widget-instellingen worden gewist) of de app sluiten en de projectpagina openen om de update te installeren."</string>
+    <string name="db_version_mismatch_start_over">"Opnieuw beginnen"</string>
+    <string name="db_version_mismatch_install_update">"Update installeren"</string>
+    <string name="db_updated_title">"Database bijgewerkt"</string>
+    <string name="db_updated_message">"De app-database is bijgewerkt naar een nieuwere versie. Om stabiliteit en compatibiliteit te waarborgen, zijn sommige configuraties gereset. Configureer je favorieten en widgets opnieuw."</string>
+
+    <!-- Errors -->
+    <string name="error_invalid_sensebox_link">"Ongeldige senseBox-link"</string>
+
+    <!-- Settings -->
+    <string name="settings_title">"Instellingen"</string>
+
+    <!-- Settings -->
+    <string name="settings_section_app_settings">"APP-INSTELLINGEN"</string>
+    <string name="settings_app_theme_label">"App-thema"</string>
+    <string name="settings_app_theme_description">"Kies tussen lichte, donkere of systeemstandaard visuele stijlen."</string>
+    <string name="settings_theme_system">"Systeem"</string>
+    <string name="settings_theme_light">"Licht"</string>
+    <string name="settings_theme_dark">"Donker"</string>
+    <string name="settings_conditional_formatting_label">"Voorwaardelijke opmaak"</string>
+    <string name="settings_conditional_formatting_description">"Kleur sensorwaarden op basis van hun huidige meting."</string>
+    <string name="settings_language_label">"Taal"</string>
+    <string name="settings_language_description">"Kies de taal voor de app-gebruikersinterface."</string>
+    <string name="settings_aqi_standard_label">"AQI-standaard"</string>
+    <string name="settings_aqi_standard_description">"Kies de berekening van de luchtkwaliteitsindex voor AQI-sensoren."</string>
+    <string name="settings_temperature_unit_label">"Temperatuureenheid"</string>
+    <string name="settings_temperature_unit_description">"Kies de weergaveschaal voor alle temperatuursensoren."</string>
+    <string name="settings_pressure_unit_label">"Luchtdrukeenheid"</string>
+    <string name="settings_pressure_unit_description">"Kies de weergaveschaal voor alle luchtdruksensoren."</string>
+    <string name="settings_format_pressure_label">"Luchtdruk formatteren"</string>
+    <string name="settings_format_pressure_description">"Formatteer drukwaarden met duizendtalscheidingstekens (bijv. 1.013,25 hPa in plaats van 1013,25 hPa)."</string>
+    <string name="settings_wind_unit_label">"Windsnelheidseenheid"</string>
+    <string name="settings_wind_unit_description">"Kies de weergaveschaal voor alle windsnelheidssensoren."</string>
+
+    <!-- Unit symbols (kept consistent across locales) -->
+    <string name="unit_celsius" translatable="false">"°C"</string>
+    <string name="unit_fahrenheit" translatable="false">"°F"</string>
+    <string name="unit_kelvin" translatable="false">"K"</string>
+    <string name="unit_hpa" translatable="false">"hPa"</string>
+    <string name="unit_pa" translatable="false">"Pa"</string>
+    <string name="unit_mbar" translatable="false">"mbar"</string>
+    <string name="unit_inhg" translatable="false">"inHg"</string>
+    <string name="unit_mmhg" translatable="false">"mmHg"</string>
+    <string name="unit_ms" translatable="false">"m/s"</string>
+    <string name="unit_kmh" translatable="false">"km/h"</string>
+    <string name="unit_mph" translatable="false">"mph"</string>
+    <string name="unit_kn" translatable="false">"kn"</string>
+
+    <!-- Settings: Diagnostics -->
+    <string name="settings_section_diagnostics">"DIAGNOSTIEK &amp; FOUTRAPPORTEN"</string>
+    <string name="settings_crash_detected_title">"Een recente app-crash is lokaal gedetecteerd."</string>
+    <string name="settings_copy_crash_log">"Crashlog kopieer"</string>
+    <string name="settings_clear_log">"Log wissen"</string>
+    <string name="settings_no_crashes">"Geen crashes gedetecteerd. De app läuft soepel! Als je op fouten stuit, kun je standaard systeeminformatie kopieer om ons te helpen het probleem te diagnosticeren."</string>
+    <string name="settings_copy_system_diagnostics">"Systeemdiagnose-info kopiëren"</string>
+    <string name="settings_crash_report_copied">"Crashrapport gekopieerd naar klembord!"</string>
+    <string name="settings_crash_log_cleared">"Crashlog gewist"</string>
+    <string name="settings_diagnostics_copied">"Diagnose gekopieerd naar klembord!"</string>
+    <string name="settings_copy_diagnostics_cd">"Diagnose kopiëren"</string>
+
+    <!-- Settings: API Logging -->
+    <string name="settings_section_api_logging">"API-DEBUG-LOGGING"</string>
+    <string name="settings_api_logging_description">"Leg ruwe JSON-netwerkaanvragen, antwoorden en interne verwerkingsmetriek vast. Logboeken worden lokaal opgeslagen in JSON-lines-formaat en kunnen worden gedeeld om problemen te diagnosticeren."</string>
+    <string name="settings_enable_api_logging">"API-logging inschakelen"</string>
+    <string name="settings_current_size_format">"Huidige grootte: %1$s"</string>
+    <string name="settings_api_logging_enabled">"API-logging ingeschakeld"</string>
+    <string name="settings_api_logging_disabled">"API-logging uitgeschakeld"</string>
+    <string name="settings_max_log_entries">"Maximale logboekitems"</string>
+    <string name="settings_view_api_logs">"API-logboeken weergeven"</string>
+    <string name="settings_copy_logs">"Logboeken kopiëren"</string>
+    <string name="settings_share_logs">"Logboeken delen"</string>
+    <string name="settings_clear_api_logs">"API-logboeken wissen"</string>
+    <string name="settings_log_empty">"Logboek is leeg!"</string>
+    <string name="settings_logs_copied">"Logboeken gekopieerd naar klembord!"</string>
+    <string name="settings_share_api_logs_title">"API-logboeken delen"</string>
+    <string name="settings_error_sharing_logs">"Fout bij het delen van logboeken"</string>
+    <string name="settings_logs_cleared">"Logboeken gewist"</string>
+
+    <!-- File size units -->
+    <string name="file_size_bytes">"%1$d B"</string>
+    <string name="file_size_kilobytes">"%1$.1f KB"</string>
+    <string name="file_size_megabytes">"%1$.1f MB"</string>
+
+    <!-- Discovery -->
+    <string name="discovery_title">"senseBoxes ontdekken"</string>
+    <string name="discovery_search_mode_location">"Stad / Plaats"</string>
+    <string name="discovery_search_mode_box_id">"senseBox Naam / ID"</string>
+    <string name="discovery_placeholder_city">"Voer stad in"</string>
+    <string name="discovery_placeholder_box_id">"Zoeken op senseBox Naam / ID"</string>
+    <string name="discovery_locating">"Locatie bepalen…"</string>
+    <string name="discovery_no_barcode_scanner">"Geen barcode-scanner-app gevonden. Installeer er een (bijv. Binary Eye of Barcode Scanner)."</string>
+    <string name="discovery_unknown_location">"Onbekende locatie"</string>
+    <string name="discovery_search_filters">"Zoekfilter"</string>
+    <string name="discovery_exposure_label">"Locatietype"</string>
+    <string name="discovery_exposure_outdoor">"Buiten"</string>
+    <string name="discovery_exposure_indoor">"Binnen"</string>
+    <string name="discovery_exposure_all">"Alle"</string>
+    <string name="discovery_last_updated_limit">"Periode van update"</string>
+    <string name="discovery_last_updated_15m">"Laatste 15 minuten"</string>
+    <string name="discovery_last_updated_30m">"Laatste 30 minuten"</string>
+    <string name="discovery_last_updated_1h">"Laatste uur"</string>
+    <string name="discovery_last_updated_hours">"Laatste %1$d uur"</string>
+    <string name="discovery_last_updated_24h">"Laatste 24 uur (1 dag)"</string>
+    <string name="discovery_last_updated_all_time">"Totale periode"</string>
+    <string name="discovery_radius_label">"Zoekradius"</string>
+    <string name="discovery_radius_format">"%1$d km"</string>
+    <string name="discovery_results_filtered_out">"Resultaten gefilterd"</string>
+    <string name="discovery_no_senseboxes_found">"Geen senseBoxes gevonden"</string>
+    <string name="discovery_no_results_location_hint">"Probeer hierboven naar een ander gebied te zoeken, zoek op coördinaten of gebruik de GPS-knop om stations te vinden."</string>
+    <string name="discovery_no_results_box_hint">"Controleer de spelling van de naam of verifieer de 24-cijferige hexadecimale senseBox-ID."</string>
+    <string name="discovery_button_discover">"senseBoxes ontdekken"</string>
+    <string name="discovery_button_find_box">"senseBox Naam / ID vinden"</string>
+    <string name="discovery_empty_box_hint">"Voer een senseBox-naam of een 24-cijferige senseBox-ID in. Vergeet niet stations die je wilt behouden als bladwijzer op te slaan!"</string>
+    <string name="discovery_found_count">"GEVONDEN SENSEBOXES: %1$d"</string>
+    <string name="discovery_search_radius_format">"Zoekradius: %1$d km"</string>
+    <string name="discovery_save_hint">"Tik op het bladwijzerpictogram om een station in je lijst op te slaan."</string>
+    <string name="discovery_show_more_format">"Meer weergeven (%1$d resterend)"</string>
+    <string name="discovery_distance_format">"(%1$.1f km verderop)"</string>
+    <string name="discovery_coords_format">"Coördinaten: %1$s, %2$s"</string>
+    <string name="discovery_some_metrics_outdated">"Sommige meetwaarden verouderd"</string>
+    <string name="discovery_sensors_format">"Sensoren: %1$s"</string>
+    <string name="discovery_error_location">"Huidige locatie kon niet worden bepaald. Zoek handmatig via de zoekbalk."</string>
+    <string name="discovery_empty_location_hint">"Zoek naar een stad of klik bovenaan op het GPS-pictogram om weerstations in je buurt te vinden. Sla je favorieten op als bladwijzer om ze te bewaren in je dashboard."</string>
+    <string name="discovery_results_filtered_message">"We hebben %1$d senseBoxes gevonden, maar deze zijn weggefilterd door je huidige zoekfilters. Probeer 'Laatste update' in te stellen op 'Totale periode' of 'Locatietype' op 'Alle'."</string>
+    <string name="discovery_15m_short">"15 m"</string>
+    <string name="discovery_2km_short">"2 km"</string>
+    <string name="discovery_250km_short">"250 km"</string>
+    <string name="discovery_permission_rationale">"Locatietoestemming is vereist om senseBoxes bij jou in de buurt te ontdekken. Verleen de toestemming in de app-instellingen."</string>
+    <string name="discovery_grant_permission">"Locatietoestemming verlenen"</string>
+    <string name="discovery_no_address">"Geen adres gevonden voor de huidige locatie."</string>
+    <string name="discovery_location_unavailable">"Locatie niet beschikbaar."</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_search">"Zoeken"</string>
+    <string name="cd_run_search">"Zoeken starten"</string>
+    <string name="cd_clear">"Wissen"</string>
+    <string name="cd_use_gps">"GPS-locatie gebruiken"</string>
+    <string name="cd_scan_qr">"QR-code scannen"</string>
+    <string name="cd_filters">"Filter"</string>
+    <string name="cd_expand">"Uitvouwen"</string>
+    <string name="cd_collapse">"Inklappen"</string>
+    <string name="cd_search_off">"Selecteren"</string>
+    <string name="cd_discover">"Ontdekken"</string>
+    <string name="cd_show_more">"Meer weergeven"</string>
+    <string name="cd_updated_time">"Bijgewerkt tijdstip"</string>
+    <string name="cd_some_metrics_outdated">"Enkele meetwaarden verouderd"</string>
+    <string name="cd_save_bookmark">"Bladwijzer opslaan"</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_info">"Info"</string>
+    <string name="cd_view_api_logs">"API-logboeken weergeven"</string>
+    <string name="cd_crash_detected_warning">"Waarschuwing voor crash gedetecteerd"</string>
+    <string name="dashboard_exposure_indoor">"binnen"</string>
+
+    <!-- Widget layout placeholder strings (replaced at runtime by RemoteViews) -->
+    <string name="widget_default_box_name" translatable="false">"senseBox"</string>
+    <string name="widget_updated_just_now">"Zojuist bijgewerkt"</string>
+    <string name="widget_refresh">"Widget bijwerken"</string>
+    <string name="widget_configure">"Widget configureren"</string>
+    <string name="widget_sensor_type">"Sensortype"</string>
+    <string name="widget_sensor_category_icon">"Sensorcategorie-icoon"</string>
+    <string name="widget_select_sensor">"Sensor selecteren"</string>
+    <string name="widget_no_value" translatable="false">"--"</string>
+
+    <!-- Default placeholder sensor titles (German, matching openSenseMap conventions) -->
+    <string name="widget_placeholder_temperature" translatable="false">"Temperatur"</string>
+    <string name="widget_placeholder_humidity" translatable="false">"Feuchte"</string>
+    <string name="widget_placeholder_illumination" translatable="false">"Beleuchtung"</string>
+    <string name="widget_placeholder_pressure" translatable="false">"Druck"</string>
+    <string name="widget_placeholder_pm25" translatable="false">"PM2.5"</string>
+    <string name="widget_placeholder_pm10" translatable="false">"PM10"</string>
+    <string name="widget_name_small">"senseBox Info (Klein 2x1)"</string>
+    <string name="widget_name_medium">"senseBox Info (Middel 3x2)"</string>
+    <string name="widget_name_large">"senseBox Info (Groot 4x3)"</string>
+
+    <!-- Common actions -->
+    <string name="action_cancel">"Annuleren"</string>
+    <string name="action_retry">"Opnieuw proberen"</string>
+    <string name="action_close">"Sluiten"</string>
+    <string name="action_view_details">"Details weergeven"</string>
+    <string name="action_add_to_dashboard">"Toevoegen aan dashboard"</string>
+    <string name="action_ok">"OK"</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_save_order">"Volgorde opslaan"</string>
+    <string name="cd_reorder_boxes">"senseBoxes herschikken"</string>
+    <string name="cd_refresh_all">"Alles bijwerken"</string>
+    <string name="cd_dismiss_error">"Fout sluiten"</string>
+    <string name="cd_no_saved_boxes">"Geen opgeslagen senseBoxes"</string>
+    <string name="cd_configure_metrics">"Te tonen meetwaarden configureren"</string>
+    <string name="cd_location">"Locatie"</string>
+    <string name="cd_data_updated">"Gegevens bijgewerkt"</string>
+    <string name="cd_remove_bookmark">"Bladwijzer verwijderen"</string>
+    <string name="cd_drag_handle_reorder">"Sleep aan de greep om senseBoxes te herschikken"</string>
+    <string name="cd_drag_to_reorder">"Sleep om te herschikken"</string>
+    <string name="cd_back">"Terug"</string>
+    <string name="cd_sync_box">"Box synchroniseren"</string>
+    <string name="cd_share">"Delen"</string>
+    <string name="cd_bookmark_toggle">"Bladwijzerschakelaar"</string>
+    <string name="cd_last_updated">"Laatst bijgewerkt"</string>
+    <string name="cd_app_synced">"App gesynchroniseerd"</string>
+    <string name="cd_map_location">"Kaartlocatie"</string>
+    <string name="cd_aqi_info">"AQI-info"</string>
+    <string name="cd_selected">"Geselecteerd"</string>
+    <string name="cd_app_logo">"BoxViewer app-logo"</string>
+    <string name="cd_attention_warning">"Let op waarschuwing"</string>
+    <string name="cd_build">"Build"</string>
+    <string name="cd_donate">"Doneren"</string>
+    <string name="cd_github_project">"GitHub-project"</string>
+    <string name="cd_gpl_logo">"GPL v3-logo"</string>
+    <string name="cd_kofi">"Ko-fi"</string>
+    <string name="cd_liberapay">"Liberapay"</string>
+    <string name="cd_license">"Licentie"</string>
+    <string name="cd_open_homepage">"Startpagina openen"</string>
+    <string name="cd_third_party_licenses">"Licenties van derden"</string>
+    <string name="cd_website">"Website"</string>
+
+    <!-- Box detail screen -->
+    <string name="box_detail_title">"senseBox-details"</string>
+    <string name="box_detail_synced_prefix">"Gesynchroniseerd: %1$s"</string>
+    <string name="box_detail_group">"Groep: %1$s"</string>
+    <string name="box_detail_add_to_dashboard_title">"Toevoegen aan dashboard"</string>
+    <string name="box_detail_add_to_dashboard_hint">"Plaats een bladwijzer op dit station om het op je dashboard op te slaan en weer te geven in je widgets op het startscherm."</string>
+    <string name="box_detail_location_section_title">"APPARAATLOCATIE &amp; LINK"</string>
+    <string name="box_detail_latitude">"Breedtegraad: %1$s"</string>
+    <string name="box_detail_longitude">"Lengtegraad: %1$s"</string>
+    <string name="box_detail_open_opensensemap">"OpenSenseMap"</string>
+    <string name="box_detail_view_map">"Kaart weergeven"</string>
+    <string name="box_detail_active_sensors_format">"ACTIEVE SENSOREN (%1$d)"</string>
+    <string name="box_detail_no_sensor_config">"Geen sensorconfiguratiegegevens beschikbaar."</string>
+    <string name="box_detail_widget_title">"Startschermwidgets"</string>
+    <string name="box_detail_widget_hint">"Om dit station op je startscherm te bewaken, ga je naar je startscherm, druk je lang op een lege plek, kies je 'Widgets' en zoek je naar BoxViewer. Je kunt deze senseBox vervolgens selecteren in de widgetconfiguratie."</string>
+    <string name="box_detail_no_box_selected">"Geen senseBox geselecteerd"</string>
+
+    <!-- Sensor cards -->
+    <string name="sensor_locally_computed">"Lokaal berekend"</string>
+    <string name="sensor_hardware_format">"Hardware: %1$s"</string>
+    <string name="sensor_generic">"Algemene sensor"</string>
+    <string name="sensor_updated_prefix">"Bijgewerkt: %1$s"</string>
+    <string name="sensor_history_fetching">"HISTORISCHE MEETWAARDETREND OPHALEN…"</string>
+    <string name="sensor_history_fallback">"HISTORISCHE MEETWAARDETREND (FALLBACK-GEGEVENS)"</string>
+    <string name="sensor_history_title">"HISTORISCHE MEETWAARDETREND"</string>
+    <string name="sensor_aqi_nowcast">"AQI NowCast"</string>
+    <string name="sensor_aqi_nowcast_subtitle">"12-uurs gewogen gemiddelde · %1$s"</string>
+    <string name="sensor_last_measurement_recorded">"Laatst geregistreerde meting:"</string>
+    <string name="sensor_no_data_points">"Geen numerieke datapunten geregistreerd."</string>
+
+    <!-- Chart -->
+    <string name="chart_oldest">"Oudste"</string>
+    <string name="chart_latest">"Nieuwste"</string>
+    <string name="chart_measurements_count">"%1$d metingen"</string>
+
+    <!-- Time formatting -->
+    <string name="time_unknown">"Onbekend"</string>
+    <string name="time_never_updated">"Nooit bijgewerkt"</string>
+    <string name="time_just_now">"Zojuist"</string>
+    <string name="time_minutes_ago">"%1$d min. geleden"</string>
+    <string name="time_hours_ago">"%1$d uur geleden"</string>
+    <string name="time_days_ago">"%1$d dagen geleden"</string>
+
+    <!-- API log viewer -->
+    <string name="api_log_title">"API-debuglogboeken"</string>
+    <string name="cd_refresh_logs">"Logboeken bijwerken"</string>
+    <string name="cd_clear_logs">"Logboeken wissen"</string>
+    <string name="api_log_logs_cleared">"Logboeken gewist"</string>
+    <string name="api_log_empty">"Nog geen logboeken vastgelegd.
+Schakel API-logging in de instellingen in."</string>
+    <string name="api_log_no_matches">"Geen passende logboeken gevonden."</string>
+    <string name="api_log_url_copied">"URL gekopieerd"</string>
+    <string name="api_log_response_copied">"Antwoord-JSON gekopieerd"</string>
+    <string name="api_log_entry_copied">"Logboekitem gekopieerd"</string>
+    <string name="cd_diagnostics">"Diagnostiek"</string>
+    <string name="api_log_diagnostics_title">"Systeemdiagnose-informatie"</string>
+    <string name="api_log_label_app_version">"App-versie"</string>
+    <string name="api_log_label_device_info">"Apparaatinfo"</string>
+    <string name="api_log_label_android_sdk">"Android SDK"</string>
+    <string name="api_log_label_start_timestamp">"Starttijdstempel"</string>
+    <string name="cd_stats">"Statistieken"</string>
+    <string name="api_log_stats_title">"API-prestatiestatistieken"</string>
+    <string name="api_log_metric_requests">"Aanvragen"</string>
+    <string name="api_log_metric_success_rate">"Slagingspercentage"</string>
+    <string name="api_log_metric_avg_latency">"Gem. latentie"</string>
+    <string name="api_log_metric_failed">"Mislukt"</string>
+    <string name="api_log_status_distribution">"Statusverdeling"</string>
+    <string name="api_log_legend_success">"Succes (%1$d)"</string>
+    <string name="api_log_legend_client_error">"Clientfout (%1$d)"</string>
+    <string name="api_log_legend_server_error">"Serverfout (%1$d)"</string>
+    <string name="api_log_legend_failed">"Mislukt (%1$d)"</string>
+    <string name="api_log_top_endpoints">"Meest voorkomende eindpunten"</string>
+    <string name="api_log_count_format">"%1$dx"</string>
+    <string name="api_log_latency_format">"%1$dms"</string>
+    <string name="filter_all">"Alle"</string>
+    <string name="api_log_filter_success">"Succes (2xx)"</string>
+    <string name="api_log_filter_client_error">"Clientfout (4xx)"</string>
+    <string name="api_log_filter_server_error">"Serverfout (5xx)"</string>
+    <string name="api_log_filter_failed">"Mislukt/Uitzonderingen"</string>
+    <string name="api_log_search_placeholder">"Logboeken doorzoeken (URL, JSON, code...)"</string>
+    <string name="cd_clear_search">"Zoekopdracht wissen"</string>
+    <string name="api_log_status_filter_label">"Status: %1$s"</string>
+    <string name="api_log_request_details">"Aanvraagdetails"</string>
+    <string name="api_log_status_format">"Status %1$d"</string>
+    <string name="api_log_network_error">"Netwerkfout"</string>
+    <string name="api_log_label_request_url">"Aanvraag-URL"</string>
+    <string name="api_log_label_timestamp">"Tijdstempel"</string>
+    <string name="api_log_label_app_state">"App-status"</string>
+    <string name="api_log_label_network_exception">"Netwerk-/clientuitzondering"</string>
+    <string name="cd_help">"Help"</string>
+    <string name="api_log_troubleshooting_title">"Suggestie voor probleemoplossing"</string>
+    <string name="api_log_label_parsing_result">"Moshi-parseringsresultaat / metrische gegevens"</string>
+    <string name="api_log_response_body_payload">"Antwoordpayload"</string>
+    <string name="api_log_copy_url">"URL kopiëren"</string>
+    <string name="api_log_copy_json">"JSON kopiëren"</string>
+    <string name="api_log_copy_entire_log">"Hele logboek kopiëren"</string>
+    <string name="api_log_help_404">"Niet gevonden (404): De opgevraagde senseBox-ID of bron bestaat niet op openSenseMap. Controleer de box-ID in de widget-configuratie-instellingen als dit een widget betreft."</string>
+    <string name="api_log_help_429">"Limiet overschreden (429): De app heeft te veel verzoeken verzonden. Wacht even voordat je opnieuw gegevens opvraagt. Beperking is actief om de batterij te sparen en API-limieten te respecteren."</string>
+    <string name="api_log_help_5xx">"Serverfout (%1$d): De openSenseMap-server heeft problemen. Je kunt de serverstatus controleren door opensensemap.org te openen in je browser."</string>
+    <string name="api_log_help_offline">"Netwerk offline: De app kan de servernaam niet oplossen. Zorg ervoor dat je telefoon is verbonden met internet en dat je VPN of firewall BoxViewer niet blokkeert."</string>
+    <string name="api_log_help_timeout">"Verbindings-timeout: De verbinding duurde te lang. Dit gebeurt bij zwakke mobiele dataverbindingen of wanneer de openSenseMap-servers overbelast zijn."</string>
+    <string name="api_log_help_refused">"Verbinding geweigerd: Verbinding met de openSenseMap-server mislukt. De server is mogelijk offline voor onderhoud."</string>
+    <string name="api_log_help_parsing">"Gegevensparsing-fout: De app kon het JSON-antwoord niet lezen. Dit duidt er meestal op dat de openSenseMap API-structuur is gewijzigd en BoxViewer een update nodig heeft."</string>
+    <string name="api_log_help_http_error">"HTTP-fout (%1$d): De server heeft een ongeldige statuscode geretourneerd. Controleer of de service online is."</string>
+    <string name="api_log_help_unknown">"Onbekende fout: Er is een client-zijde of netwerkuitzondering opgetreden. Controleer of je verbinding stabiel is."</string>
+
+    <!-- AQI info screen -->
+    <string name="aqi_info_title">"Handleiding luchtkwaliteitsindex"</string>
+    <string name="aqi_info_intro_title">"De luchtkwaliteitsindex (AQI) begrijpen"</string>
+    <string name="aqi_info_intro_description">"De luchtkwaliteitsindex is een gestandaardiseerd systeem dat wordt gebruikt om de dagelijkse luchtkwaliteit te rapporteren en te koppelen aan risico's voor de volksgezondheid. BoxViewer maakt een lokale 'virtuele' AQI-sensor aan wanneer een station PM2.5- of PM10-fijnstofwaarden publiceert."</string>
+    <string name="aqi_info_cast_title">"InstantCast vs. NowCast"</string>
+    <string name="aqi_info_instantcast_title">"InstantCast (Live-waarden)"</string>
+    <string name="aqi_info_instantcast_description">"Vertaalt de meest recente enkelvoudige meting direct met behulp van standaardlimieten. Wordt gebruikt op het hoofd-dashboard en in widgets voor realtime responsiviteit."</string>
+    <string name="aqi_info_nowcast_title">"NowCast (Historische analyse)"</string>
+    <string name="aqi_info_nowcast_description">"Gebruikt het EPA-algoritme voor een gewogen gemiddelde over 12 uur. Als de luchtkwaliteit snel verandert, wordt er meer gewicht toegekend aan de recentste uren; als deze stabiel is, worden ze gelijkmatiger gewogen. Berekend en weergegeven bij het uitvouwen van gedetailleerde sensorkaarten."</string>
+    <string name="aqi_info_virtual_sensor_title">"Gezamenlijke virtuele sensor"</string>
+    <string name="aqi_info_virtual_sensor_description">"Wanneer een station zowel PM2.5 (fijnstof) als PM10 (grof stof) bevat, berekent BoxViewer de deelindex voor beide en toont automatisch de slechtste waarde (maximum). Dit zorgt voor maximale bescherming en een overzichtelijke lay-out."</string>
+    <string name="aqi_info_regional_title">"REGIONALE AQI-SPECIFICATIES"</string>
+    <string name="aqi_system_us_epa">"US EPA AQI (Verenigde Staten)"</string>
+    <string name="aqi_scale_us">"Schaal 0 – 500"</string>
+    <string name="aqi_system_uk_daqi">"UK DAQI (Verenigd Koninkrijk)"</string>
+    <string name="aqi_scale_uk">"Schaal 1 – 10"</string>
+    <string name="aqi_system_eu_eaqi">"Europese EAQI (Europese Unie)"</string>
+    <string name="aqi_scale_eu">"Kwalitatieve banden (geen numerieke index)"</string>
+    <string name="aqi_system_canada_aqhi">"Canada AQHI (Canada)"</string>
+    <string name="aqi_scale_canada">"Schaal 1 – 10+ (alleen PM2.5)"</string>
+    <string name="aqi_system_india_aqi">"India AQI (India)"</string>
+    <string name="aqi_scale_india">"Schaal 0 – 500"</string>
+    <string name="aqi_system_china_aqi">"China AQI (China)"</string>
+    <string name="aqi_scale_china">"Schaal 0 – 500"</string>
+    <string name="aqi_band_good">"Goed"</string>
+    <string name="aqi_band_moderate">"Matig"</string>
+    <string name="aqi_band_sensitive_groups">"Gevoelige groepen"</string>
+    <string name="aqi_band_unhealthy">"Ongezond"</string>
+    <string name="aqi_band_very_unhealthy">"Zeer ongezond"</string>
+    <string name="aqi_band_hazardous">"Gevaarlijk"</string>
+    <string name="aqi_band_low">"Laag"</string>
+    <string name="aqi_band_high">"Hoog"</string>
+    <string name="aqi_band_very_high">"Zeer hoog"</string>
+    <string name="aqi_band_very_good">"Uitstekend"</string>
+    <string name="aqi_band_poor">"Slecht"</string>
+    <string name="aqi_band_very_poor">"Zeer slecht"</string>
+    <string name="aqi_band_extremely_poor">"Extreem slecht"</string>
+    <string name="aqi_band_low_risk">"Laag risico"</string>
+    <string name="aqi_band_moderate_risk">"Matig risico"</string>
+    <string name="aqi_band_high_risk">"Hoog risico"</string>
+    <string name="aqi_band_very_high_risk">"Zeer hoog risico"</string>
+    <string name="aqi_band_satisfactory">"Bevredigend"</string>
+    <string name="aqi_band_moderately_polluted">"Matig vervuild"</string>
+    <string name="aqi_band_severe">"Ernstig"</string>
+    <string name="aqi_band_excellent">"Uitstekend"</string>
+    <string name="aqi_band_lightly_polluted">"Licht vervuild"</string>
+    <string name="aqi_band_heavily_polluted">"Sterk vervuild"</string>
+    <string name="aqi_band_severely_polluted">"Zwaar vervuild"</string>
+
+    <!-- Widget configuration -->
+    <string name="widget_config_title">"Home-widget aanpassen"</string>
+    <string name="widget_config_section_sensebox">"SENSEBOX SELECTEREN"</string>
+    <string name="widget_config_no_saved_boxes">"Geen opgeslagen senseBoxes beschikbaar. Sla eerst ten minste één senseBox op als favoriet in het tabblad Ontdekken in de app."</string>
+    <string name="widget_config_select_sensebox_hint">"Selecteer een senseBox"</string>
+    <string name="widget_config_exposure">"Blootstelling: %1$s"</string>
+    <string name="widget_config_section_visualization">"VISUALISATIEFORMAAT"</string>
+    <string name="widget_config_visualization_list">"Metriekenlijst"</string>
+    <string name="widget_config_visualization_grid">"Enkele markering"</string>
+    <string name="widget_config_grid_warning">"Slechts één sensor weergegeven; andere keuzes zijn verworpen."</string>
+    <string name="widget_config_section_highlight_metric">"METRIEK ACCENTUEREN"</string>
+    <string name="widget_config_section_monitored_metrics">"GEMONITORDE METRIEKEN"</string>
+    <string name="widget_config_select_sensebox_prompt">"Selecteer hierboven een opgeslagen senseBox om de beschikbare sensoren te bekijken."</string>
+    <string name="widget_config_choose_sensor">"Selecteer een sensor"</string>
+    <string name="widget_config_sensor_subtitle">"Eenheid: %1$s | Type: %2$s"</string>
+    <string name="widget_config_section_monitored_metrics_reorder">"GEMONITORDE METRIEKEN (SLEEP ☰ OM TE HERORDENEN)"</string>
+    <string name="widget_config_no_metrics_selected">"Geen gemonitorde metrieken geselecteerd. Controleer hieronder de beschikbare metrieken om ze toe te voegen."</string>
+    <string name="widget_config_section_add_metrics">"MEER METRIEKEN TOEVOEGEN"</string>
+    <string name="widget_config_section_metric_display_style">"WEERGAVESTIJL VAN METRIEK"</string>
+    <string name="widget_config_metric_display_style_description">"Selecteer de stijl van de zichtbaarheidsindeling voor metrieken in de widget."</string>
+    <string name="widget_display_style_full_details">"Volledige details"</string>
+    <string name="widget_display_style_value_unit">"Waarde &amp; eenheid"</string>
+    <string name="widget_display_style_value_only">"Alleen waarde"</string>
+    <string name="widget_config_conditional_formatting_label">"Voorwaardelijke opmaak"</string>
+    <string name="widget_config_conditional_formatting_description">"Waarden inkleuren op basis van sensordrempels"</string>
+    <string name="widget_config_section_aqi_display">"AQI-WAARDEWEERGAVE"</string>
+    <string name="widget_config_aqi_display_description">"Selecteer hoe de AQI-metriek (huidig) in de widget wordt weergegeven wanneer deze is geselecteerd."</string>
+    <string name="widget_aqi_display_number_and_label">"Getal &amp; label"</string>
+    <string name="widget_aqi_display_number_only">"Alleen getal"</string>
+    <string name="widget_aqi_display_label_only">"Alleen label"</string>
+    <string name="widget_config_section_text_scaling">"WIDGET-TEKSTSCHALING"</string>
+    <string name="widget_config_text_scaling_description">"Pas de relatieve tekstgrootte van de widget aan zodat deze perfect in aangepaste indelingen past. Tik en sleep hieronder."</string>
+    <string name="widget_config_text_scale_label">"Widget-tekstschaling"</string>
+    <string name="widget_config_text_scale_compact">"60% (Compact)"</string>
+    <string name="widget_config_text_scale_default">"100% (Standaard)"</string>
+    <string name="widget_config_text_scale_double">"200% (Dubbel)"</string>
+    <string name="widget_config_section_background_color">"ACHTERGRONDKLEUR VAN WIDGET"</string>
+    <string name="widget_config_select_preset_palette">"Voor ingesteld palet selecteren"</string>
+    <string name="widget_config_advanced_settings">"Geavanceerde instellingen"</string>
+    <string name="widget_config_color_wheel">"Interactief kleurenwiel"</string>
+    <string name="widget_config_brightness_value">"Helderheidswaarde"</string>
+    <string name="widget_config_transparency">"Widget-transparantie"</string>
+    <string name="widget_config_percentage">"%1$s%%"</string>
+    <string name="widget_config_hex_color_code">"HEX-kleurcode"</string>
+    <string name="widget_config_hex_placeholder">"0F172A"</string>
+    <string name="widget_config_hex_error">"Voer een geldige hex-code van 6 tekens in."</string>
+    <string name="widget_config_section_header_labels">"WIDGET-KOPTEKST-LABEL"</string>
+    <string name="widget_config_show_box_name">"Toon senseBox-naam"</string>
+    <string name="widget_config_show_box_name_description">"Toont de naam van de senseBox in de koptekst van de widget"</string>
+    <string name="widget_config_show_update_time">"Toon tijd van laatste update"</string>
+    <string name="widget_config_show_update_time_description">"Toont het tijdstempel van de laatste update in de koptekst van de widget"</string>
+    <string name="widget_config_section_header_buttons">"WIDGET-KOPTEKST-KNOPPEN"</string>
+    <string name="widget_config_show_refresh_button">"Toon vernieuw-knop"</string>
+    <string name="widget_config_show_refresh_button_description">"Toont een synchronisatie-icoon om de widget handmatig te vernieuwen"</string>
+    <string name="widget_config_show_config_button">"Toon configuratie-knop"</string>
+    <string name="widget_config_show_config_button_description">"Toont een tandwiel-icoon om de widget-instellingen te configureren"</string>
+    <string name="widget_config_section_refresh_interval">"VERNIEUWINGSINTERVAL"</string>
+    <string name="widget_config_refresh_interval_description">"Configureer hoe vaak de widget de sensoren op de achtergrond bijwerkt. Tik en sleep hieronder."</string>
+    <string name="widget_config_refresh_interval_label">"Frequentie"</string>
+    <string name="widget_config_refresh_interval_minutes">"%1$s minuten"</string>
+    <string name="widget_config_refresh_interval_fast">"5 min (Snelle update)"</string>
+    <string name="widget_config_refresh_interval_eco">"60 min (Energiebesparend)"</string>
+    <string name="widget_config_aqi_guide_title">"Handleiding Luchtkwaliteitsindex (AQI)"</string>
+    <string name="widget_config_aqi_guide_intro">"De luchtkwaliteitsindex is een virtuele meting die lokaal wordt gesynthetiseerd door BoxViewer wanneer een station PM2.5- of PM10-fijnstofmetingen levert."</string>
+    <string name="widget_config_aqi_guide_instantcast">"• InstantCast (Live widget &amp; dashboard):
+Berekent de index direct op basis van de nieuwste concentratiewaarde."</string>
+    <string name="widget_config_aqi_guide_nowcast">"• NowCast (Geavanceerde kaarthistorie):
+Past een 12-uurs gewogen gemiddelde-algoritme toe om tijdelijke pieken af te vlakken."</string>
+    <string name="widget_config_aqi_guide_consolidated">"• Geconsolideerde sensor:
+Wanneer zowel PM2.5 als PM10 aanwezig zijn, wordt automatisch de slechtste (maximale) indexwaarde gerapporteerd."</string>
+    <string name="widget_config_aqi_guide_customize">"Je kunt de regionale standaard (US EPA, UK DAQI, European EAQI, Canada AQHI, India AQI, China AQI) aanpassen in de algemene app-instellingen."</string>
+    <string name="action_apply_widget">"Widget toepassen"</string>
+    <string name="action_discard">"Annuleren"</string>
+    <string name="action_got_it">"Begrepen"</string>
+    <string name="widget_status_loading_sensors">"Sensoren laden..."</string>
+    <string name="widget_status_select_sensebox">"Selecteer eerst een senseBox!"</string>
+    <string name="widget_status_provisioning">"Widget wordt geconfigureerd..."</string>
+    <string name="widget_status_save_failed">"Opslaan mislukt: %1$s"</string>
+
+    <!-- Share QR dialog -->
+    <string name="share_title">"senseBox delen"</string>
+    <string name="share_deep_link_label">"Deep Link"</string>
+    <string name="share_clipboard_label">"senseBox Link"</string>
+    <string name="share_subject">"senseBox"</string>
+    <string name="action_copy">"Kopiëren"</string>
+    <string name="action_share_link">"Link delen"</string>
+    <string name="action_share_qr">"QR delen"</string>
+    <string name="action_save_qr">"QR opslaan"</string>
+    <string name="share_qr_failed">"Delen van QR-afbeelding mislukt"</string>
+    <string name="share_qr_saved_success">"QR is opgeslagen in Afbeeldingen/BoxViewer"</string>
+    <string name="share_qr_save_requires_android_10">"Opslaan in galerij vereist Android 10 of hoger"</string>
+    <string name="share_qr_save_failed">"Opslaan van QR-afbeelding mislukt"</string>
+
+    <!-- Errors / status -->
+    <string name="error_invalid_stats_format">"Ongeldig statistiekformaat geretourneerd door de API."</string>
+    <string name="error_failed_to_load_stats">"Laden van databasestatistieken mislukt: %1$s"</string>
+    <string name="error_could_not_load_sensebox">"Kan deze senseBox niet laden. Controleer de link of je verbinding."</string>
+    <string name="error_failed_load_box_details">"Laden van boxdetails mislukt: %1$s"</string>
+    <string name="error_failed_update_favorite">"Bijwerken van favoriet mislukt: %1$s"</string>
+    <string name="error_no_senseboxes_matching">"Geen senseBox gevonden die overeenkomt met %1$s"</string>
+    <string name="error_failed_search_boxes">"Zoeken naar boxen mislukt: %1$s"</string>
+    <string name="error_no_nearby_senseboxes">"Geen senseBoxen gevonden binnen een straal van 500 km."</string>
+    <string name="error_failed_find_nearby_boxes">"Zoeken naar nabijgelegen boxen mislukt: %1$s"</string>
+    <string name="error_no_senseboxes_near_location">"Geen senseBoxen gevonden binnen een straal van 500 km van %1$s."</string>
+    <string name="error_could_not_find_location">"Kon locatie %1$s niet op de kaart vinden. Probeer een andere stadsnaam."</string>
+    <string name="error_failed_search_location">"Zoeken naar locatie mislukt: %1$s"</string>
+    <string name="error_no_senseboxes_within_radius">"Geen senseBoxen gevonden binnen %1$s km van deze locatie."</string>
+    <string name="error_failed_fetch_boxes_radius">"Ophalen van boxen voor een straal van %1$s km mislukt: %2$s"</string>
+    <string name="error_failed_refresh">"Bijwerken mislukt: %1$s"</string>
+
+    <!-- Date/time formatting -->
+    <string name="date_format_full">"d MMM yyyy - HH:mm"</string>
+    <string name="date_format_short">"d MMM, HH:mm"</string>
+    <string name="time_format">"HH:mm"</string>
+    <string name="last_updated_never">"Nooit bijgewerkt"</string>
+    <string name="last_updated_format">"Laatst bijgewerkt: %1$s"</string>
+    <string name="sync_time_never">"Nooit"</string>
+    <string name="widget_updated_at">"Bijgewerkt %1$s"</string>
+    <string name="widget_updated_none">"Bijgewerkt --:--"</string>
+    <string name="widget_no_active_sensor">"Geen actieve sensor"</string>
+    <string name="selected_location">"Geselecteerde locatie"</string>
+    <string name="location_coordinates_label">"Locatie (%1$s, %2$s)"</string>
+    <string name="location_lat_lon_label">"Breedtegraad: %1$s, Lengtegraad: %2$s"</string>
+    <string name="exposure_outdoor">"Buiten"</string>
+    <string name="exposure_indoor">"Binnen"</string>
+    <string name="exposure_all">"Alle"</string>
+    <string name="cd_cancel">"Annuleren"</string>
+    <string name="cd_expand_dropdown">"Vervolgkeuzemenu uitvouwen"</string>
+    <string name="cd_low_brightness">"Lage helderheid"</string>
+    <string name="cd_high_brightness">"Hoge helderheid"</string>
+    <string name="cd_opaque">"Ondoorzichtig"</string>
+    <string name="cd_transparent">"Transparant"</string>
+
+    <!-- About -->
+    <string name="about_title">"Over BoxViewer"</string>
+
+    <!-- About -->
+    <string name="about_version_label">"Versie %1$s"</string>
+    <string name="about_developer_label">"Met zorg gemaakt door nichu42"</string>
+    <string name="about_support_title">"Ondersteuning en feedback"</string>
+    <string name="about_rate_us">"Beoordelen op GitHub"</string>
+    <string name="about_report_bug">"Fout melden"</string>
+    <string name="about_request_feature">"Functieverzoek"</string>
+    <string name="about_legal_title">"Juridisch"</string>
+    <string name="about_privacy_policy">"Privacybeleid"</string>
+    <string name="about_terms_of_service">"Gebruiksvoorwaarden"</string>
+    <string name="about_open_source_licenses">"Open-sourcelicenties"</string>
+    <string name="about_gpl_license">"GNU General Public License"</string>
+    <string name="about_disclaimer_title">"DISCLAIMER VAN AFFILIATIE"</string>
+    <string name="about_disclaimer_text">"De BoxViewer-app is een onafhankelijk project en heeft geen banden met, wordt niet ondersteund door en is niet geassocieerd met openSenseMap (openSenseLab gGmbH) of senseBox (Reedu GmbH &amp; Co. KG)."</string>
+    <string name="about_third_party_title">"Licenties van derden"</string>
+    <string name="about_third_party_intro">"We zijn de getalenteerde ontwikkelaars en communities achter deze open-sourceafhankelijkheden ten zeerste dankbaar. Zij helpen BoxViewer lichtgewicht, robuust en aantrekkelijk te maken."</string>
+    <string name="about_library_author">"door %1$s"</string>
+    <string name="about_license_title">"GNU General Public License"</string>
+    <string name="about_license_hide_details">"Details verbergen"</string>
+    <string name="about_license_show_license">"Licentie weergeven"</string>
+    <string name="about_license_load_error">"Fout bij het laden van de licentietekst."</string>
+    <string name="about_loading_license">"Laden..."</string>
+    <string name="about_section_home_support">"APP-STARTPAGINA &amp; ONDERSTEUNING"</string>
+    <string name="about_home_description">"BoxViewer is open-source en met liefde ontwikkeld. Bezoek de projectopslagplaats om te helpen, bugs te melden of de broncode te bekijken:"</string>
+    <string name="about_link_github">"Projectstartpagina (GitHub)"</string>
+    <string name="about_support_description">"Als de app je bevalt en je de verdere ontwikkeling wilt ondersteunen, overwogen dan een donatie te doen:"</string>
+    <string name="about_link_kofi">"Ondersteunen op Ko-fi"</string>
+    <string name="about_link_liberapay">"Doneren via Liberapay"</string>
+    <string name="about_copyright">"Copyright (C) 2026 nichu42 en medewerkers"</string>
+    <string name="about_gpl_summary_1">"Dit programma is vrije software: je kunt het verspreiden en/of wijzigen onder de voorwaarden van de GNU General Public License, zoals gepubliceerd door de Free Software Foundation, either version 3 of the License, or (at your option) any later version."</string>
+    <string name="about_gpl_summary_2">"Dit programma wordt verspreid in de hoop dat het nuttig is, maar ZONDER ENKELE GARANTIE; zelfs zonder de impliciete garantie van VERKOOPBAARHEID of GESCHIKTHEID VOOR EEN BEPAALD DOEL. Zie de GNU General Public License voor meer details."</string>
+    <string name="about_view_license">"Volledige licentie weergeven"</string>
+    <string name="about_third_party_licenses">"Licenties van derden"</string>
+    <string name="about_section_data_attribution">"GEGEVENS &amp; BRONVERMELDINGEN"</string>
+    <string name="about_data_description">"Deze app maakt gebruik van de open API van openSenseMap, een open-sourceplatform voor het verzamelen en verkennen van omgevingssensorgegevens van over de hele wereld."</string>
+    <string name="about_stats_header">"OPENSENSEMAP NETWERKSTATISTIEKEN"</string>
+    <string name="about_stats_offline">"Offline"</string>
+    <string name="about_stats_failed">"Fout bij het laden van de databasestatistieken."</string>
+    <string name="about_label_stations">"Stations"</string>
+    <string name="about_label_measurements">"Metingen"</string>
+    <string name="about_active_rate_value">"%1$s/m"</string>
+    <string name="about_label_active_rate">"Actieve snelheid"</string>
+    <string name="about_what_is_opensensemap">"Wat is openSenseMap?"</string>
+    <string name="about_opensensemap_description">"Oorspronkelijk ontstaan uit een onderzoeksproject van de Universiteit van Münster, is openSenseMap uitgegroeid tot een van de grootste door burgers beheerde sensorennetwerken ter wereld. Het biedt een gratis platform voor scholen, universiteiten, wetenschappers en geïnteresseerde burgers om milieugegevens in real-time te publiceren – zoals luchtkwaliteit, temperatuur en luchtvochtigheid – en te delen als Open Data."</string>
+    <string name="about_who_operates">"Wie beheert het?"</string>
+    <string name="about_operator_description">"Het platform wordt beheerd en onderhouden door openSenseLab gGmbH, een non-profit organisatie gevestigd in Münster, die zich inzet voor digitale soevereiniteit, educatie en publieke participatie in wetenschappelijke milieumonitoring."</string>
+    <string name="about_support_opensensemap_title">"Steun Open Data!"</string>
+    <string name="about_support_opensensemap_description">"openSenseMap is volledig gratis en is sterk afhankelijk van bijdragen uit de gemeenschap en donaties om de servers draaiende te houden en de gegevens voor iedereen toegankelijk te maken. Als je de in deze app aangeboden milieugegevens waarderen, steun dan alstublieft hun project:"</string>
+    <string name="about_link_opensensemap">"Verkennen: opensensemap.org"</string>
+    <string name="about_link_sensebox">"Bouwen: sensebox.de"</string>
+    <string name="about_link_betterplace">"Doneren via Betterplace"</string>
+
+    <!-- Library categories -->
+    <string name="library_category_core_ui">"Kern-UI &amp; Architectuur"</string>
+    <string name="library_category_networking">"Netwerk &amp; Media"</string>
+    <string name="library_category_database_concurrency">"Database &amp; Concurrency"</string>
+    <string name="library_category_utilities">"Hulpprogramma's &amp; Codecs"</string>
+    <string name="library_category_data_services">"Gegevens- &amp; Geocoderingdiensten"</string>
+    <string name="library_category_testing">"Testframeworks"</string>
+    <string name="settings_text_scale_label">"App-tekstschaling"</string>
+    <string name="settings_text_scale_description">"Pas de relatieve tekstgrootte van de app-interface aan op jouw apparaat of leesafstand."</string>
+    <string name="settings_text_scale_compact">"60%% (Compact)"</string>
+    <string name="settings_text_scale_default">"100%% (Standaard)"</string>
+    <string name="settings_text_scale_double">"200%% (Dubbel)"</string>
+    <string name="cd_contribute_translations">"Bijdragen aan vertalingen"</string>
+    <string name="translation_contrib_title">"Helpen BoxViewer te vertalen"</string>
+    <string name="translation_contrib_message">"Je kunt helpen om BoxViewer te vertalen, correcties in te dienen of nieuwe talen toe te voegen! Klik hieronder om het openbare POEditor-vertaalportaal te bezoeken, of lees onze GitHub CONTRIBUTING.md voor details."</string>
+    <string name="translation_contrib_button">"Helpen met vertalen (POEditor)"</string>
+    <string name="about_section_translation">"VERTALING &amp; LOKALISATIE"</string>
+    <string name="about_translation_description">"Help mee om BoxViewer in nieuwe talen te vertalen of bestaande vertalingen te corrigeren! We gebruiken POEditor voor het gezamenlijk beheer van onze vertaalcommunity."</string>
+    <string name="about_link_translate">"Meehelpen met vertalen (POEditor)"</string>
+    <string name="language_czech">"Tsjechisch"</string>
+    <string name="language_french">"Frans"</string>
+    <string name="language_hungarian">"Hongaars"</string>
+    <string name="language_italian">"Italiaans"</string>
+    <string name="language_dutch">"Nederlands"</string>
+    <string name="language_polish">"Pools"</string>
+    <string name="language_spanish">"Spaans"</string>
 </resources>

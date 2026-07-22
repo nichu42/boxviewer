@@ -1,3 +1,629 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">"BoxViewer"</string>
+
+    <!-- Language picker labels -->
+    <string name="language_system_default">"Výchozí systémové"</string>
+    <string name="language_english">"Angličtina"</string>
+    <string name="language_german">"Němčina"</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">"Moje senseBoxes"</string>
+    <string name="dashboard_empty_title">"Zatím nebyly přidány žádné senseBoxes"</string>
+    <string name="dashboard_empty_description">"Objevte veřejné senseBoxes a uložte si je do záložek, abyste si přizpůsobili svůj řídicí panel a widgety na domovské obrazovce."</string>
+    <string name="dashboard_empty_button">"Přidat senseBox"</string>
+    <string name="dashboard_info_title">"Co je openSenseMap?"</string>
+    <string name="dashboard_info_description_1">"openSenseMap je celosvětová open-data platforma, kde tisíce lidí sdílejí environmentální data ze svých vlastních meteostanic (senseBoxes)."</string>
+    <string name="dashboard_info_description_2">"BoxViewer vám umožňuje prozkoumat tyto komunitní stanice, uložit si je na osobní řídicí panel a dokonce si je přidat jako widgety na domovskou obrazovku pro sledování v reálném čase bez otevírání aplikace."</string>
+    <string name="dashboard_reorder_hint">"Stisknutím a přetažením úchytu boxu změňte pořadí. Klepnutím na tlačítko záložky box odstraníte. Klepnutím na tlačítko zaškrtnutí uložite."</string>
+    <string name="dashboard_select_all_metrics">"Vybrat všechny metriky"</string>
+    <string name="dashboard_deselect_all_metrics">"Zrušit výběr všech metrik"</string>
+    <string name="dashboard_selected_metrics_header">"VYBRANÉ METRIKY (PŘETAŽENÍM SEŘADIT)"</string>
+    <string name="dashboard_available_sensors_header">"DOSTUPNÉ SENZORY (VYBRAT K PŘIDÁNÍ)"</string>
+    <string name="dashboard_no_metrics_selected">"Nejsou vybrány žádné metriky k zobrazení."</string>
+    <string name="dashboard_no_metrics_available">"Žádné metriky nejsou konfigurovány nebo dostupné. Klepnutím na ikonu ozubeného kola vyberte metriky k zobrazení."</string>
+    <string name="dashboard_current_value_format">"Aktuálně: %1$s %2$s"</string>
+    <string name="dashboard_done">"Hotovo"</string>
+    <string name="dashboard_exposure_outdoor">"venku"</string>
+
+    <!-- Add Box -->
+    <string name="add_box_title">"Přidat senseBox"</string>
+    <string name="add_box_fetching">"Načítání senseBox…"</string>
+    <string name="add_box_already_saved">"Již ve vašich senseBoxes"</string>
+
+    <!-- Main / Navigation -->
+    <string name="nav_dashboard">"Řídicí panel"</string>
+    <string name="nav_home">"Domů"</string>
+    <string name="nav_discover">"Prozkoumat"</string>
+    <string name="nav_settings">"Nastavení"</string>
+    <string name="nav_about">"O aplikaci"</string>
+
+    <!-- Database version dialogs -->
+    <string name="db_version_mismatch_title">"Neodpovídající verze databáze"</string>
+    <string name="db_version_mismatch_message">"Databáze aplikace byla aktualizována na novější verzi. Vaše aktuální verze aplikace je příliš stará na její přečtení. Pro zajištění stability můžete buď začít úplně znovu (čímž se smažou vaše záložky a nastavení widgetů), nebo aplikaci zavřít a otevřít stránku projektu k instalaci aktualizace."</string>
+    <string name="db_version_mismatch_start_over">"Začít znovu"</string>
+    <string name="db_version_mismatch_install_update">"Instalovat aktualizaci"</string>
+    <string name="db_updated_title">"Databáze aktualizována"</string>
+    <string name="db_updated_message">"Databáze aplikace byla aktualizována na novější verzi. Pro zajištění stability a kompatibility byly některé konfigurace obnoveny. Znovu si prosím nastavte své oblíbené položky a widgety."</string>
+
+    <!-- Errors -->
+    <string name="error_invalid_sensebox_link">"Neplatný odkaz senseBox"</string>
+
+    <!-- Settings -->
+    <string name="settings_title">"Nastavení"</string>
+
+    <!-- Settings -->
+    <string name="settings_section_app_settings">"NASTAVENÍ APLIKACE"</string>
+    <string name="settings_app_theme_label">"Vzhled aplikace"</string>
+    <string name="settings_app_theme_description">"Vyberte si mezi světlem, tmavým nebo systémovým vizuálním stylem."</string>
+    <string name="settings_theme_system">"Systém"</string>
+    <string name="settings_theme_light">"Světlý"</string>
+    <string name="settings_theme_dark">"Tmavý"</string>
+    <string name="settings_conditional_formatting_label">"Podmíněné formátování"</string>
+    <string name="settings_conditional_formatting_description">"Zabarvit hodnoty senzoru na základě jejich aktuální naměřené hodnoty."</string>
+    <string name="settings_language_label">"Jazyk"</string>
+    <string name="settings_language_description">"Vyberte jazyk uživatelského rozhraní aplikace."</string>
+    <string name="settings_aqi_standard_label">"Standard AQI"</string>
+    <string name="settings_aqi_standard_description">"Vyberte výpočet indexu kvality ovzduší pro AQI senzory."</string>
+    <string name="settings_temperature_unit_label">"Jednotka teploty"</string>
+    <string name="settings_temperature_unit_description">"Vyberte stupnici zobrazení pro všechny teplotní senzory."</string>
+    <string name="settings_pressure_unit_label">"Jednotka tlaku vzduchu"</string>
+    <string name="settings_pressure_unit_description">"Vyberte stupnici zobrazení pro všechny senzory tlaku vzduchu."</string>
+    <string name="settings_format_pressure_label">"Formátovat tlak vzduchu"</string>
+    <string name="settings_format_pressure_description">"Formátovat hodnoty tlaku s oddělovačem tisíců (např. 1.013,25 hPa namísto 1013,25 hPa)."</string>
+    <string name="settings_wind_unit_label">"Jednotka rychlosti větru"</string>
+    <string name="settings_wind_unit_description">"Vyberte stupnici zobrazení pro všechny senzory rychlosti větru."</string>
+
+    <!-- Unit symbols (kept consistent across locales) -->
+    <string name="unit_celsius" translatable="false">"°C"</string>
+    <string name="unit_fahrenheit" translatable="false">"°F"</string>
+    <string name="unit_kelvin" translatable="false">"K"</string>
+    <string name="unit_hpa" translatable="false">"hPa"</string>
+    <string name="unit_pa" translatable="false">"Pa"</string>
+    <string name="unit_mbar" translatable="false">"mbar"</string>
+    <string name="unit_inhg" translatable="false">"inHg"</string>
+    <string name="unit_mmhg" translatable="false">"mmHg"</string>
+    <string name="unit_ms" translatable="false">"m/s"</string>
+    <string name="unit_kmh" translatable="false">"km/h"</string>
+    <string name="unit_mph" translatable="false">"mph"</string>
+    <string name="unit_kn" translatable="false">"kn"</string>
+
+    <!-- Settings: Diagnostics -->
+    <string name="settings_section_diagnostics">"DIAGNOSTIKA A HLÁŠENÍ CHYB"</string>
+    <string name="settings_crash_detected_title">"Lokálně bylo detekováno nedávné selhání aplikace."</string>
+    <string name="settings_copy_crash_log">"Kopírovat protokol o selhání"</string>
+    <string name="settings_clear_log">"Vymazat protokol"</string>
+    <string name="settings_no_crashes">"Nebyla zjištěna žádná selhání. Aplikace běží hladce! Pokud narazíte na chyby, můžete zkopírovat standardní systémové informace, které nám pomohou diagnostikovat problém."</string>
+    <string name="settings_copy_system_diagnostics">"Kopírovat systémové diagnostické informace"</string>
+    <string name="settings_crash_report_copied">"Zpráva o selhání zkopírována do schránky!"</string>
+    <string name="settings_crash_log_cleared">"Protokol o selhání vymazán"</string>
+    <string name="settings_diagnostics_copied">"Diagnostika zkopírována do schránky!"</string>
+    <string name="settings_copy_diagnostics_cd">"Kopírovat diagnostiku"</string>
+
+    <!-- Settings: API Logging -->
+    <string name="settings_section_api_logging">"PROTOKOLOVÁNÍ LADĚNÍ API"</string>
+    <string name="settings_api_logging_description">"Zaznamenává nezpracované síťové požadavky JSON, odpovědi a interní metriky analýzy. Protokoly se ukládají lokálně ve formátu JSON lines a lze je sdílet za účelem diagnostiky problémů."</string>
+    <string name="settings_enable_api_logging">"Povolit protokolování API"</string>
+    <string name="settings_current_size_format">"Aktuální velikost: %1$s"</string>
+    <string name="settings_api_logging_enabled">"Protokolování API povoleno"</string>
+    <string name="settings_api_logging_disabled">"Protokolování API zakázáno"</string>
+    <string name="settings_max_log_entries">"Maximální počet záznamů protokolu"</string>
+    <string name="settings_view_api_logs">"Zobrazit protokoly API"</string>
+    <string name="settings_copy_logs">"Kopírovat protokoly"</string>
+    <string name="settings_share_logs">"Sdílet protokoly"</string>
+    <string name="settings_clear_api_logs">"Vymazat protokoly API"</string>
+    <string name="settings_log_empty">"Protokol je prázdný!"</string>
+    <string name="settings_logs_copied">"Protokoly zkopírovány do schránky!"</string>
+    <string name="settings_share_api_logs_title">"Sdílet protokoly API"</string>
+    <string name="settings_error_sharing_logs">"Chyba při sdílení protokolů"</string>
+    <string name="settings_logs_cleared">"Protokoly vymazány"</string>
+
+    <!-- File size units -->
+    <string name="file_size_bytes">"%1$d B"</string>
+    <string name="file_size_kilobytes">"%1$.1f KB"</string>
+    <string name="file_size_megabytes">"%1$.1f MB"</string>
+
+    <!-- Discovery -->
+    <string name="discovery_title">"Objevovat senseBoxy"</string>
+    <string name="discovery_search_mode_location">"Město / Obec"</string>
+    <string name="discovery_search_mode_box_id">"Název / ID senseBoxu"</string>
+    <string name="discovery_placeholder_city">"Zadejte město"</string>
+    <string name="discovery_placeholder_box_id">"Hledat podle názvu / ID senseBoxu"</string>
+    <string name="discovery_locating">"Zjišťování polohy…"</string>
+    <string name="discovery_no_barcode_scanner">"Nebyla nalezena žádná aplikace pro čtení čárových kódů. Nainstalujte si prosím nějakou (např. Binary Eye nebo Barcode Scanner)."</string>
+    <string name="discovery_unknown_location">"Neznámá poloha"</string>
+    <string name="discovery_search_filters">"Filtry vyhledávání"</string>
+    <string name="discovery_exposure_label">"Typ umístění"</string>
+    <string name="discovery_exposure_outdoor">"Venku"</string>
+    <string name="discovery_exposure_indoor">"Uvnitř"</string>
+    <string name="discovery_exposure_all">"Všechny"</string>
+    <string name="discovery_last_updated_limit">"Období aktualizace"</string>
+    <string name="discovery_last_updated_15m">"Posledních 15 minut"</string>
+    <string name="discovery_last_updated_30m">"Posledních 30 minut"</string>
+    <string name="discovery_last_updated_1h">"Poslední hodina"</string>
+    <string name="discovery_last_updated_hours">"Posledních %1$d hodin"</string>
+    <string name="discovery_last_updated_24h">"Posledních 24 hodin (1 den)"</string>
+    <string name="discovery_last_updated_all_time">"Celkové období"</string>
+    <string name="discovery_radius_label">"Poloměr vyhledávání"</string>
+    <string name="discovery_radius_format">"%1$d km"</string>
+    <string name="discovery_results_filtered_out">"Výsledky filtrovány"</string>
+    <string name="discovery_no_senseboxes_found">"Nenalezeny žádné senseBoxy"</string>
+    <string name="discovery_no_results_location_hint">"Zkuste vyhledat jinou oblast výše, vyhledat souřadnice nebo použít tlačítko GPS k vyhledání stanic."</string>
+    <string name="discovery_no_results_box_hint">"Zkontrolujte pravopis názvu nebo ověřte 24místné hexadecimální ID senseBoxu."</string>
+    <string name="discovery_button_discover">"Objevovat senseBoxy"</string>
+    <string name="discovery_button_find_box">"Najít název / ID senseBoxu"</string>
+    <string name="discovery_empty_box_hint">"Zadejte název senseBoxu nebo 24místné ID senseBoxu. Nezapomeňte si stanice, které si chcete ponechat, uložit do záložek!"</string>
+    <string name="discovery_found_count">" NALEZENÉ SENSEBOXY: %1$d"</string>
+    <string name="discovery_search_radius_format">"Poloměr vyhledávání: %1$d km"</string>
+    <string name="discovery_save_hint">"Klepnutím na ikonu záložky uložite stanici do svého seznamu."</string>
+    <string name="discovery_show_more_format">"Zobrazit více (zbývá %1$d)"</string>
+    <string name="discovery_distance_format">"(%1$.1f km daleko)"</string>
+    <string name="discovery_coords_format">"Souřadnice: %1$s, %2$s"</string>
+    <string name="discovery_some_metrics_outdated">"Některé naměřené hodnoty jsou zastaralé"</string>
+    <string name="discovery_sensors_format">"Senzory: %1$s"</string>
+    <string name="discovery_error_location">"Aktuální polohu se nepodařilo zjistit. Vyhledejte prosím ručně pomocí vyhledávacího panelu."</string>
+    <string name="discovery_empty_location_hint">"Vyhledejte město nebo klikněte na ikonu GPS nahoře a najděte meteostanice ve svém okolí. Uložte si své oblíbené položky do záložek, abyste je měli bezpečně uložené na svém panelu."</string>
+    <string name="discovery_results_filtered_message">"Našli jsme %1$d senseBoxů, ale ty byly filtrovány vašimi aktuálními filtry vyhledávání. Zkuste nastavit 'Poslední aktualizace' na 'Celkové období' nebo 'Typ umístění' na 'Všechny'."</string>
+    <string name="discovery_15m_short">"15 m"</string>
+    <string name="discovery_2km_short">"2 km"</string>
+    <string name="discovery_250km_short">"250 km"</string>
+    <string name="discovery_permission_rationale">"K objevení senseBoxů ve vašem okolí je vyžadováno oprávnění k umístění. Udělte prosím oprávnění v nastavení aplikace."</string>
+    <string name="discovery_grant_permission">"Udělit oprávnění k umístění"</string>
+    <string name="discovery_no_address">"Pro aktuální polohu nebyla nalezena žádná adresa."</string>
+    <string name="discovery_location_unavailable">"Umístění není k dispozici."</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_search">"Hledat"</string>
+    <string name="cd_run_search">"Spustit vyhledávání"</string>
+    <string name="cd_clear">"Vymazat"</string>
+    <string name="cd_use_gps">"Použít polohu GPS"</string>
+    <string name="cd_scan_qr">"Naskenovat QR kód"</string>
+    <string name="cd_filters">"Filtr"</string>
+    <string name="cd_expand">"Rozbalit"</string>
+    <string name="cd_collapse">"Sbalit"</string>
+    <string name="cd_search_off">"Vybrat"</string>
+    <string name="cd_discover">"Objevit"</string>
+    <string name="cd_show_more">"Zobrazit více"</string>
+    <string name="cd_updated_time">"Čas aktualizace"</string>
+    <string name="cd_some_metrics_outdated">"Některé naměřené hodnoty jsou zastaralé"</string>
+    <string name="cd_save_bookmark">"Uložit záložku"</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_info">"Informace"</string>
+    <string name="cd_view_api_logs">"Zobrazit protokoly API"</string>
+    <string name="cd_crash_detected_warning">"Zjištěno varování před pádem"</string>
+    <string name="dashboard_exposure_indoor">"uvnitř"</string>
+
+    <!-- Widget layout placeholder strings (replaced at runtime by RemoteViews) -->
+    <string name="widget_default_box_name" translatable="false">"senseBox"</string>
+    <string name="widget_updated_just_now">"Právě aktualizováno"</string>
+    <string name="widget_refresh">"Aktualizovat widget"</string>
+    <string name="widget_configure">"Konfigurovat widget"</string>
+    <string name="widget_sensor_type">"Typ senzoru"</string>
+    <string name="widget_sensor_category_icon">"Ikona kategorie senzoru"</string>
+    <string name="widget_select_sensor">"Vybrat senzor"</string>
+    <string name="widget_no_value" translatable="false">"--"</string>
+
+    <!-- Default placeholder sensor titles (German, matching openSenseMap conventions) -->
+    <string name="widget_placeholder_temperature" translatable="false">"Temperatur"</string>
+    <string name="widget_placeholder_humidity" translatable="false">"Feuchte"</string>
+    <string name="widget_placeholder_illumination" translatable="false">"Beleuchtung"</string>
+    <string name="widget_placeholder_pressure" translatable="false">"Druck"</string>
+    <string name="widget_placeholder_pm25" translatable="false">"PM2.5"</string>
+    <string name="widget_placeholder_pm10" translatable="false">"PM10"</string>
+    <string name="widget_name_small">"senseBox Info (Malý 2x1)"</string>
+    <string name="widget_name_medium">"senseBox Info (Střední 3x2)"</string>
+    <string name="widget_name_large">"senseBox Info (Velký 4x3)"</string>
+
+    <!-- Common actions -->
+    <string name="action_cancel">"Zrušit"</string>
+    <string name="action_retry">"Opakovat"</string>
+    <string name="action_close">"Zavřít"</string>
+    <string name="action_view_details">"Zobrazit podrobnosti"</string>
+    <string name="action_add_to_dashboard">"Přidat na nástěnku"</string>
+    <string name="action_ok">"OK"</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_save_order">"Uložit pořadí"</string>
+    <string name="cd_reorder_boxes">"Přeuspořádat senseBoxy"</string>
+    <string name="cd_refresh_all">"Aktualizovat vše"</string>
+    <string name="cd_dismiss_error">"Zavřít chybu"</string>
+    <string name="cd_no_saved_boxes">"Žádné uložené senseBoxy"</string>
+    <string name="cd_configure_metrics">"Konfigurovat zobrazené hodnoty"</string>
+    <string name="cd_location">"Poloha"</string>
+    <string name="cd_data_updated">"Data byla aktualizována"</string>
+    <string name="cd_remove_bookmark">"Odstranit záložku"</string>
+    <string name="cd_drag_handle_reorder">"Tažením za úchyt přeuspořádáte senseBoxy"</string>
+    <string name="cd_drag_to_reorder">"Přeuspořádat tažením"</string>
+    <string name="cd_back">"Zpět"</string>
+    <string name="cd_sync_box">"Synchronizovat box"</string>
+    <string name="cd_share">"Sdílet"</string>
+    <string name="cd_bookmark_toggle">"Přepínač záložek"</string>
+    <string name="cd_last_updated">"Naposledy aktualizováno"</string>
+    <string name="cd_app_synced">"Aplikace byla synchronizována"</string>
+    <string name="cd_map_location">"Poloha na mapě"</string>
+    <string name="cd_aqi_info">"AQI Info"</string>
+    <string name="cd_selected">"Vybráno"</string>
+    <string name="cd_app_logo">"Logo aplikace BoxViewer"</string>
+    <string name="cd_attention_warning">"Pozor varování"</string>
+    <string name="cd_build">"Sestavení"</string>
+    <string name="cd_donate">"Dary"</string>
+    <string name="cd_github_project">"Projekt na GitHubu"</string>
+    <string name="cd_gpl_logo">"Logo GPL v3"</string>
+    <string name="cd_kofi">"Ko-fi"</string>
+    <string name="cd_liberapay">"Liberapay"</string>
+    <string name="cd_license">"Licence"</string>
+    <string name="cd_open_homepage">"Otevřít domovskou stránku"</string>
+    <string name="cd_third_party_licenses">"Licence třetích stran"</string>
+    <string name="cd_website">"Webové stránky"</string>
+
+    <!-- Box detail screen -->
+    <string name="box_detail_title">"Podrobnosti senseBoxu"</string>
+    <string name="box_detail_synced_prefix">"Synchronizováno: %1$s"</string>
+    <string name="box_detail_group">"Skupina: %1$s"</string>
+    <string name="box_detail_add_to_dashboard_title">"Přidat na nástěnku"</string>
+    <string name="box_detail_add_to_dashboard_hint">"Přidejte tuto stanici do záložek, abyste ji uložili na svou nástěnku a zobrazili ve widgetech na domovské obrazovce."</string>
+    <string name="box_detail_location_section_title">"POLOHA ZAŘÍZENÍ A ODKAZ"</string>
+    <string name="box_detail_latitude">"Zeměpisná šířka: %1$s"</string>
+    <string name="box_detail_longitude">"Zeměpisná délka: %1$s"</string>
+    <string name="box_detail_open_opensensemap">"OpenSenseMap"</string>
+    <string name="box_detail_view_map">"Zobrazit mapu"</string>
+    <string name="box_detail_active_sensors_format">"AKTIVNÍ SNÍMAČE (%1$d)"</string>
+    <string name="box_detail_no_sensor_config">"Nejsou k dispozici žádná data konfigurace snímače."</string>
+    <string name="box_detail_widget_title">"Widgety domovské obrazovki"</string>
+    <string name="box_detail_widget_hint">"Chcete-li tuto stanici sledovat na domovské obrazovce, přejděte na ni, podržte prst na prázdném místě, vyberte 'Widgety' a vyhledejte BoxViewer. Poté můžete tento senseBox vybrat v konfiguraci widgetu."</string>
+    <string name="box_detail_no_box_selected">"Není vybrán žádný senseBox"</string>
+
+    <!-- Sensor cards -->
+    <string name="sensor_locally_computed">"Vypočítáno lokálně"</string>
+    <string name="sensor_hardware_format">"Hardvér: %1$s"</string>
+    <string name="sensor_generic">"Obecný snímač"</string>
+    <string name="sensor_updated_prefix">"Aktualizováno: %1$s"</string>
+    <string name="sensor_history_fetching">"NAČÍTÁM HISTORICKÝ TREND HODNOT…"</string>
+    <string name="sensor_history_fallback">"HISTORICKÝ TREND HODNOT (ZÁLOHOVÁ DATA)"</string>
+    <string name="sensor_history_title">"HISTORICKÝ TREND HODNOT"</string>
+    <string name="sensor_aqi_nowcast">"AQI NowCast"</string>
+    <string name="sensor_aqi_nowcast_subtitle">"12hodinový vážený průměr · %1$s"</string>
+    <string name="sensor_last_measurement_recorded">"Poslední zaznamenané měření:"</string>
+    <string name="sensor_no_data_points">"Nebyly zaznamenány žádné číselné datové body."</string>
+
+    <!-- Chart -->
+    <string name="chart_oldest">"Nejstarší"</string>
+    <string name="chart_latest">"Nejnovější"</string>
+    <string name="chart_measurements_count">"%1$d měření"</string>
+
+    <!-- Time formatting -->
+    <string name="time_unknown">"Neznámé"</string>
+    <string name="time_never_updated">"Ještě nikdy neaktualizováno"</string>
+    <string name="time_just_now">"Právě teď"</string>
+    <string name="time_minutes_ago">"před %1$d min."</string>
+    <string name="time_hours_ago">"před %1$d hodinami"</string>
+    <string name="time_days_ago">"před %1$d dny"</string>
+
+    <!-- API log viewer -->
+    <string name="api_log_title">"Protokolování ladění API"</string>
+    <string name="cd_refresh_logs">"Aktualizovat protokoly"</string>
+    <string name="cd_clear_logs">"Vymazat protokoly"</string>
+    <string name="api_log_logs_cleared">"Protokoly vymazány"</string>
+    <string name="api_log_empty">"Zatím nebyly zaznamenány žádné protokoly.
+Zapněte protokolování API v nastavení."</string>
+    <string name="api_log_no_matches">"Nebyla nalezena žádná odpovídající hlášení."</string>
+    <string name="api_log_url_copied">"URL zkopírována"</string>
+    <string name="api_log_response_copied">"Odpověď JSON zkopírována"</string>
+    <string name="api_log_entry_copied">"Záznam protokolu zkopírován"</string>
+    <string name="cd_diagnostics">"Diagnostika"</string>
+    <string name="api_log_diagnostics_title">"Informace o systémové diagnostice"</string>
+    <string name="api_log_label_app_version">"Verze aplikace"</string>
+    <string name="api_log_label_device_info">"Informace o zařízení"</string>
+    <string name="api_log_label_android_sdk">"Android SDK"</string>
+    <string name="api_log_label_start_timestamp">"Časové razítko spuštění"</string>
+    <string name="cd_stats">"Statistiky"</string>
+    <string name="api_log_stats_title">"Statistiky výkonu API"</string>
+    <string name="api_log_metric_requests">"Požadavky"</string>
+    <string name="api_log_metric_success_rate">"Míra úspěšnosti"</string>
+    <string name="api_log_metric_avg_latency">"Prům. latence"</string>
+    <string name="api_log_metric_failed">"Selhalo"</string>
+    <string name="api_log_status_distribution">"Rozdělení stavů"</string>
+    <string name="api_log_legend_success">"Úspěch (%1$d)"</string>
+    <string name="api_log_legend_client_error">"Chyba klienta (%1$d)"</string>
+    <string name="api_log_legend_server_error">"Chyba serveru (%1$d)"</string>
+    <string name="api_log_legend_failed">"Selhalo (%1$d)"</string>
+    <string name="api_log_top_endpoints">"Nejčastější koncové body"</string>
+    <string name="api_log_count_format">"%1$dx"</string>
+    <string name="api_log_latency_format">"%1$dms"</string>
+    <string name="filter_all">"Vše"</string>
+    <string name="api_log_filter_success">"Úspěch (2xx)"</string>
+    <string name="api_log_filter_client_error">"Chyba klienta (4xx)"</string>
+    <string name="api_log_filter_server_error">"Chyba serveru (5xx)"</string>
+    <string name="api_log_filter_failed">"Selhalo / Výjimky"</string>
+    <string name="api_log_search_placeholder">"Prohledat protokoly (URL, JSON, kód...)"</string>
+    <string name="cd_clear_search">"Vymazat vyhledávání"</string>
+    <string name="api_log_status_filter_label">"Stav: %1$s"</string>
+    <string name="api_log_request_details">"Podrobnosti požadavku"</string>
+    <string name="api_log_status_format">"Stav %1$d"</string>
+    <string name="api_log_network_error">"Chyba sítě"</string>
+    <string name="api_log_label_request_url">"URL požadavku"</string>
+    <string name="api_log_label_timestamp">"Časové razítko"</string>
+    <string name="api_log_label_app_state">"Stav aplikace"</string>
+    <string name="api_log_label_network_exception">"Síťová / klientská výjimka"</string>
+    <string name="cd_help">"Nápověda"</string>
+    <string name="api_log_troubleshooting_title">"Návrh na řešení problémů"</string>
+    <string name="api_log_label_parsing_result">"Výsledek parsování Moshi / Metriky"</string>
+    <string name="api_log_response_body_payload">"Datová část odpovědi"</string>
+    <string name="api_log_copy_url">"Kopírovat URL"</string>
+    <string name="api_log_copy_json">"Kopírovat JSON"</string>
+    <string name="api_log_copy_entire_log">"Kopírovat celý protokol"</string>
+    <string name="api_log_help_404">"Nenalezeno (404): Požadované ID senseBoxu nebo zdroj na openSenseMap neexistuje. Pokud se jedná o widget, zkontrolujte prosím ID boxu v nastavení konfigurace widgetu."</string>
+    <string name="api_log_help_429">"Překročen limit požadavků (429): Aplikace odeslala příliš mnoho požadavků. Počkejte prosím chvíli, než znovu načtete data. Omezení je aktivní kvůli šetření baterie a dodržování limitů API."</string>
+    <string name="api_log_help_5xx">"Chyba serveru (%1$d): Server openSenseMap má problémy. Stav serveru můžete ověřit návštěvou stránky opensensemap.org ve svém prohlížeči."</string>
+    <string name="api_log_help_offline">"Síť je offline: Aplikace nedokáže přeložit název serveru. Ujistěte se, že váš telefon je připojen k internetu a že vaše VPN nebo firewall neblokují BoxViewer."</string>
+    <string name="api_log_help_timeout">"Vypršel časový limit připojení: Připojení trvalo příliš dlouho. K tomu dochází při slabém mobilním připojení nebo pokud jsou servery openSenseMap přetížené."</string>
+    <string name="api_log_help_refused">"Připojení odepřeno: Připojení k serveru openSenseMap selhalo. Server může být nedostupný kvůli údržbě."</string>
+    <string name="api_log_help_parsing">"Chyba parsování dat: Aplikace nedokázala přečíst odpověď JSON. To obvykle naznačuje, že se změnila struktura API openSenseMap a BoxViewer potřebuje aktualizaci."</string>
+    <string name="api_log_help_http_error">"Chyba HTTP (%1$d): Server vrátil neplatný stavový kód. Zkontrolujte, zda je služba online."</string>
+    <string name="api_log_help_unknown">"Neznámá výjimka: Došlo k chybě na straně klienta nebo sítě. Zkontrolujte, zda je vaše připojení stabilní."</string>
+
+    <!-- AQI info screen -->
+    <string name="aqi_info_title">"Průvodce indexem kvality ovzduší"</string>
+    <string name="aqi_info_intro_title">"Pochopení indexu kvality ovzduší (AQI)"</string>
+    <string name="aqi_info_intro_description">"Index kvality ovzduší je standardizovaný systém používaný k hlášení denní kvality ovzduší a jejímu propojení s riziky pro veřejné zdraví. BoxViewer vytvoří lokální 'virtuální' AQI senzor, když stanice publikuje hodnoty prachu PM2.5 nebo PM10."</string>
+    <string name="aqi_info_cast_title">"InstantCast vs. NowCast"</string>
+    <string name="aqi_info_instantcast_title">"InstantCast (Živé hodnoty)"</string>
+    <string name="aqi_info_instantcast_description">"Převádí nejnovější jednotlivou naměřenou hodnotu přímo pomocí standardních limitů. Používá se na hlavním panelu a ve widgetech pro reaktivitu v reálném čase."</string>
+    <string name="aqi_info_nowcast_title">"NowCast (Historická analýza)"</string>
+    <string name="aqi_info_nowcast_description">"Používá 12hodinový vážený průměrný algoritmus EPA. Pokud se kvalita ovzduší rychle mění, je posledním hodinám přičtena větší váha; pokud je stabilní, jsou váženy rovnoměrně. Vypočítává se a zobrazuje při rozbalení podrobných karet senzoru."</string>
+    <string name="aqi_info_virtual_sensor_title">"Konsolidovaný virtuální senzor"</string>
+    <string name="aqi_info_virtual_sensor_description">"Pokud stanice obsahuje jak PM2.5 (jemný prach), tak PM10 (hrubý prach), BoxViewer vypočítá dílčí index pro oba a automaticky zobrazí nejhorší hodnotu (maximum). To zajišťuje maximální ochranu a přehledné rozvržení."</string>
+    <string name="aqi_info_regional_title">"REGIONÁLNÍ SPECIFIKACE AQI"</string>
+    <string name="aqi_system_us_epa">"US EPA AQI (Spojené státy)"</string>
+    <string name="aqi_scale_us">"Škála 0 – 500"</string>
+    <string name="aqi_system_uk_daqi">"UK DAQI (Spojené království)"</string>
+    <string name="aqi_scale_uk">"Škála 1 – 10"</string>
+    <string name="aqi_system_eu_eaqi">"Evropský EAQI (Evropská unie)"</string>
+    <string name="aqi_scale_eu">"Kativní pásma (bez číselného indexu)"</string>
+    <string name="aqi_system_canada_aqhi">"Kanada AQHI (Kanada)"</string>
+    <string name="aqi_scale_canada">"Stupnice 1 – 10+ (pouze PM2.5)"</string>
+    <string name="aqi_system_india_aqi">"Indie AQI (Indie)"</string>
+    <string name="aqi_scale_india">"Stupnice 0 – 500"</string>
+    <string name="aqi_system_china_aqi">"Čína AQI (Čína)"</string>
+    <string name="aqi_scale_china">"Stupnice 0 – 500"</string>
+    <string name="aqi_band_good">"Dobrá"</string>
+    <string name="aqi_band_moderate">"Mírná"</string>
+    <string name="aqi_band_sensitive_groups">"Citlivé skupiny"</string>
+    <string name="aqi_band_unhealthy">"Nezdravá"</string>
+    <string name="aqi_band_very_unhealthy">"Velmi nezdravá"</string>
+    <string name="aqi_band_hazardous">"Nebezpečná"</string>
+    <string name="aqi_band_low">"Nízká"</string>
+    <string name="aqi_band_high">"Vysoká"</string>
+    <string name="aqi_band_very_high">"Velmi vysoká"</string>
+    <string name="aqi_band_very_good">"Velmi dobrá"</string>
+    <string name="aqi_band_poor">"Špatná"</string>
+    <string name="aqi_band_very_poor">"Velmi špatná"</string>
+    <string name="aqi_band_extremely_poor">"Extrémně špatná"</string>
+    <string name="aqi_band_low_risk">"Nízké riziko"</string>
+    <string name="aqi_band_moderate_risk">"Mírné riziko"</string>
+    <string name="aqi_band_high_risk">"Vysoké riziko"</string>
+    <string name="aqi_band_very_high_risk">"Velmi vysoké riziko"</string>
+    <string name="aqi_band_satisfactory">"Uspokojivá"</string>
+    <string name="aqi_band_moderately_polluted">"Mírně znečištěno"</string>
+    <string name="aqi_band_severe">"Závažné"</string>
+    <string name="aqi_band_excellent">"Vynikající"</string>
+    <string name="aqi_band_lightly_polluted">"Lehce znečištěno"</string>
+    <string name="aqi_band_heavily_polluted">"Silně znečištěno"</string>
+    <string name="aqi_band_severely_polluted">"Těžce znečištěno"</string>
+
+    <!-- Widget configuration -->
+    <string name="widget_config_title">"Přizpůsobit domovský widget"</string>
+    <string name="widget_config_section_sensebox">"VYBRAT SENSEBOX"</string>
+    <string name="widget_config_no_saved_boxes">"Žádné uložené senseBoxy nejsou k dispozici. Nejprve ulož alespoň jeden senseBox jako oblíbený na kartě Objevování v aplikaci."</string>
+    <string name="widget_config_select_sensebox_hint">"Vyber senseBox"</string>
+    <string name="widget_config_exposure">"Expozice: %1$s"</string>
+    <string name="widget_config_section_visualization">"FORMÁT VIZUALIZACE"</string>
+    <string name="widget_config_visualization_list">"Seznam metrik"</string>
+    <string name="widget_config_visualization_grid">"Jednotlivá značka"</string>
+    <string name="widget_config_grid_warning">"Zobrazen pouze jeden senzor; ostatní možnosti výběru byly zahozeny."</string>
+    <string name="widget_config_section_highlight_metric">"ZVÝRAZNIT METRIKU"</string>
+    <string name="widget_config_section_monitored_metrics">"SLEDOVANÉ METRIKY"</string>
+    <string name="widget_config_select_sensebox_prompt">"Výše vyber uložený senseBox, aby se zobrazily dostupné senzory."</string>
+    <string name="widget_config_choose_sensor">"Vyber senzor"</string>
+    <string name="widget_config_sensor_subtitle">"Jednotka: %1$s | Typ: %2$s"</string>
+    <string name="widget_config_section_monitored_metrics_reorder">"SLEDOVANÉ METRIKY (TAŽENÍM ZA ☰ PŘEOBJEDNAT)"</string>
+    <string name="widget_config_no_metrics_selected">"Nejsou vybrány žádné sledované metriky. Zkontroluj níže dostupné metriky a přidej je."</string>
+    <string name="widget_config_section_add_metrics">"PŘIDAT DALŠÍ METRIKY"</string>
+    <string name="widget_config_section_metric_display_style">"STYL ZOBRAZENÍ METRIKY"</string>
+    <string name="widget_config_metric_display_style_description">"Vyber styl rozvržení viditelnosti pro metriky ve widgetu."</string>
+    <string name="widget_display_style_full_details">"Úplné podrobnosti"</string>
+    <string name="widget_display_style_value_unit">"Hodnota a jednotka"</string>
+    <string name="widget_display_style_value_only">"Pouze hodnota"</string>
+    <string name="widget_config_conditional_formatting_label">"Podmíněné formátování"</string>
+    <string name="widget_config_conditional_formatting_description">"Obarvit hodnoty na základě prahových hodnot senzoru"</string>
+    <string name="widget_config_section_aqi_display">"ZOBRAZENÍ HODNOTY AQI"</string>
+    <string name="widget_config_aqi_display_description">"Vyber, jak se má metrika AQI (aktuální) zobrazovat ve widgetu, je-li vybrána."</string>
+    <string name="widget_aqi_display_number_and_label">"Číslo a popis"</string>
+    <string name="widget_aqi_display_number_only">"Pouze číslo"</string>
+    <string name="widget_aqi_display_label_only">"Pouze popis"</string>
+    <string name="widget_config_section_text_scaling">"ŠKÁLOVÁNÍ TEXTU WIDGETU"</string>
+    <string name="widget_config_text_scaling_description">"Uprav relativní velikost textu widgetu tak, aby se perfektně hodila do vlastních rozvržení. Klepni a táhni dole."</string>
+    <string name="widget_config_text_scale_label">"Škálování textu widgetu"</string>
+    <string name="widget_config_text_scale_compact">"60 % (Kompaktní)"</string>
+    <string name="widget_config_text_scale_default">"100 % (Výchozí)"</string>
+    <string name="widget_config_text_scale_double">"200 % (Dvojnásobná)"</string>
+    <string name="widget_config_section_background_color">"BARVA POZADÍ WIDGETU"</string>
+    <string name="widget_config_select_preset_palette">"Vybrat přednastavenou paletu"</string>
+    <string name="widget_config_advanced_settings">"Pokročilá nastavení"</string>
+    <string name="widget_config_color_wheel">"Interaktivní barevné kolo"</string>
+    <string name="widget_config_brightness_value">"Hodnota jasu"</string>
+    <string name="widget_config_transparency">"Průhlednost widgetu"</string>
+    <string name="widget_config_percentage">"%1$s%%"</string>
+    <string name="widget_config_hex_color_code">"HEX kód barvy"</string>
+    <string name="widget_config_hex_placeholder">"0F172A"</string>
+    <string name="widget_config_hex_error">"Zadejte platný 6místný hexadecimální kód."</string>
+    <string name="widget_config_section_header_labels">"ŠTÍTEK ZÁHLAVÍ WIDGETU"</string>
+    <string name="widget_config_show_box_name">"Zobrazit název senseBox"</string>
+    <string name="widget_config_show_box_name_description">"Zobrazí název senseBox v záhlaví widgetu"</string>
+    <string name="widget_config_show_update_time">"Zobrazit čas poslední aktualizace"</string>
+    <string name="widget_config_show_update_time_description">"Zobrazí časové razítko poslední aktualizace v záhlaví widgetu"</string>
+    <string name="widget_config_section_header_buttons">"TLAČÍTKA ZÁHLAVÍ WIDGETU"</string>
+    <string name="widget_config_show_refresh_button">"Zobrazit tlačítko aktualizace"</string>
+    <string name="widget_config_show_refresh_button_description">"Zobrazí ikonu synchronizace pro ruční aktualizaci widgetu"</string>
+    <string name="widget_config_show_config_button">"Zobrazit tlačítko konfigurovat"</string>
+    <string name="widget_config_show_config_button_description">"Zobrazí ikonu ozubeného kola pro konfiguraci nastavení widgetu"</string>
+    <string name="widget_config_section_refresh_interval">"ČASOVÝ INTERVAL AKTUALIZACE"</string>
+    <string name="widget_config_refresh_interval_description">"Nakonfigurujte, jak často má widget aktualizovat své senzory na pozadí. Klepněte a přetáhněte níže."</string>
+    <string name="widget_config_refresh_interval_label">"Frekvence"</string>
+    <string name="widget_config_refresh_interval_minutes">"%1$s minut"</string>
+    <string name="widget_config_refresh_interval_fast">"5 min (Rychlá aktualizace)"</string>
+    <string name="widget_config_refresh_interval_eco">"60 min (Úspora energie)"</string>
+    <string name="widget_config_aqi_guide_title">"Průvodce indexem kvality ovzduší (AQI)"</string>
+    <string name="widget_config_aqi_guide_intro">"Index kvality ovzduší je virtuální metrika lokálně syntetizovaná aplikací BoxViewer, když stanice poskytuje hodnoty měření prachu PM2.5 nebo PM10."</string>
+    <string name="widget_config_aqi_guide_instantcast">"• InstantCast (Živý widget a přehled):
+Okamžitě vypočítá index z nejnovější hodnoty koncentrace."</string>
+    <string name="widget_config_aqi_guide_nowcast">"• NowCast (Rozšířená historie map):
+Používá algoritmus 12hodinového váženého průměru k vyhlazení dočasných špiček."</string>
+    <string name="widget_config_aqi_guide_consolidated">"• Konsolidovaný senzor:
+Pokud jsou přítomny PM2.5 i PM10, automaticky se hlásí nejhorší (maximální) hodnota indexu."</string>
+    <string name="widget_config_aqi_guide_customize">"Regionální standard (US EPA, UK DAQI, European EAQI, Canada AQHI, India AQI, China AQI) můžete upravit v obecném nastavení aplikace."</string>
+    <string name="action_apply_widget">"Použít widget"</string>
+    <string name="action_discard">"Zrušit"</string>
+    <string name="action_got_it">"Rozumím"</string>
+    <string name="widget_status_loading_sensors">"Načítání senzorů..."</string>
+    <string name="widget_status_select_sensebox">"Nejprve vyberte senseBox!"</string>
+    <string name="widget_status_provisioning">"Nasazování widgetu..."</string>
+    <string name="widget_status_save_failed">"Uložení se nezdařilo: %1$s"</string>
+
+    <!-- Share QR dialog -->
+    <string name="share_title">"Sdílet senseBox"</string>
+    <string name="share_deep_link_label">"Hluboký odkaz"</string>
+    <string name="share_clipboard_label">"Odkaz na senseBox"</string>
+    <string name="share_subject">"senseBox"</string>
+    <string name="action_copy">"Kopírovat"</string>
+    <string name="action_share_link">"Sdílet odkaz"</string>
+    <string name="action_share_qr">"Sdílet QR"</string>
+    <string name="action_save_qr">"Uložit QR"</string>
+    <string name="share_qr_failed">"Sdílení QR obrázku se nezdařilo"</string>
+    <string name="share_qr_saved_success">"QR byl uložen do Obrázky/BoxViewer"</string>
+    <string name="share_qr_save_requires_android_10">"Ukládání do galerie vyžaduje Android 10 nebo novější"</string>
+    <string name="share_qr_save_failed">"Uložení QR obrázku se nezdařilo"</string>
+
+    <!-- Errors / status -->
+    <string name="error_invalid_stats_format">"API vrátilo neplatný formát statistiky."</string>
+    <string name="error_failed_to_load_stats">"Načítání statistik databáze selhalo: %1$s"</string>
+    <string name="error_could_not_load_sensebox">"Tento senseBox se nepodařilo načíst. Zkontrolujte odkaz nebo připojení."</string>
+    <string name="error_failed_load_box_details">"Načítání podrobností o boxu selhalo: %1$s"</string>
+    <string name="error_failed_update_favorite">"Aktualizace oblíbené položky selhala: %1$s"</string>
+    <string name="error_no_senseboxes_matching">"Nebyl nalezen žádný senseBox odpovídající %1$s"</string>
+    <string name="error_failed_search_boxes">"Vyhledávání boxů selhalo: %1$s"</string>
+    <string name="error_no_nearby_senseboxes">"V okruhu 500 km nebyly nalezeny žádné senseBoxy."</string>
+    <string name="error_failed_find_nearby_boxes">"Hledání blízkých boxů selhalo: %1$s"</string>
+    <string name="error_no_senseboxes_near_location">"V okruhu 500 km od %1$s nebyly nalezeny žádné senseBoxy."</string>
+    <string name="error_could_not_find_location">"Nepodařilo se najít polohu %1$s na mapě. Zkuste prosím jiný název města."</string>
+    <string name="error_failed_search_location">"Hledání polohy selhalo: %1$s"</string>
+    <string name="error_no_senseboxes_within_radius">"V okruhu %1$s km od této polohy nebyly nalezeny žádné senseBoxy."</string>
+    <string name="error_failed_fetch_boxes_radius">"Načtení boxů pro radius %1$s km selhalo: %2$s"</string>
+    <string name="error_failed_refresh">"Aktualizace selhala: %1$s"</string>
+
+    <!-- Date/time formatting -->
+    <string name="date_format_full">"d. MMM yyyy - HH:mm"</string>
+    <string name="date_format_short">"d. MMM, HH:mm"</string>
+    <string name="time_format">"HH:mm"</string>
+    <string name="last_updated_never">"Nikdy neaktualizováno"</string>
+    <string name="last_updated_format">"Naposledy aktualizováno: %1$s"</string>
+    <string name="sync_time_never">"Nikdy"</string>
+    <string name="widget_updated_at">"Aktualizováno %1$s"</string>
+    <string name="widget_updated_none">"Aktualizováno --:--"</string>
+    <string name="widget_no_active_sensor">"Žádný aktivní senzor"</string>
+    <string name="selected_location">"Vybraná poloha"</string>
+    <string name="location_coordinates_label">"Poloha (%1$s, %2$s)"</string>
+    <string name="location_lat_lon_label">"Zeměpisná šířka: %1$s, Zeměpisná délka: %2$s"</string>
+    <string name="exposure_outdoor">"Venkovní"</string>
+    <string name="exposure_indoor">"Vnitřní"</string>
+    <string name="exposure_all">"Všechny"</string>
+    <string name="cd_cancel">"Zrušit"</string>
+    <string name="cd_expand_dropdown">"Rozbalit rozbalovací nabídku"</string>
+    <string name="cd_low_brightness">"Nízký jas"</string>
+    <string name="cd_high_brightness">"Vysoký jas"</string>
+    <string name="cd_opaque">"Neprůhledný"</string>
+    <string name="cd_transparent">"Průhledný"</string>
+
+    <!-- About -->
+    <string name="about_title">"O aplikaci BoxViewer"</string>
+
+    <!-- About -->
+    <string name="about_version_label">"Verze %1$s"</string>
+    <string name="about_developer_label">"S péčí vytvořil nichu42"</string>
+    <string name="about_support_title">"Podpora a zpětná vazba"</string>
+    <string name="about_rate_us">"Ohodnotit na GitHubu"</string>
+    <string name="about_report_bug">"Nahlásit chybu"</string>
+    <string name="about_request_feature">"Požadavek na funkci"</string>
+    <string name="about_legal_title">"Právní informace"</string>
+    <string name="about_privacy_policy">"Zásady ochrany osobních údajů"</string>
+    <string name="about_terms_of_service">"Podmínky použití"</string>
+    <string name="about_open_source_licenses">"Open-source licence"</string>
+    <string name="about_gpl_license">"GNU General Public License"</string>
+    <string name="about_disclaimer_title">"ODMETKNUTÍ ODPOVĚDNOSTI ZA PŘÍSLUŠNOST"</string>
+    <string name="about_disclaimer_text">"Aplikace BoxViewer je nezávislý projekt a není v žádném spojení s openSenseMap (openSenseLab gGmbH) ani senseBox (Reedu GmbH &amp; Co. KG), není jimi podporována ani s nimi není asociována."</string>
+    <string name="about_third_party_title">"Licence třetích stran"</string>
+    <string name="about_third_party_intro">"Jsme hluboce vděčni talentovaným vývojářům a komunitám za těmito open-source závislostmi. Přispívají k tomu, že BoxViewer je lehký, robustní a přitažlivý."</string>
+    <string name="about_library_author">"od %1$s"</string>
+    <string name="about_license_title">"GNU General Public License"</string>
+    <string name="about_license_hide_details">"Skrýt podrobnosti"</string>
+    <string name="about_license_show_license">"Zobrazit licenci"</string>
+    <string name="about_license_load_error">"Chyba při načítání textu licence."</string>
+    <string name="about_loading_license">"Načítání..."</string>
+    <string name="about_section_home_support">"DOMOVSKÁ STRÁNKA A PODPORA"</string>
+    <string name="about_home_description">"BoxViewer je open-source a byl vytvořen s láskou. Navštivte repozitář projektu, abyste pomohli, nahlásili chybu nebo si prohlédli zdrojový kód:"</string>
+    <string name="about_link_github">"Domovská stránka projektu (GitHub)"</string>
+    <string name="about_support_description">"Pokud se vám aplikace líbí a chcete podpořit její další vývoj, zvažte prosím příspěvek:"</string>
+    <string name="about_link_kofi">"Podpořit na Ko-fi"</string>
+    <string name="about_link_liberapay">"Přispět přes Liberapay"</string>
+    <string name="about_copyright">"Copyright (C) 2026 nichu42 a přispěvatelé"</string>
+    <string name="about_gpl_summary_1">"Tento program je svobodný software: můžete jej šířit a/nebo upravovat za podmínek GNU General Public License zveřejněné Free Software Foundation, a to buď ve verzi 3 licence, nebo (dle vašeho výběru) v jakékoli novější verzi."</string>
+    <string name="about_gpl_summary_2">"Tento program je šířen v naději, že bude užitečný, avšak BEZ JAKÉKOLI ZÁRUKY; bez implicitní záruky PRODEJNOSTI nebo VHODNOSTI PRO URČITÝ ÚČEL. Podrobnosti naleznete v GNU General Public License."</string>
+    <string name="about_view_license">"Zobrazit úplnou licenci"</string>
+    <string name="about_third_party_licenses">"Licence třetích stran"</string>
+    <string name="about_section_data_attribution">"DATA A ZDROJE"</string>
+    <string name="about_data_description">"Tato aplikace využívá otevřené API platformy openSenseMap, což je open-source platforma pro sběr a prohlížení dat z environmentálních senzorů z celého světa."</string>
+    <string name="about_stats_header">"STATISTIKY SÍTĚ OPENSENSEMAP"</string>
+    <string name="about_stats_offline">"Offline"</string>
+    <string name="about_stats_failed">"Chyba při načítání statistiky databáze."</string>
+    <string name="about_label_stations">"Stanice"</string>
+    <string name="about_label_measurements">"Měření"</string>
+    <string name="about_active_rate_value">"%1$s/m"</string>
+    <string name="about_label_active_rate">"Míra aktivity"</string>
+    <string name="about_what_is_opensensemap">"Co je openSenseMap?"</string>
+    <string name="about_opensensemap_description">"Původně vznikla z výzkumného projektu Univerzity v Münsteru a vyvinula se v jednu z největších sítí senzorů provozovaných občany na světě. Nabízí bezplatnou platformu pro školy, univerzity, vědce a zainteresované občany k publikování a sdílení environmentálních dat v reálném čase – jako je kvalita ovzduší, teplota a vlhkost – jako otevřená data."</string>
+    <string name="about_who_operates">"Kdo to provozuje?"</string>
+    <string name="about_operator_description">"Platformu provozuje a spravuje openSenseLab gGmbH, nezisková organizace se sídlem v Münsteru, která se zasadila o digitální suverenitu, vzdělávání a veřejnou účast na vědeckém pozorování životního prostředí."</string>
+    <string name="about_support_opensensemap_title">"Podpořte otevřená data!"</string>
+    <string name="about_support_opensensemap_description">"openSenseMap je zcela zdarma a silně závisí na příspěvcích komunity a darech, které udržují servery v chodu a zpřístupňují data všem. Pokud se vám líbí environmentální poznatky poskytované v této aplikaci, podpořte prosím jejich projekt:"</string>
+    <string name="about_link_opensensemap">"Prozkoumat: opensensemap.org"</string>
+    <string name="about_link_sensebox">"Stavět: sensebox.de"</string>
+    <string name="about_link_betterplace">"Přispět přes Betterplace"</string>
+
+    <!-- Library categories -->
+    <string name="library_category_core_ui">"Jádro UI a architektura"</string>
+    <string name="library_category_networking">"Síť a média"</string>
+    <string name="library_category_database_concurrency">"Databáze a souběžnost"</string>
+    <string name="library_category_utilities">"Nástroje a kodeky"</string>
+    <string name="library_category_data_services">"Datové a geokódovací služby"</string>
+    <string name="library_category_testing">"Testovací frameworky"</string>
+    <string name="settings_text_scale_label">"Škálování textu aplikace"</string>
+    <string name="settings_text_scale_description">"Uprav relativní velikost textu rozhraní aplikace podle svého zařízení nebo vzdálenosti čtení."</string>
+    <string name="settings_text_scale_compact">"60 % (Kompaktní)"</string>
+    <string name="settings_text_scale_default">"100 % (Výchozí)"</string>
+    <string name="settings_text_scale_double">"200 % (Dvojnásobná)"</string>
+    <string name="cd_contribute_translations">"Přispět překlady"</string>
+    <string name="translation_contrib_title">"Pomoci s překladem BoxViewer"</string>
+    <string name="translation_contrib_message">"Můžeš pomoci přeložit BoxViewer, poslat opravy nebo přidat nové jazyky! Klikni níže pro návštěvu veřejného překladového portálu POEditor nebo si přečti náš soubor CONTRIBUTING.md na GitHubu pro podrobnosti."</string>
+    <string name="translation_contrib_button">"Pomoci s překladem (POEditor)"</string>
+    <string name="about_section_translation">"PŘEKLAD A LOKALIZACE"</string>
+    <string name="about_translation_description">"Pomoz přeložit BoxViewer do nových jazyků nebo opravit stávající překlady! K naší komunitní správě překladů využíváme POEditor."</string>
+    <string name="about_link_translate">"Pomoci s překladem (POEditor)"</string>
+    <string name="language_czech">"Čeština"</string>
+    <string name="language_french">"Francouzština"</string>
+    <string name="language_hungarian">"Maďarština"</string>
+    <string name="language_italian">"Italština"</string>
+    <string name="language_dutch">"Holandština"</string>
+    <string name="language_polish">"Polština"</string>
+    <string name="language_spanish">"Španělština"</string>
 </resources>

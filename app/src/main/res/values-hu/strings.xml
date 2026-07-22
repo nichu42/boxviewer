@@ -1,3 +1,628 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">"BoxViewer"</string>
+
+    <!-- Language picker labels -->
+    <string name="language_system_default">"Rendszeralapértelmezett"</string>
+    <string name="language_english">"Angol"</string>
+    <string name="language_german">"Német"</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">"Saját senseBoxok"</string>
+    <string name="dashboard_empty_title">"Még nincsenek senseBoxok hozzáadva"</string>
+    <string name="dashboard_empty_description">"Fedezd fel a nyilvános senseBoxokat és mentsd el könyvjelzőként, hogy testreszabd a műszerfaladat és a kezdőképernyő widgetjeit."</string>
+    <string name="dashboard_empty_button">"senseBox hozzáadása"</string>
+    <string name="dashboard_info_title">"Mi az az openSenseMap?"</string>
+    <string name="dashboard_info_description_1">"Az openSenseMap egy világszintű nyílt adatszolgáltató platform, ahol emberek ezrei osztanak meg környezeti adatokat saját időjárási állomásaikról (senseBoxok)."</string>
+    <string name="dashboard_info_description_2">"A BoxViewer lehetővé teszi ezen közösségi állomások felfedezését, személyes műszerfalon történő mentését, sőt widgetként való hozzáadását is a kezdőképernyőhöz valós idejű figyeléshez az alkalmazás megnyitása nélkül."</string>
+    <string name="dashboard_reorder_hint">"Nyomd meg és húzd meg a doboz fogantyúját a sorrend megváltoztatásához. Koppints a könyvjelző gombra egy doboz eltávolításához. Koppints a pipás gombra a mentéshez."</string>
+    <string name="dashboard_select_all_metrics">"Összes metrika kiválasztása"</string>
+    <string name="dashboard_deselect_all_metrics">"Összes metrika kijelölésének megszüntetése"</string>
+    <string name="dashboard_selected_metrics_header">"KIVÁLASZTOTT METRIKÁK (HÚZÁSSAL RENDEZHETŐ)"</string>
+    <string name="dashboard_available_sensors_header">"ELÉRHETŐ ÉRZÉKELŐK (VÁLASSZ A HOZZÁADÁSHOZ)"</string>
+    <string name="dashboard_no_metrics_selected">"Nincsenek metrikák kiválasztva megjelenítésre."</string>
+    <string name="dashboard_no_metrics_available">"Nincsenek metrikák konfigurálva vagy elérhetően. Koppints a fogaskerék ikonra a megjelenítendő metrikák kiválasztásához."</string>
+    <string name="dashboard_current_value_format">"Aktuális: %1$s %2$s"</string>
+    <string name="dashboard_done">"Kész"</string>
+    <string name="dashboard_exposure_outdoor">"külső"</string>
+
+    <!-- Add Box -->
+    <string name="add_box_title">"senseBox hozzáadása"</string>
+    <string name="add_box_fetching">"senseBox betöltése…"</string>
+    <string name="add_box_already_saved">"Már a senseBoxaid között van"</string>
+
+    <!-- Main / Navigation -->
+    <string name="nav_dashboard">"Műszerfal"</string>
+    <string name="nav_home">"Kezdőlap"</string>
+    <string name="nav_discover">"Felfedezés"</string>
+    <string name="nav_settings">"Beállítások"</string>
+    <string name="nav_about">"Névjegy"</string>
+
+    <!-- Database version dialogs -->
+    <string name="db_version_mismatch_title">"Nem egyező adatbázisverzió"</string>
+    <string name="db_version_mismatch_message">"Az alkalmazás adatbázisa újabb verzióra frissült. A jelenlegi alkalmazásverziód túl régi ennek olvasásához. A stabilitás biztosítása érdekében vagy tiszta lappal indíthatsz (ami törli a könyvjelzőket és a widget-beállításokat), vagy bezárhatod az alkalmazást, és megnyithatod a projektoldalt a frissítés telepítéséhez."</string>
+    <string name="db_version_mismatch_start_over">"Újrakezdés"</string>
+    <string name="db_version_mismatch_install_update">"Frissítés telepítése"</string>
+    <string name="db_updated_title">"Adatbázis frissítve"</string>
+    <string name="db_updated_message">"Az alkalmazás adatbázisa újabb verzióra frissült. A stabilitás és a kompatibilitás biztosítása érdekében néhány konfiguráció vissza lett állítva. Kérlek, konfiguráld újra a kedvenceidet és a widgeteket."</string>
+
+    <!-- Errors -->
+    <string name="error_invalid_sensebox_link">"Érvénytelen senseBox hivatkozás"</string>
+
+    <!-- Settings -->
+    <string name="settings_title">"Beállítások"</string>
+
+    <!-- Settings -->
+    <string name="settings_section_app_settings">"ALKALMAZÁS BEÁLLÍTÁSOK"</string>
+    <string name="settings_app_theme_label">"Alkalmazás témája"</string>
+    <string name="settings_app_theme_description">"Válassz a világos, sötét vagy a rendszer alapértelmezett vizuális stílusok közül."</string>
+    <string name="settings_theme_system">"Rendszer"</string>
+    <string name="settings_theme_light">"Világos"</string>
+    <string name="settings_theme_dark">"Sötét"</string>
+    <string name="settings_conditional_formatting_label">"Feltételes formázás"</string>
+    <string name="settings_conditional_formatting_description">"Színezd az érzékelő értékeit az aktuális mérési értékük alapján."</string>
+    <string name="settings_language_label">"Nyelv"</string>
+    <string name="settings_language_description">"Válaszd ki az alkalmazásfelület nyelvét."</string>
+    <string name="settings_aqi_standard_label">"AQI szabvány"</string>
+    <string name="settings_aqi_standard_description">"Válaszd ki a levegőminőségi index számítását az AQI érzékelőkhöz."</string>
+    <string name="settings_temperature_unit_label">"Hőmérséklet mértékegysége"</string>
+    <string name="settings_temperature_unit_description">"Válaszd ki a megjelenítési skálát az összes hőmérséklet-érzékelőhöz."</string>
+    <string name="settings_pressure_unit_label">"Légnyomás mértékegysége"</string>
+    <string name="settings_pressure_unit_description">"Válaszd ki a megjelenítési skálát az összes légnyomás-érzékelőhöz."</string>
+    <string name="settings_format_pressure_label">"Légnyomás formázása"</string>
+    <string name="settings_format_pressure_description">"Nyomásértékek formázása ezres elválasztóval (pl. 1.013,25 hPa a 1013,25 hPa helyett)."</string>
+    <string name="settings_wind_unit_label">"Szélsebesség mértékegysége"</string>
+    <string name="settings_wind_unit_description">"Válaszd ki a megjelenítési skálát az összes szélsebesség-érzékelőhöz."</string>
+
+    <!-- Unit symbols (kept consistent across locales) -->
+    <string name="unit_celsius" translatable="false">"°C"</string>
+    <string name="unit_fahrenheit" translatable="false">"°F"</string>
+    <string name="unit_kelvin" translatable="false">"K"</string>
+    <string name="unit_hpa" translatable="false">"hPa"</string>
+    <string name="unit_pa" translatable="false">"Pa"</string>
+    <string name="unit_mbar" translatable="false">"mbar"</string>
+    <string name="unit_inhg" translatable="false">"inHg"</string>
+    <string name="unit_mmhg" translatable="false">"mmHg"</string>
+    <string name="unit_ms" translatable="false">"m/s"</string>
+    <string name="unit_kmh" translatable="false">"km/h"</string>
+    <string name="unit_mph" translatable="false">"mph"</string>
+    <string name="unit_kn" translatable="false">"kn"</string>
+
+    <!-- Settings: Diagnostics -->
+    <string name="settings_section_diagnostics">"DIAGNOSZTIKA ÉS HIBAJELENTÉSEK"</string>
+    <string name="settings_crash_detected_title">"A közelmúltban egy alkalmazásösszeomlást észlelt a rendszer helyben."</string>
+    <string name="settings_copy_crash_log">"Összeomlási napló másolása"</string>
+    <string name="settings_clear_log">"Napló törlése"</string>
+    <string name="settings_no_crashes">"Nincsenek észlelt összeomlások. Az alkalmazás zökkenőmentesen fut! Ha hibákba ütközöl, másolhatsz szabványos rendszerinformációkat, hogy segíts nekünk a probléma diagnosztizálásában."</string>
+    <string name="settings_copy_system_diagnostics">"Rendszer-diagnosztikai infók másolása"</string>
+    <string name="settings_crash_report_copied">"Összeomlási jelentés a vágólapra másolva!"</string>
+    <string name="settings_crash_log_cleared">"Összeomlási napló törölve"</string>
+    <string name="settings_diagnostics_copied">"Diagnosztika a vágólapra másolva!"</string>
+    <string name="settings_copy_diagnostics_cd">"Diagnosztika másolása"</string>
+
+    <!-- Settings: API Logging -->
+    <string name="settings_section_api_logging">"API HIBAKERESÉSI NAPLÓZÁS"</string>
+    <string name="settings_api_logging_description">"A nyers JSON hálózati kérések, válaszok és belső elemzési metrikák rögzítése. A naplók helyben, JSON lines formátumban kerülnek mentésre, és megoszthatók a problémák diagnosztizálásához."</string>
+    <string name="settings_enable_api_logging">"API-naplózás engedélyezése"</string>
+    <string name="settings_current_size_format">"Jelenlegi méret: %1$s"</string>
+    <string name="settings_api_logging_enabled">"API-naplózás engedélyezve"</string>
+    <string name="settings_api_logging_disabled">"API-naplózás letiltva"</string>
+    <string name="settings_max_log_entries">"Maximális naplóbejegyzések"</string>
+    <string name="settings_view_api_logs">"API-naplók megtekintése"</string>
+    <string name="settings_copy_logs">"Naplók másolása"</string>
+    <string name="settings_share_logs">"Naplók megosztása"</string>
+    <string name="settings_clear_api_logs">"API-naplók törlése"</string>
+    <string name="settings_log_empty">"A napló üres!"</string>
+    <string name="settings_logs_copied">"Naplók a vágólapra másolva!"</string>
+    <string name="settings_share_api_logs_title">"API-naplók megosztása"</string>
+    <string name="settings_error_sharing_logs">"Hiba a naplók megosztásakor"</string>
+    <string name="settings_logs_cleared">"Naplók törölve"</string>
+
+    <!-- File size units -->
+    <string name="file_size_bytes">"%1$d B"</string>
+    <string name="file_size_kilobytes">"%1$.1f KB"</string>
+    <string name="file_size_megabytes">"%1$.1f MB"</string>
+
+    <!-- Discovery -->
+    <string name="discovery_title">"senseBoxok felfedezése"</string>
+    <string name="discovery_search_mode_location">"Város / Helység"</string>
+    <string name="discovery_search_mode_box_id">"senseBox Név / ID"</string>
+    <string name="discovery_placeholder_city">"Város megadása"</string>
+    <string name="discovery_placeholder_box_id">"Keresés senseBox név / ID alapján"</string>
+    <string name="discovery_locating">"Hely meghatározása…"</string>
+    <string name="discovery_no_barcode_scanner">"Nem található vonalkód-olvasó alkalmazás. Kérjük, telepíts egyet (pl. Binary Eye vagy Barcode Scanner)."</string>
+    <string name="discovery_unknown_location">"Ismeretlen helyszín"</string>
+    <string name="discovery_search_filters">"Keresési szűrő"</string>
+    <string name="discovery_exposure_label">"Hely típusa"</string>
+    <string name="discovery_exposure_outdoor">"Kültér"</string>
+    <string name="discovery_exposure_indoor">"Beltér"</string>
+    <string name="discovery_exposure_all">"Összes"</string>
+    <string name="discovery_last_updated_limit">"Frissítési időszak"</string>
+    <string name="discovery_last_updated_15m">"Utolsó 15 perc"</string>
+    <string name="discovery_last_updated_30m">"Utolsó 30 perc"</string>
+    <string name="discovery_last_updated_1h">"Utolsó óra"</string>
+    <string name="discovery_last_updated_hours">"Utolsó %1$d óra"</string>
+    <string name="discovery_last_updated_24h">"Utolsó 24 óra (1 nap)"</string>
+    <string name="discovery_last_updated_all_time">"Teljes időszak"</string>
+    <string name="discovery_radius_label">"Keresési sugár"</string>
+    <string name="discovery_radius_format">"%1$d km"</string>
+    <string name="discovery_results_filtered_out">"Találatok szűrve"</string>
+    <string name="discovery_no_senseboxes_found">"Nem találhatók senseBoxok"</string>
+    <string name="discovery_no_results_location_hint">"Próbálj meg másik területre keresni fent, keress koordináták alapján, vagy használd a GPS gombot az állomások megtalálásához."</string>
+    <string name="discovery_no_results_box_hint">"Ellenőrizd a név helyesírását, vagy add meg a 24 karakteres hexadecimális senseBox azonosítót."</string>
+    <string name="discovery_button_discover">"senseBoxok felfedezése"</string>
+    <string name="discovery_button_find_box">"senseBox Név / ID keresése"</string>
+    <string name="discovery_empty_box_hint">"Adj meg egy senseBox nevet vagy egy 24 karakteres senseBox azonosítót. Ne felejtsd el könyvjelzővel ellátni azokat az állomásokat, amelyeket meg szeretnél tartani!"</string>
+    <string name="discovery_found_count">"TALÁLT SENSEBOXOK: %1$d"</string>
+    <string name="discovery_search_radius_format">"Keresési sugár: %1$d km"</string>
+    <string name="discovery_save_hint">"Koppints a könyvjelző ikonra, hogy elments egy állomást a listádba."</string>
+    <string name="discovery_show_more_format">"Továbbiak megjelenítése (%1$d maradt)"</string>
+    <string name="discovery_distance_format">"(%1$.1f km távolságra)"</string>
+    <string name="discovery_coords_format">"Koordináták: %1$s, %2$s"</string>
+    <string name="discovery_some_metrics_outdated">"Néhány mért érték elavult"</string>
+    <string name="discovery_sensors_format">"Szenzorok: %1$s"</string>
+    <string name="discovery_error_location">"A jelenlegi helyzetet nem sikerült meghatározni. Kérjük, keress manuálisan a keresősáv segítségével."</string>
+    <string name="discovery_empty_location_hint">"Keress egy várost, vagy kattints a GPS ikonra fent, hogy időjárási állomásokat találj a közelben. Mentsd el kedvenceidet könyvjelzőként, hogy biztonságban legyenek a vezérlőpultodon."</string>
+    <string name="discovery_results_filtered_message">"Találtunk %1$d senseBoxot, de ezeket szűrték az aktuális keresési feltételeid. Próbáld meg a 'Legutóbbi frissítés' értéket 'Teljes időszak'-ra vagy a 'Hely típusa' értéket 'Összes'-re állítani."</string>
+    <string name="discovery_15m_short">"15 m"</string>
+    <string name="discovery_2km_short">"2 km"</string>
+    <string name="discovery_250km_short">"250 km"</string>
+    <string name="discovery_permission_rationale">"A helymeghatározási engedély szükséges a közeli senseBoxok felfedezéséhez. Kérjük, add meg az engedélyt az alkalmazás beállításaiban."</string>
+    <string name="discovery_grant_permission">"Helymeghatározási engedély megadása"</string>
+    <string name="discovery_no_address">"Nem található cím az aktuális tartózkodási helyhez."</string>
+    <string name="discovery_location_unavailable">"A hely nem érhető el."</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_search">"Keresés"</string>
+    <string name="cd_run_search">"Keresés indítása"</string>
+    <string name="cd_clear">"Törlés"</string>
+    <string name="cd_use_gps">"GPS-helyzet használata"</string>
+    <string name="cd_scan_qr">"QR-kód beolvasása"</string>
+    <string name="cd_filters">"Szűrők"</string>
+    <string name="cd_expand">"Kibővítés"</string>
+    <string name="cd_collapse">"Összecsukás"</string>
+    <string name="cd_search_off">"Válassz ki"</string>
+    <string name="cd_discover">"Felfedezés"</string>
+    <string name="cd_show_more">"Továbbiak megjelenítése"</string>
+    <string name="cd_updated_time">"Frissítési idő"</string>
+    <string name="cd_some_metrics_outdated">"Néhány mért érték elavult"</string>
+    <string name="cd_save_bookmark">"Könyvjelző mentése"</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_info">"Infó"</string>
+    <string name="cd_view_api_logs">"API-naplók megtekintése"</string>
+    <string name="cd_crash_detected_warning">"Összeomlási figyelmeztetés észlelve"</string>
+    <string name="dashboard_exposure_indoor">"benn"</string>
+
+    <!-- Widget layout placeholder strings (replaced at runtime by RemoteViews) -->
+    <string name="widget_default_box_name" translatable="false">"senseBox"</string>
+    <string name="widget_updated_just_now">"Frissítve"</string>
+    <string name="widget_refresh">"Widget frissítése"</string>
+    <string name="widget_configure">"Widget konfigurálása"</string>
+    <string name="widget_sensor_type">"Érzékelő típusa"</string>
+    <string name="widget_sensor_category_icon">"Érzékelő kategória ikon"</string>
+    <string name="widget_select_sensor">"Érzékelő kiválasztása"</string>
+    <string name="widget_no_value" translatable="false">"--"</string>
+
+    <!-- Default placeholder sensor titles (German, matching openSenseMap conventions) -->
+    <string name="widget_placeholder_temperature" translatable="false">"Temperatur"</string>
+    <string name="widget_placeholder_humidity" translatable="false">"Feuchte"</string>
+    <string name="widget_placeholder_illumination" translatable="false">"Beleuchtung"</string>
+    <string name="widget_placeholder_pressure" translatable="false">"Druck"</string>
+    <string name="widget_placeholder_pm25" translatable="false">"PM2.5"</string>
+    <string name="widget_placeholder_pm10" translatable="false">"PM10"</string>
+    <string name="widget_name_small">"senseBox Infó (Kicsi 2x1)"</string>
+    <string name="widget_name_medium">"senseBox Infó (Közepes 3x2)"</string>
+    <string name="widget_name_large">"senseBox Infó (Nagy 4x3)"</string>
+
+    <!-- Common actions -->
+    <string name="action_cancel">"Mégse"</string>
+    <string name="action_retry">"Újra"</string>
+    <string name="action_close">"Bezárás"</string>
+    <string name="action_view_details">"Részletek megjelenítése"</string>
+    <string name="action_add_to_dashboard">"Hozzáadás a vezérlőpulthoz"</string>
+    <string name="action_ok">"OK"</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_save_order">"Sorrend mentése"</string>
+    <string name="cd_reorder_boxes">"senseBoxok átrendezése"</string>
+    <string name="cd_refresh_all">"Összes frissítése"</string>
+    <string name="cd_dismiss_error">"Hiba bezárása"</string>
+    <string name="cd_no_saved_boxes">"Nincsenek mentett senseBoxok"</string>
+    <string name="cd_configure_metrics">"Megjelenítendő mért értékek konfigurálása"</string>
+    <string name="cd_location">"Helyszín"</string>
+    <string name="cd_data_updated">"Adatok frissítve"</string>
+    <string name="cd_remove_bookmark">"Könyvjelző eltávolítása"</string>
+    <string name="cd_drag_handle_reorder">"Húzd meg a fogantyút a senseBoxok átrendezéséhez"</string>
+    <string name="cd_drag_to_reorder">"Húzás az átrendezéshez"</string>
+    <string name="cd_back">"Vissza"</string>
+    <string name="cd_sync_box">"Eszköz szinkronizálása"</string>
+    <string name="cd_share">"Megosztás"</string>
+    <string name="cd_bookmark_toggle">"Könyvjelző kapcsoló"</string>
+    <string name="cd_last_updated">"Utoljára frissítve"</string>
+    <string name="cd_app_synced">"Alkalmazás szinkronizálva"</string>
+    <string name="cd_map_location">"Térkép helye"</string>
+    <string name="cd_aqi_info">"AQI infó"</string>
+    <string name="cd_selected">"Kiválasztva"</string>
+    <string name="cd_app_logo">"BoxViewer app logó"</string>
+    <string name="cd_attention_warning">"Figyelem figyelmeztetés"</string>
+    <string name="cd_build">"Verzió"</string>
+    <string name="cd_donate">"Támogatás"</string>
+    <string name="cd_github_project">"GitHub projekt"</string>
+    <string name="cd_gpl_logo">"GPL v3 logó"</string>
+    <string name="cd_kofi">"Ko-fi"</string>
+    <string name="cd_liberapay">"Liberapay"</string>
+    <string name="cd_license">"Licenc"</string>
+    <string name="cd_open_homepage">"Honlap megnyitása"</string>
+    <string name="cd_third_party_licenses">"Harmadik féltől származó licencek"</string>
+    <string name="cd_website">"Weboldal"</string>
+
+    <!-- Box detail screen -->
+    <string name="box_detail_title">"senseBox részletek"</string>
+    <string name="box_detail_synced_prefix">"Szinkronizálva: %1$s"</string>
+    <string name="box_detail_group">"Csoport: %1$s"</string>
+    <string name="box_detail_add_to_dashboard_title">"Hozzáadás a vezérlőpulthoz"</string>
+    <string name="box_detail_add_to_dashboard_hint">"Helyezd ezt az állomást könyvjelzőbe, hogy elmentsd a vezérlőpultodon, és megjelenítsd a kezdőképernyő widgetjeiben."</string>
+    <string name="box_detail_location_section_title">"ESZKÖZ HELYE ÉS LINK"</string>
+    <string name="box_detail_latitude">"Szélességi kör: %1$s"</string>
+    <string name="box_detail_longitude">"Hosszúsági kör: %1$s"</string>
+    <string name="box_detail_open_opensensemap">"OpenSenseMap"</string>
+    <string name="box_detail_view_map">"Térkép megtekintése"</string>
+    <string name="box_detail_active_sensors_format">"AKTÍV SZENSOROK (%1$d)"</string>
+    <string name="box_detail_no_sensor_config">"Nem állnak rendelkezésre szenzorkonfigurációs adatok."</string>
+    <string name="box_detail_widget_title">"Kezdőképernyő widgetek"</string>
+    <string name="box_detail_widget_hint">"Ahhoz, hogy ezt az állomást a kezdőképernyőn figyeld, menj a kezdőképernyőre, nyomj hosszan egy üres helyet, válaszd a 'Widgetek' lehetőséget, és keresd meg a BoxViewer alkalmazást. Ezután kiválaszthatod ezt a senseBoxot a widget konfigurációjában."</string>
+    <string name="box_detail_no_box_selected">"Nincs senseBox kiválasztva"</string>
+
+    <!-- Sensor cards -->
+    <string name="sensor_locally_computed">"Helyileg számítva"</string>
+    <string name="sensor_hardware_format">"Hardver: %1$s"</string>
+    <string name="sensor_generic">"Általános szenzor"</string>
+    <string name="sensor_updated_prefix">"Frissítve: %1$s"</string>
+    <string name="sensor_history_fetching">"HISTORIKUS MÉRT ÉRTÉK TREND LEKÉRÉSE…"</string>
+    <string name="sensor_history_fallback">"HISTORIKUS MÉRT ÉRTÉK TREND (TARTALÉK ADATOK)"</string>
+    <string name="sensor_history_title">"HISTORIKUS MÉRT ÉRTÉK TREND"</string>
+    <string name="sensor_aqi_nowcast">"AQI NowCast"</string>
+    <string name="sensor_aqi_nowcast_subtitle">"12 órás súlyozott átlag · %1$s"</string>
+    <string name="sensor_last_measurement_recorded">"Utoljára rögzített mérés:"</string>
+    <string name="sensor_no_data_points">"Nincsenek rögzített numerikus adatpontok."</string>
+
+    <!-- Chart -->
+    <string name="chart_oldest">"Legrégebbi"</string>
+    <string name="chart_latest">"Legújabb"</string>
+    <string name="chart_measurements_count">"%1$d mérés"</string>
+
+    <!-- Time formatting -->
+    <string name="time_unknown">"Ismeretlen"</string>
+    <string name="time_never_updated">"Még soha nem frissítve"</string>
+    <string name="time_just_now">"Most"</string>
+    <string name="time_minutes_ago">"%1$d perce"</string>
+    <string name="time_hours_ago">"%1$d órája"</string>
+    <string name="time_days_ago">"%1$d napja"</string>
+
+    <!-- API log viewer -->
+    <string name="api_log_title">"API hibakeresési naplók"</string>
+    <string name="cd_refresh_logs">"Naplók frissítése"</string>
+    <string name="cd_clear_logs">"Naplók törlése"</string>
+    <string name="api_log_logs_cleared">"Naplók törölve"</string>
+    <string name="api_log_empty">"Még nincsenek rögzített naplók.\nKapcsolja be az API-naplózást a beállításokban."</string>
+    <string name="api_log_no_matches">"Nem találhatók megfelelő naplók."</string>
+    <string name="api_log_url_copied">"URL másolva"</string>
+    <string name="api_log_response_copied">"Válasz JSON másolva"</string>
+    <string name="api_log_entry_copied">"Naplóbejegyzés másolva"</string>
+    <string name="cd_diagnostics">"Diagnosztika"</string>
+    <string name="api_log_diagnostics_title">"Rendszerdiagnosztikai információk"</string>
+    <string name="api_log_label_app_version">"Alkalmazás verziója"</string>
+    <string name="api_log_label_device_info">"Eszközinformáció"</string>
+    <string name="api_log_label_android_sdk">"Android SDK"</string>
+    <string name="api_log_label_start_timestamp">"Indítási időbélyeg"</string>
+    <string name="cd_stats">"Statisztika"</string>
+    <string name="api_log_stats_title">"API teljesítménystatisztika"</string>
+    <string name="api_log_metric_requests">"Kérések"</string>
+    <string name="api_log_metric_success_rate">"Sikerességi arány"</string>
+    <string name="api_log_metric_avg_latency">"Átlagos latencia"</string>
+    <string name="api_log_metric_failed">"Sikertelen"</string>
+    <string name="api_log_status_distribution">"Állapoteloszlás"</string>
+    <string name="api_log_legend_success">"Siker (%1$d)"</string>
+    <string name="api_log_legend_client_error">"Klienshiba (%1$d)"</string>
+    <string name="api_log_legend_server_error">"Szerverhiba (%1$d)"</string>
+    <string name="api_log_legend_failed">"Sikertelen (%1$d)"</string>
+    <string name="api_log_top_endpoints">"Leggyakoribb végpontok"</string>
+    <string name="api_log_count_format">"%1$dx"</string>
+    <string name="api_log_latency_format">"%1$dms"</string>
+    <string name="filter_all">"Összes"</string>
+    <string name="api_log_filter_success">"Siker (2xx)"</string>
+    <string name="api_log_filter_client_error">"Klienshiba (4xx)"</string>
+    <string name="api_log_filter_server_error">"Szerverhiba (5xx)"</string>
+    <string name="api_log_filter_failed">"Sikertelen / Kivételek"</string>
+    <string name="api_log_search_placeholder">"Naplók keresése (URL, JSON, kód...)"</string>
+    <string name="cd_clear_search">"Keresés törlése"</string>
+    <string name="api_log_status_filter_label">"Állapot: %1$s"</string>
+    <string name="api_log_request_details">"Kérés részletei"</string>
+    <string name="api_log_status_format">"Állapot %1$d"</string>
+    <string name="api_log_network_error">"Hálózati hiba"</string>
+    <string name="api_log_label_request_url">"Kérés URL-je"</string>
+    <string name="api_log_label_timestamp">"Időbélyeg"</string>
+    <string name="api_log_label_app_state">"Alkalmazás állapota"</string>
+    <string name="api_log_label_network_exception">"Hálózati / kliens kivétel"</string>
+    <string name="cd_help">"Súgó"</string>
+    <string name="api_log_troubleshooting_title">"Hibaelhárítási javaslat"</string>
+    <string name="api_log_label_parsing_result">"Moshi elemzési eredmény / metrikák"</string>
+    <string name="api_log_response_body_payload">"Válasz-hasznos teher"</string>
+    <string name="api_log_copy_url">"URL másolása"</string>
+    <string name="api_log_copy_json">"JSON másolása"</string>
+    <string name="api_log_copy_entire_log">"Teljes napló másolása"</string>
+    <string name="api_log_help_404">"Nem található (404): A kért senseBox azonosító vagy erőforrás nem létezik az openSenseMapen. Ha ez egy widget, kérjük, ellenőrizze a doboz azonosítóját a widget konfigurációs beállításaiban."</string>
+    <string name="api_log_help_429">"Sebességkorlát túllépve (429): Az alkalmazás túl sok kérést küldött. Kérjük, várjon egy pillanatot, mielőtt újra adatokat kérne le. A szabályozás az akkumulátor kímélése és az API-korlátok betartása érdekében aktív."</string>
+    <string name="api_log_help_5xx">"Szerverhiba (%1$d): Az openSenseMap szervernek problémái vannak. Ellenőrizheti a szerver állapotát, ha megnyitja az opensensemap.org oldalt a böngészőjében."</string>
+    <string name="api_log_help_offline">"Hálózat offline: Az alkalmazás nem tudja feloldani a szerver nevét. Kérjük, győződjön meg arról, hogy telefonja csatlakozik az internethez, és hogy a VPN vagy a tűzfal nem blokkolja a BoxViewert."</string>
+    <string name="api_log_help_timeout">"Kapcsolat túllépve: A kapcsolat túl sokáig tartott. Ez gyenge mobiladat-kapcsolatok esetén vagy az openSenseMap szerverek túlterheltsége esetén fordul elő."</string>
+    <string name="api_log_help_refused">"Kapcsolat elutasítva: Az openSenseMap szerverhez való csatlakozás sikertelen. Lehet, hogy a szerver karbantartás miatt nem érhető el."</string>
+    <string name="api_log_help_parsing">"Adatelemzési hiba: Az alkalmazás nem tudta beolvasni a JSON választ. Ez általában azt jelzi, hogy az openSenseMap API struktúrája megváltozott, és a BoxViewer frissítést igényel."</string>
+    <string name="api_log_help_http_error">"HTTP hiba (%1$d): A szerver érvénytelen státuszkódot adott vissza. Ellenőrizze, hogy a szolgáltatás online van-e."</string>
+    <string name="api_log_help_unknown">"Ismeretlen hiba: Kliensoldali vagy hálózati kivétel történt. Ellenőrizze, hogy a kapcsolata stabil-e."</string>
+
+    <!-- AQI info screen -->
+    <string name="aqi_info_title">"Levegőminőségi index útmutató"</string>
+    <string name="aqi_info_intro_title">"A levegőminőségi index (AQI) megértése"</string>
+    <string name="aqi_info_intro_description">"A levegőminőségi index egy szabványosított rendszer, amelyet a napi levegőminőség jelentésére és a közegészségügyi kockázatokhoz való kapcsolására használnak. A BoxViewer helyi 'virtuális' AQI szenzort hoz létre, amikor egy állomás PM2.5 vagy PM10 szállópor-értékeket tesz közzé."</string>
+    <string name="aqi_info_cast_title">"InstantCast vs. NowCast"</string>
+    <string name="aqi_info_instantcast_title">"InstantCast (Élő értékek)"</string>
+    <string name="aqi_info_instantcast_description">"Közvetlenül a legfrissebb egyedi mért értéket fordítja le szabványos határértékek használatával. A fő műszerfalon és a valós idejű válaszkészség érdekében a widgetekben használatos."</string>
+    <string name="aqi_info_nowcast_title">"NowCast (Történeti elemzés)"</string>
+    <string name="aqi_info_nowcast_description">"Az EPA 12 órás súlyozott átlagalgoritmusát használja. Ha a levegőminőség gyorsan változik, a legutóbbi órák nagyobb súlyt kapnak; ha stabil, egyenletesebb súlyozást kapnak. Kiszámítva és megjelenítve a részletes szenzorkártyák kibontásakor."</string>
+    <string name="aqi_info_virtual_sensor_title">"Konszolidált virtuális szenzor"</string>
+    <string name="aqi_info_virtual_sensor_description">"Ha egy állomás PM2.5 (szállópor) és PM10 (durva por) adatokat is tartalmaz, a BoxViewer kiszámítja mindkettő részindexét, és automatikusan a legrosszabb értéket (maximumot) jeleníti meg. Ez maximális védelmet és áttekinthető elrendezést biztosít."</string>
+    <string name="aqi_info_regional_title">"REGIONÁLIS AQI SPECIFIKÁCIÓK"</string>
+    <string name="aqi_system_us_epa">"US EPA AQI (Egyesült Államok)"</string>
+    <string name="aqi_scale_us">"Skála 0 – 500"</string>
+    <string name="aqi_system_uk_daqi">"UK DAQI (Egyesült Királyság)"</string>
+    <string name="aqi_scale_uk">"Skála 1 – 10"</string>
+    <string name="aqi_system_eu_eaqi">"Európai EAQI (Európai Unió)"</string>
+    <string name="aqi_scale_eu">"Minőségi sávok (nincs numerikus index)"</string>
+    <string name="aqi_system_canada_aqhi">"Kanada AQHI (Kanada)"</string>
+    <string name="aqi_scale_canada">"1 – 10+ skála (csak PM2.5)"</string>
+    <string name="aqi_system_india_aqi">"India AQI (India)"</string>
+    <string name="aqi_scale_india">"0 – 500 skála"</string>
+    <string name="aqi_system_china_aqi">"Kína AQI (Kína)"</string>
+    <string name="aqi_scale_china">"0 – 500 skála"</string>
+    <string name="aqi_band_good">"Jó"</string>
+    <string name="aqi_band_moderate">"Mérsékelt"</string>
+    <string name="aqi_band_sensitive_groups">"Érzékeny csoportok"</string>
+    <string name="aqi_band_unhealthy">"Egészségtelen"</string>
+    <string name="aqi_band_very_unhealthy">"Nagyon egészségtelen"</string>
+    <string name="aqi_band_hazardous">"Veszélyes"</string>
+    <string name="aqi_band_low">"Alacsony"</string>
+    <string name="aqi_band_high">"Magas"</string>
+    <string name="aqi_band_very_high">"Nagyon magas"</string>
+    <string name="aqi_band_very_good">"Kiváló"</string>
+    <string name="aqi_band_poor">"Rossz"</string>
+    <string name="aqi_band_very_poor">"Nagyon rossz"</string>
+    <string name="aqi_band_extremely_poor">"Rendkívül rossz"</string>
+    <string name="aqi_band_low_risk">"Alacsony kockázat"</string>
+    <string name="aqi_band_moderate_risk">"Mérsékelt kockázat"</string>
+    <string name="aqi_band_high_risk">"Magas kockázat"</string>
+    <string name="aqi_band_very_high_risk">"Nagyon magas kockázat"</string>
+    <string name="aqi_band_satisfactory">"Kielégítő"</string>
+    <string name="aqi_band_moderately_polluted">"Mérsékelten szennyezett"</string>
+    <string name="aqi_band_severe">"Súlyos"</string>
+    <string name="aqi_band_excellent">"Kiváló"</string>
+    <string name="aqi_band_lightly_polluted">"Enyhén szennyezett"</string>
+    <string name="aqi_band_heavily_polluted">"Erősen szennyezett"</string>
+    <string name="aqi_band_severely_polluted">"Súlyosan szennyezett"</string>
+
+    <!-- Widget configuration -->
+    <string name="widget_config_title">"Kezdőképernyő-widget testreszabása"</string>
+    <string name="widget_config_section_sensebox">"SENSEBOX KIVÁLASZTÁSA"</string>
+    <string name="widget_config_no_saved_boxes">"Nincsenek mentett senseBoxok. Először ments el legalább egy senseBoxot kedvencként az alkalmazás Felfedezés lapján."</string>
+    <string name="widget_config_select_sensebox_hint">"Válassz ki egy senseBoxot"</string>
+    <string name="widget_config_exposure">"Expozíció: %1$s"</string>
+    <string name="widget_config_section_visualization">"VIZUALIZÁCIÓS FORMÁTUM"</string>
+    <string name="widget_config_visualization_list">"Metrikalista"</string>
+    <string name="widget_config_visualization_grid">"Egyszeri kiemelés"</string>
+    <string name="widget_config_grid_warning">"Csak egy érzékelő jelenik meg; a többi kiválasztás elvetve."</string>
+    <string name="widget_config_section_highlight_metric">"METRIKA KIEMELÉSE"</string>
+    <string name="widget_config_section_monitored_metrics">"FELÜGYELT METRIKÁK"</string>
+    <string name="widget_config_select_sensebox_prompt">"Válassz ki egy mentett senseBoxot fent az elérhető érzékelők megtekintéséhez."</string>
+    <string name="widget_config_choose_sensor">"Válassz ki egy érzékelőt"</string>
+    <string name="widget_config_sensor_subtitle">"Egység: %1$s | Típus: %2$s"</string>
+    <string name="widget_config_section_monitored_metrics_reorder">"FELÜGYELT METRIKÁK (HÚZD A ☰-T AZ ÁTRENDEZÉSHEZ)"</string>
+    <string name="widget_config_no_metrics_selected">"Nincsenek felügyelt metrikák kiválasztva. Ellenőrizd az alábbi elérhető metrikákat a hozzáadásukhoz."</string>
+    <string name="widget_config_section_add_metrics">"TOVÁBBI METRIKÁK HOZZÁADÁSA"</string>
+    <string name="widget_config_section_metric_display_style">"METRIKA MEGJELENÍTÉSI STÍLUSA"</string>
+    <string name="widget_config_metric_display_style_description">"Válaszd ki a metrikák elrendezési stílusát a widgetben."</string>
+    <string name="widget_display_style_full_details">"Teljes részletek"</string>
+    <string name="widget_display_style_value_unit">"Érték és egység"</string>
+    <string name="widget_display_style_value_only">"Csak érték"</string>
+    <string name="widget_config_conditional_formatting_label">"Feltételes formázás"</string>
+    <string name="widget_config_conditional_formatting_description">"Értékek színezése az érzékelő küszöbértékei alapján"</string>
+    <string name="widget_config_section_aqi_display">"AQI ÉRTÉK MEGJELENÍTÉSE"</string>
+    <string name="widget_config_aqi_display_description">"Válaszd ki, hogyan jelenjen meg az AQI metrika (aktuális) a widgetben, ha ki van választva."</string>
+    <string name="widget_aqi_display_number_and_label">"Szám és címke"</string>
+    <string name="widget_aqi_display_number_only">"Csak szám"</string>
+    <string name="widget_aqi_display_label_only">"Csak címke"</string>
+    <string name="widget_config_section_text_scaling">"WIDGET SZÖVEGSSKÁLÁZÁSA"</string>
+    <string name="widget_config_text_scaling_description">"Állítsd be a widget relatív szövegméretét, hogy tökéletesen illeszkedjen az egyéni elrendezésekhez. Koppints és húzd alul."</string>
+    <string name="widget_config_text_scale_label">"Widget szövepsskálázása"</string>
+    <string name="widget_config_text_scale_compact">"60% (Kompakt)"</string>
+    <string name="widget_config_text_scale_default">"100% (Alapértelmezett)"</string>
+    <string name="widget_config_text_scale_double">"200% (Dupla)"</string>
+    <string name="widget_config_section_background_color">"WIDGET HÁTTÉRSZÍNE"</string>
+    <string name="widget_config_select_preset_palette">"Előre beállított paletta kiválasztása"</string>
+    <string name="widget_config_advanced_settings">"Speciális beállítások"</string>
+    <string name="widget_config_color_wheel">"Interaktív színkerék"</string>
+    <string name="widget_config_brightness_value">"Fényerő értéke"</string>
+    <string name="widget_config_transparency">"Widget átlátszóság"</string>
+    <string name="widget_config_percentage">"%1$s%%"</string>
+    <string name="widget_config_hex_color_code">"HEX színkód"</string>
+    <string name="widget_config_hex_placeholder">"0F172A"</string>
+    <string name="widget_config_hex_error">"Kérlek, adj meg egy érvényes 6 jegyű hex kódot."</string>
+    <string name="widget_config_section_header_labels">"WIDGET FEJLÉC CÍMKE"</string>
+    <string name="widget_config_show_box_name">"senseBox név megjelenítése"</string>
+    <string name="widget_config_show_box_name_description">"Megjeleníti a senseBox nevét a widget fejlécében"</string>
+    <string name="widget_config_show_update_time">"Utolsó frissítés idejének megjelenítése"</string>
+    <string name="widget_config_show_update_time_description">"Megjeleníti az utolsó frissítés időbélyegét a widget fejlécében"</string>
+    <string name="widget_config_section_header_buttons">"WIDGET FEJLÉC GOMBOK"</string>
+    <string name="widget_config_show_refresh_button">"Frissítés gomb megjelenítése"</string>
+    <string name="widget_config_show_refresh_button_description">"Szinkronizálási ikont jelenít meg a widget kézi frissítéséhez"</string>
+    <string name="widget_config_show_config_button">"Konfiguráció gomb megjelenítése"</string>
+    <string name="widget_config_show_config_button_description">"Fogaskerék ikont jelenít meg a widget beállításainak konfigurálásához"</string>
+    <string name="widget_config_section_refresh_interval">"FRISSÍTÉSI IDŐKÖZ"</string>
+    <string name="widget_config_refresh_interval_description">"Konfiguráld, milyen gyakran frissítse a widget a szenzorait a háttérben. Koppints és húzd alul."</string>
+    <string name="widget_config_refresh_interval_label">"Gyakoriság"</string>
+    <string name="widget_config_refresh_interval_minutes">"%1$s perc"</string>
+    <string name="widget_config_refresh_interval_fast">"5 perc (Gyors frissítés)"</string>
+    <string name="widget_config_refresh_interval_eco">"60 perc (Energiatakarékos)"</string>
+    <string name="widget_config_aqi_guide_title">"Levegőminőségi index (AQI) útmutató"</string>
+    <string name="widget_config_aqi_guide_intro">"A levegőminőségi index egy virtuális mutató, amelyet a BoxViewer szintetizál helyileg, amikor egy állomás PM2.5 vagy PM10 szállópor méréseket biztosít."</string>
+    <string name="widget_config_aqi_guide_instantcast">"• InstantCast (Élő widget és irányítópult):
+Azonnal kiszámítja az indexet a legfrissebb koncetrációs értékből."</string>
+    <string name="widget_config_aqi_guide_nowcast">"• NowCast (Fejlett térképtörténet):
+12 órás súlyozott átlagolási algoritmust alkalmaz az átmeneti csúcsok kisimítására."</string>
+    <string name="widget_config_aqi_guide_consolidated">"• Egységesített szenzor:
+Ha mind a PM2.5, mind a PM10 jelen van, automatikusan a legkedvezőtlenebb (maximális) indexérték kerül jelentésre."</string>
+    <string name="widget_config_aqi_guide_customize">"A regionális szabványt (US EPA, UK DAQI, European EAQI, Canada AQHI, India AQI, China AQI) az általános alkalmazásbeállításokban módosíthatod."</string>
+    <string name="action_apply_widget">"Widget alkalmazása"</string>
+    <string name="action_discard">"Elvetés"</string>
+    <string name="action_got_it">"Értem"</string>
+    <string name="widget_status_loading_sensors">"Szenzorok betöltése..."</string>
+    <string name="widget_status_select_sensebox">"Először válassz ki egy senseBoxot!"</string>
+    <string name="widget_status_provisioning">"Widget üzembe helyezése..."</string>
+    <string name="widget_status_save_failed">"A mentés sikertelen: %1$s"</string>
+
+    <!-- Share QR dialog -->
+    <string name="share_title">"senseBox megosztása"</string>
+    <string name="share_deep_link_label">"Mélyhivatkozás"</string>
+    <string name="share_clipboard_label">"senseBox hivatkozás"</string>
+    <string name="share_subject">"senseBox"</string>
+    <string name="action_copy">"Másolás"</string>
+    <string name="action_share_link">"Hivatkozás megosztása"</string>
+    <string name="action_share_qr">"QR megosztása"</string>
+    <string name="action_save_qr">"QR mentése"</string>
+    <string name="share_qr_failed">"A QR-kép megosztása sikertelen"</string>
+    <string name="share_qr_saved_success">"A QR elmentve a Képek/BoxViewer mappába"</string>
+    <string name="share_qr_save_requires_android_10">"A galériába mentéshez Android 10 vagy újabb verzió szükséges"</string>
+    <string name="share_qr_save_failed">"A QR-kép mentése sikertelen"</string>
+
+    <!-- Errors / status -->
+    <string name="error_invalid_stats_format">"Az API érvénytelen statisztikai formátumot adott vissza."</string>
+    <string name="error_failed_to_load_stats">"Az adatbázis-statisztika betöltése sikertelen: %1$s"</string>
+    <string name="error_could_not_load_sensebox">"Ezt a senseBoxot nem sikerült betölteni. Ellenőrizd a hivatkozást vagy a kapcsolatot."</string>
+    <string name="error_failed_load_box_details">"A doboz részleteinek betöltése sikertelen: %1$s"</string>
+    <string name="error_failed_update_favorite">"A kedvenc frissítése sikertelen: %1$s"</string>
+    <string name="error_no_senseboxes_matching">"Nem található a %1$s-nek megfelelő senseBox"</string>
+    <string name="error_failed_search_boxes">"A dobozok keresése sikertelen: %1$s"</string>
+    <string name="error_no_nearby_senseboxes">"Nem található senseBox 500 km-es körzeten belül."</string>
+    <string name="error_failed_find_nearby_boxes">"A közeli dobozok keresése sikertelen: %1$s"</string>
+    <string name="error_no_senseboxes_near_location">"Nem található senseBox 500 km-es körzeten belül ettől: %1$s."</string>
+    <string name="error_could_not_find_location">"A %1$s helyszín nem található a térképen. Kérjük, próbálj meg másik városnevet."</string>
+    <string name="error_failed_search_location">"A helyszín keresése sikertelen: %1$s"</string>
+    <string name="error_no_senseboxes_within_radius">"Nem található senseBox ettől a helyszíntől %1$s km-es körzetben."</string>
+    <string name="error_failed_fetch_boxes_radius">"A dobozok lekérése %1$s km-es sugárban sikertelen: %2$s"</string>
+    <string name="error_failed_refresh">"A frissítés sikertelen: %1$s"</string>
+
+    <!-- Date/time formatting -->
+    <string name="date_format_full">"yyyy. MMM d. - HH:mm"</string>
+    <string name="date_format_short">"MMM d., HH:mm"</string>
+    <string name="time_format">"HH:mm"</string>
+    <string name="last_updated_never">"Soha nem frissítve"</string>
+    <string name="last_updated_format">"Utolsó frissítés: %1$s"</string>
+    <string name="sync_time_never">"Soha"</string>
+    <string name="widget_updated_at">"Frissítve: %1$s"</string>
+    <string name="widget_updated_none">"Frissítve --:--"</string>
+    <string name="widget_no_active_sensor">"Nincs aktív szenzor"</string>
+    <string name="selected_location">"Kiválasztott helyszín"</string>
+    <string name="location_coordinates_label">"Helyszín (%1$s, %2$s)"</string>
+    <string name="location_lat_lon_label">"Szélesség: %1$s, Hosszúság: %2$s"</string>
+    <string name="exposure_outdoor">"Kültéri"</string>
+    <string name="exposure_indoor">"Beltéri"</string>
+    <string name="exposure_all">"Összes"</string>
+    <string name="cd_cancel">"Mégse"</string>
+    <string name="cd_expand_dropdown">"Legördülő menü kibontása"</string>
+    <string name="cd_low_brightness">"Alacsony fényerő"</string>
+    <string name="cd_high_brightness">"Magas fényerő"</string>
+    <string name="cd_opaque">"Nem áttetsző"</string>
+    <string name="cd_transparent">"Áttetsző"</string>
+
+    <!-- About -->
+    <string name="about_title">"A BoxViewer névjegye"</string>
+
+    <!-- About -->
+    <string name="about_version_label">"Verzió: %1$s"</string>
+    <string name="about_developer_label">"Szeretettel készítette: nichu42"</string>
+    <string name="about_support_title">"Támogatás és Visszajelzés"</string>
+    <string name="about_rate_us">"Értékelés a GitHubon"</string>
+    <string name="about_report_bug">"Hiba bejelentése"</string>
+    <string name="about_request_feature">"Funkciókérés"</string>
+    <string name="about_legal_title">"Jogi információk"</string>
+    <string name="about_privacy_policy">"Adatvédelmi irányelvek"</string>
+    <string name="about_terms_of_service">"Felhasználási feltételek"</string>
+    <string name="about_open_source_licenses">"Nyílt forráskódú licencek"</string>
+    <string name="about_gpl_license">"GNU General Public License"</string>
+    <string name="about_disclaimer_title">"KAPCSOLATRA VONATKOZÓ JOGI NYILATKOZAT"</string>
+    <string name="about_disclaimer_text">"A BoxViewer alkalmazás egy független projekt, amely semmilyen kapcsolatban δεν áll az openSenseMap-mel (openSenseLab gGmbH) vagy a senseBox-szal (Reedu GmbH &amp; Co. KG), azok által nem támogatott, és nem társult velük."</string>
+    <string name="about_third_party_title">"Harmadik féltől származó licencek"</string>
+    <string name="about_third_party_intro">"Mélységesen hálásak somos a tehetséges fejlesztőknek és közösségeknek ezen nyílt forráskódú függőségek mögött. Hozzájárulnak ahhoz, hogy a BoxViewer könnyű, robusztus és vonzó legyen."</string>
+    <string name="about_library_author">"készítette: %1$s"</string>
+    <string name="about_license_title">"GNU General Public License"</string>
+    <string name="about_license_hide_details">"Részletek elrejtése"</string>
+    <string name="about_license_show_license">"Licenc megtekintése"</string>
+    <string name="about_license_load_error">"Hiba a licenc szövegének betöltése közben."</string>
+    <string name="about_loading_license">"Betöltés..."</string>
+    <string name="about_section_home_support">"ALKALMAZÁS KEZDŐOLDALA ÉS TÁMOGATÁS"</string>
+    <string name="about_home_description">"A BoxViewer nyílt forráskódú és szeretettel készült. Látogasson el a projekt tárhelyére a közreműködéshez, hibajelentéshez vagy a forráskód megtekintéséhez:"</string>
+    <string name="about_link_github">"Projekt kezdőlapja (GitHub)"</string>
+    <string name="about_support_description">"Ha tetszik az alkalmazás, és támogatni szeretné a folyamatos fejlesztést, kérjük, fontolja meg az adományozást:"</string>
+    <string name="about_link_kofi">"Támogatás a Ko-fi-n"</string>
+    <string name="about_link_liberapay">"Adományozás Liberapay-en keresztül"</string>
+    <string name="about_copyright">"Copyright (C) 2026 nichu42 és a közreműködők"</string>
+    <string name="about_gpl_summary_1">"Ez a program szabad szoftver: továbbadhatja és/vagy módosíthatja a Free Software Foundation által kiadott GNU General Public License feltételei szerint, akár a licenc 3-as, akár (választása szerint) bármely későbbi verziója alapján."</string>
+    <string name="about_gpl_summary_2">"Ez a program abban a reményben kerül közzétételre, hogy hasznos lesz, de BÁRMIFÉLE GARANCIA NÉLKÜL; még a FORGALOMKÉPESSÉGRE vagy EGY ADOTT CÉLRA VALÓ ALKALMASSÁGRA vonatkozó hallgatólagos garancia nélkül is. További részletekért lásd a GNU General Public License-t."</string>
+    <string name="about_view_license">"Teljes licenc megtekintése"</string>
+    <string name="about_third_party_licenses">"Harmadik felek licencei"</string>
+    <string name="about_section_data_attribution">"ADATOK ÉS FORRÁSOK"</string>
+    <string name="about_data_description">"Ez az alkalmazás az openSenseMap nyílt API-ját használja, amely egy nyílt forráskódú platform a világ minden tájáról származó környezeti szenzoradatok gyűjtésére és felfedezésére."</string>
+    <string name="about_stats_header">"OPENSENSEMAP HÁLÓZATI STATISZTIKA"</string>
+    <string name="about_stats_offline">"Offline"</string>
+    <string name="about_stats_failed">"Hiba az adatbázis-statisztikák betöltése közben."</string>
+    <string name="about_label_stations">"Állomások"</string>
+    <string name="about_label_measurements">"Mérések"</string>
+    <string name="about_active_rate_value">"%1$s/m"</string>
+    <string name="about_label_active_rate">"Aktív arány"</string>
+    <string name="about_what_is_opensensemap">"Mi az az openSenseMap?"</string>
+    <string name="about_opensensemap_description">"Eredetileg a Münsteri Egyetem kutatási projektjeként indult openSenseMap a világ egyik legnagyobb közösségi üzemeltetésű szenzorhálózatává vált. Ingyenes platformot biztosít iskolák, egyetemek, kutatók és az érdeklődő polgárok számára, hogy valós időben közzétegyék a környezeti adatokat – mint például a levegőminőség, a hőmérséklet és a páratartalom –, és megosszák azokat nyílt adatként (Open Data)."</string>
+    <string name="about_who_operates">"Ki üzemelteti?"</string>
+    <string name="about_operator_description">"A platformot az openSenseLab gGmbH üzemelteti és tartja karban. Ez egy münsteri székhelyű non-profit szervezet, amely elkötelezett a digitális szuverenitás, az oktatás és a tudományos környezetmegfigyelésben való nyilvános részvétel mellett."</string>
+    <string name="about_support_opensensemap_title">"Támogasd a nyílt adatokat!"</string>
+    <string name="about_support_opensensemap_description">"Az openSenseMap teljesen ingyenes, és nagymértékben támaszkodik a közösségi hozzájárulásokra és adományokra a szerverek működtesztéséhez és ahhoz, hogy az adatok mindenki számára elérhetőek maradjanak. Ha tetszenek az ebben az alkalmazásban nyújtott környezeti betekintések, kérjük, támogasd a projektjüket:"</string>
+    <string name="about_link_opensensemap">"Felfedezés: opensensemap.org"</string>
+    <string name="about_link_sensebox">"Építés: sensebox.de"</string>
+    <string name="about_link_betterplace">"Adományozás a Betterplace-en keresztül"</string>
+
+    <!-- Library categories -->
+    <string name="library_category_core_ui">"Alapvető UI és architektúra"</string>
+    <string name="library_category_networking">"Hálózat és média"</string>
+    <string name="library_category_database_concurrency">"Adatbázis és párhuzamosság"</string>
+    <string name="library_category_utilities">"Segédprogramok és kodekek"</string>
+    <string name="library_category_data_services">"Adat- és geokódolási szolgáltatások"</string>
+    <string name="library_category_testing">"Tesztkeretrendszerek"</string>
+    <string name="settings_text_scale_label">"Alkalmazás szövepsskálázása"</string>
+    <string name="settings_text_scale_description">"Állítsd be az alkalmazás felületének relatív szövegméretét az eszközödnek vagy az olvasási távolságnak megfelelően."</string>
+    <string name="settings_text_scale_compact">"60%% (Kompakt)"</string>
+    <string name="settings_text_scale_default">"100%% (Alapértelmezett)"</string>
+    <string name="settings_text_scale_double">"200%% (Dupla)"</string>
+    <string name="cd_contribute_translations">"Fordítások hozzájárulása"</string>
+    <string name="translation_contrib_title">"Segíts a BoxViewer fordításában"</string>
+    <string name="translation_contrib_message">"Segíthetsz a BoxViewer fordításában, javítások beküldésében vagy új nyelvek hozzáadásában! Kattints alább a nyilvános POEditor fordítási portál megtekintéséhez, vagy olvasd el a GitHub CONTRIBUTING.md fájlját a részletekért."</string>
+    <string name="translation_contrib_button">"Segítség a fordításban (POEditor)"</string>
+    <string name="about_section_translation">"FORDÍTÁS ÉS LOKALIZÁCIÓ"</string>
+    <string name="about_translation_description">"Segíts a BoxViewer új nyelvekre történő lefordításában vagy a meglévő fordítások javításában! A POEditor-t használjuk a fordítói közösségünk közösségi kezelésére."</string>
+    <string name="about_link_translate">"Közreműködés a fordításban (POEditor)"</string>
+    <string name="language_czech">"Cseh"</string>
+    <string name="language_french">"Francia"</string>
+    <string name="language_hungarian">"Magyar"</string>
+    <string name="language_italian">"Olasz"</string>
+    <string name="language_dutch">"Holland"</string>
+    <string name="language_polish">"Lengyel"</string>
+    <string name="language_spanish">"Spanyol"</string>
 </resources>
