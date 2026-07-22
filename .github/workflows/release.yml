@@ -67,10 +67,10 @@ jobs:
         if: (github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v')) && env.GCP_SERVICE_ACCOUNT_KEY != ''
         env:
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-        uses: r2da/google-play-publisher@v1
+        uses: r0adkll/upload-google-play@v1
         with:
-          service-account-json-raw: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-          package-name: de.nichu42.boxviewer
-          aab-file: app/build/outputs/bundle/release/app-release.aab
+          serviceAccountJsonPlainText: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          packageName: de.nichu42.boxviewer
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
           track: beta
           status: completed
