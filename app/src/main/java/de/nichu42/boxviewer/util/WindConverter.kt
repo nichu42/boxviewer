@@ -20,7 +20,8 @@ object WindConverter {
         if (!isMs && !isKmh && !isMph && !isKn) return null
 
         return try {
-            val value = valueStr.toDouble()
+            val cleanVal = valueStr.replace(',', '.').trim()
+            val value = cleanVal.toDouble()
 
             // First normalize to m/s
             val msValue = when {

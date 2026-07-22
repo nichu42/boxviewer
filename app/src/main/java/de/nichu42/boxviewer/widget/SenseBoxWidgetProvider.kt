@@ -455,13 +455,6 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
             views.setTextColor(R.id.widget_box_name, textColor)
             views.setTextColor(R.id.widget_update_time, subTextColor)
             views.setInt(R.id.widget_refresh_button, "setColorFilter", iconColor)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                views.setColorStateList(
-                    R.id.widget_loading_spinner,
-                    "setIndeterminateTintList",
-                    android.content.res.ColorStateList.valueOf(iconColor)
-                )
-            }
             views.setInt(R.id.widget_settings_button, "setColorFilter", iconColor)
             views.setInt(R.id.widget_values_container, "setBackgroundColor", innerBgOverlay)
 

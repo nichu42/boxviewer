@@ -100,11 +100,8 @@ object ApiLogger {
                 val context = appContext ?: return@launch
                 val file = File(context.filesDir, FILE_NAME)
 
-                // 1. Create file and write diagnostics header if it doesn't exist
-                val isNewFile = !file.exists() || file.length() == 0L
-                if (isNewFile) {
-                    writeDiagnosticsHeader(file)
-                }
+                // 1. Ensure file exists and header matches current app version
+                updateOrEnsureHeader(file)
 
                 // 2. Format request entry as a single JSON line
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
@@ -136,7 +133,7 @@ object ApiLogger {
         }
     }
 
-    private fun writeDiagnosticsHeader(file: File) {
+    private fun updateOrEnsureHeader(file: File) {
         try {
             val context = appContext ?: return
             val pm = context.packageManager
@@ -154,14 +151,13 @@ object ApiLogger {
             val versionCode = pi?.let {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) it.longVersionCode else @Suppress("DEPRECATION") it.versionCode
             } ?: 0
-
+            val currentAppVersion = "$versionName ($versionCode)"
             val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-            
-            // Format system diagnostics as the first JSON line
-            val header = mapOf(
+
+            val headerMap = mapOf(
                 "type" to "diagnostics",
                 "date" to sdf.format(Date()),
-                "appVersion" to "$versionName ($versionCode)",
+                "appVersion" to currentAppVersion,
                 "androidSdk" to Build.VERSION.SDK_INT,
                 "androidOs" to Build.VERSION.RELEASE,
                 "device" to "${Build.MANUFACTURER} ${Build.MODEL}",
@@ -169,9 +165,36 @@ object ApiLogger {
                 "hardware" to Build.HARDWARE,
                 "status" to "Running"
             )
-            
-            val headerJson = moshi.adapter(Map::class.java).toJson(header)
-            file.writeText(headerJson + "\n")
+            val newHeaderJson = moshi.adapter(Map::class.java).toJson(headerMap)
+
+            if (!file.exists() || file.length() == 0L) {
+                file.writeText(newHeaderJson + "\n")
+                return
+            }
+
+            val lines = file.readLines()
+            if (lines.isEmpty()) {
+                file.writeText(newHeaderJson + "\n")
+                return
+            }
+
+            val firstLine = lines.first()
+            if (firstLine.contains("\"type\":\"diagnostics\"") || firstLine.contains("\"type\" : \"diagnostics\"")) {
+                if (!firstLine.contains("\"appVersion\":\"$currentAppVersion\"") && !firstLine.contains("\"appVersion\" : \"$currentAppVersion\"")) {
+                    // App was updated since log was initialized! Rewrite line 1 header with current version.
+                    val remainingLines = lines.drop(1)
+                    file.writeText(newHeaderJson + "\n")
+                    for (line in remainingLines) {
+                        file.appendText(line + "\n")
+                    }
+                }
+            } else {
+                // Prepend missing header
+                file.writeText(newHeaderJson + "\n")
+                for (line in lines) {
+                    file.appendText(line + "\n")
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -239,6 +262,8 @@ object ApiLogger {
             val context = appContext ?: return@withLock Pair(null, emptyList())
             val file = File(context.filesDir, FILE_NAME)
             if (!file.exists()) return@withLock Pair(null, emptyList())
+
+            updateOrEnsureHeader(file)
 
             val diagnostics = mutableMapOf<String, Any>()
             val entries = mutableListOf<ApiLogEntry>()

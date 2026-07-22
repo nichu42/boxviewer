@@ -2,6 +2,17 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [0.51] - 2026-07-22
+
+### Fixed
+- **Widget Inflation Fix**: Fixed RemoteViews inflation failure ("Can't load widget") on Android 12–15 devices by removing non-remotable progress spinner calls.
+- **Temperature Adaptive Coloring**: Fixed temperature value color resolver to support locale-formatted numbers with decimal commas (e.g., German `"15,2"`), preventing improper fallback to orange.
+- **API Logger Header Sync**: API log header now updates dynamically to reflect the current app version when the app is updated.
+
+### Added
+- **Expanded System Diagnostics**: System Diagnostics copy action now includes active home screen widget counts, system locale, app preferences, database state, and saved crash stack traces.
+- **6 New Locales Supported**: Prepared language picker, resource infrastructure, and POEditor sync for Czech (`cs`), French (`fr`), Hungarian (`hu`), Italian (`it`), Dutch (`nl`), and Polish (`pl`).
+
 ## [0.50] - 2026-07-20
 
 ### Added

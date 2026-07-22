@@ -23,7 +23,8 @@ object TemperatureConverter {
         }
 
         return try {
-            var celsius = valueStr.toDouble()
+            val cleanVal = valueStr.replace(',', '.').trim()
+            var celsius = cleanVal.toDouble()
             if (isFromF) {
                 celsius = (celsius - 32.0) / 1.8
             } else if (isFromK) {

@@ -4,6 +4,12 @@
     <string name="language_system_default">System default</string>
     <string name="language_english">English</string>
     <string name="language_german">German</string>
+    <string name="language_czech">Czech</string>
+    <string name="language_french">French</string>
+    <string name="language_hungarian">Hungarian</string>
+    <string name="language_italian">Italian</string>
+    <string name="language_dutch">Dutch</string>
+    <string name="language_polish">Polish</string>
     <!-- Dashboard -->
     <string name="dashboard_title">My senseBoxes</string>
     <string name="dashboard_empty_title">No senseBoxes added yet</string>

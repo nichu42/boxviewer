@@ -29,7 +29,8 @@ object PressureConverter {
         if (!isPa && !isHpa && !isMbar && !isInHg && !isMmHg) return null
 
         return try {
-            val value = valueStr.toDouble()
+            val cleanVal = valueStr.replace(',', '.').trim()
+            val value = cleanVal.toDouble()
 
             // First normalize to hPa
             val hpaValue = when {

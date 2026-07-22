@@ -24,11 +24,12 @@ object SensorValueColorResolver {
         val lower = title.lowercase()
 
         val value = valueString?.let { raw ->
+            val cleanRaw = raw.replace(',', '.').trim()
             when {
-                lower.contains("temp") -> TemperatureConverter.convertToDouble(raw, unit, "°C")
+                lower.contains("temp") -> TemperatureConverter.convertToDouble(cleanRaw, unit, "°C")
                 lower.contains("druck") || lower.contains("press") ->
-                    PressureConverter.convertToDouble(raw, unit, "hPa")
-                else -> raw.toDoubleOrNull()
+                    PressureConverter.convertToDouble(cleanRaw, unit, "hPa")
+                else -> cleanRaw.toDoubleOrNull()
             }
         }
 

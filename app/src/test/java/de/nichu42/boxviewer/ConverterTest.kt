@@ -174,4 +174,39 @@ class ConverterTest {
         assertEquals("Moderate", nowCastResult.label)
         assertEquals(52.7, nowCastResult.value!!, 0.1)
     }
+
+    @Test
+    fun testSensorValueColorResolverWithLocales() {
+        val defaultOrange = 0xFFF97316.toInt()
+        val greenColor = 0xFF4CAF50.toInt()
+        val lightBlueColor = 0xFF64B5F6.toInt()
+
+        // 15°C formatted with dot or comma should resolve to temperature thresholds (Light Blue for <=15.0, Green for 15.2)
+        val colorDot = de.nichu42.boxviewer.util.SensorValueColorResolver.resolveColor(
+            title = "Temperatur",
+            valueString = "15.2",
+            unit = null,
+            aqiSystem = AqiSystem.US_EPA,
+            defaultColor = defaultOrange
+        )
+        assertEquals(greenColor, colorDot)
+
+        val colorComma = de.nichu42.boxviewer.util.SensorValueColorResolver.resolveColor(
+            title = "Temperatur",
+            valueString = "15,2",
+            unit = null,
+            aqiSystem = AqiSystem.US_EPA,
+            defaultColor = defaultOrange
+        )
+        assertEquals(greenColor, colorComma)
+
+        val color15Comma0 = de.nichu42.boxviewer.util.SensorValueColorResolver.resolveColor(
+            title = "Temperatur",
+            valueString = "15,0",
+            unit = null,
+            aqiSystem = AqiSystem.US_EPA,
+            defaultColor = defaultOrange
+        )
+        assertEquals(lightBlueColor, color15Comma0)
+    }
 }

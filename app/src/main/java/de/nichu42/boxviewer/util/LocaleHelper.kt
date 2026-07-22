@@ -26,7 +26,13 @@ object LocaleHelper {
     val SUPPORTED_LOCALES = listOf(
         SupportedLocale(tag = SYSTEM_DEFAULT, displayNameRes = R.string.language_system_default),
         SupportedLocale(tag = "en", displayNameRes = R.string.language_english),
-        SupportedLocale(tag = "de", displayNameRes = R.string.language_german)
+        SupportedLocale(tag = "de", displayNameRes = R.string.language_german),
+        SupportedLocale(tag = "cs", displayNameRes = R.string.language_czech),
+        SupportedLocale(tag = "fr", displayNameRes = R.string.language_french),
+        SupportedLocale(tag = "hu", displayNameRes = R.string.language_hungarian),
+        SupportedLocale(tag = "it", displayNameRes = R.string.language_italian),
+        SupportedLocale(tag = "nl", displayNameRes = R.string.language_dutch),
+        SupportedLocale(tag = "pl", displayNameRes = R.string.language_polish)
     )
 
     data class SupportedLocale(
