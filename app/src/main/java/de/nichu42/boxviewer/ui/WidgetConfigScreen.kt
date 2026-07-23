@@ -117,12 +117,26 @@ fun WidgetConfigScreen(
             savedBoxes = list
             
             val existingConfig = repository.getWidgetConfig(appWidgetId)
-            if (existingConfig != null) {
-                val box = list.find { it.boxId == existingConfig.boxId } ?: list.firstOrNull()
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val providers = listOf(
+                SenseBoxWidgetProvider::class.java,
+                de.nichu42.boxviewer.widget.SenseBoxWidgetProviderSmall::class.java,
+                de.nichu42.boxviewer.widget.SenseBoxWidgetProviderLarge::class.java
+            )
+            val activeWidgetIds = providers.flatMap { provider ->
+                appWidgetManager.getAppWidgetIds(android.content.ComponentName(context, provider))?.toList() ?: emptyList()
+            }.toSet()
+            val orphanConfig = if (existingConfig == null) {
+                repository.getAllWidgetConfigs().firstOrNull { it.widgetId !in activeWidgetIds && it.widgetId != appWidgetId }
+            } else null
+            val targetConfig = existingConfig ?: orphanConfig
+
+            if (targetConfig != null) {
+                val box = list.find { it.boxId == targetConfig.boxId } ?: list.firstOrNull()
                 selectedBox = box
-                visualizationType = existingConfig.visualizationType
+                visualizationType = targetConfig.visualizationType
                 
-                val savedColorVal = existingConfig.themeColorIndex
+                val savedColorVal = targetConfig.themeColorIndex
                 widgetColor = if (savedColorVal in 0..9) {
                     widgetBgColors.getOrElse(savedColorVal) { Color(0xFF0F172A) }
                 } else {
@@ -132,22 +146,21 @@ fun WidgetConfigScreen(
                 val argb = widgetColor.toArgb()
                 hexInputText = String.format("%06X", (argb and 0xFFFFFF))
                 
-                refreshIntervalMinutes = existingConfig.refreshIntervalMinutes
-                textScale = existingConfig.textScale
-                selectedSensorIds = existingConfig.sensorIdsString.split(",").filter { it.isNotEmpty() }
-                metricDisplayMode = existingConfig.metricDisplayMode
-                aqiDisplayMode = existingConfig.aqiDisplayMode
-                showRefreshButton = existingConfig.showRefreshButton
-                showConfigButton = existingConfig.showConfigButton
-                showBoxName = existingConfig.showBoxName
-                showUpdateTime = existingConfig.showUpdateTime
-                useConditionalFormatting = existingConfig.useConditionalFormatting
+                refreshIntervalMinutes = targetConfig.refreshIntervalMinutes
+                textScale = targetConfig.textScale
+                selectedSensorIds = targetConfig.sensorIdsString.split(",").filter { it.isNotEmpty() }
+                metricDisplayMode = targetConfig.metricDisplayMode
+                aqiDisplayMode = targetConfig.aqiDisplayMode
+                showRefreshButton = targetConfig.showRefreshButton
+                showConfigButton = targetConfig.showConfigButton
+                showBoxName = targetConfig.showBoxName
+                showUpdateTime = targetConfig.showUpdateTime
+                useConditionalFormatting = targetConfig.useConditionalFormatting
             } else if (list.isNotEmpty()) {
                 selectedBox = list.first()
                 widgetColor = Color(0xFF0F172A)
                 hexInputText = "0F172A"
                 
-                val appWidgetManager = AppWidgetManager.getInstance(context)
                 val info = appWidgetManager.getAppWidgetInfo(appWidgetId)
                 val providerClass = info?.provider?.className ?: ""
                 visualizationType = if (providerClass.contains("Small")) {
@@ -184,8 +197,22 @@ fun WidgetConfigScreen(
             availableSensors = synthesized
 
             val existingConfig = repository.getWidgetConfig(appWidgetId)
-            selectedSensorIds = if (existingConfig != null && existingConfig.boxId == box.boxId) {
-                existingConfig.sensorIdsString.split(",").filter { it.isNotEmpty() }
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val providers = listOf(
+                SenseBoxWidgetProvider::class.java,
+                de.nichu42.boxviewer.widget.SenseBoxWidgetProviderSmall::class.java,
+                de.nichu42.boxviewer.widget.SenseBoxWidgetProviderLarge::class.java
+            )
+            val activeWidgetIds = providers.flatMap { provider ->
+                appWidgetManager.getAppWidgetIds(android.content.ComponentName(context, provider))?.toList() ?: emptyList()
+            }.toSet()
+            val orphanConfig = if (existingConfig == null) {
+                repository.getAllWidgetConfigs().firstOrNull { it.widgetId !in activeWidgetIds && it.widgetId != appWidgetId }
+            } else null
+            val targetConfig = existingConfig ?: orphanConfig
+
+            selectedSensorIds = if (targetConfig != null && targetConfig.boxId == box.boxId) {
+                targetConfig.sensorIdsString.split(",").filter { it.isNotEmpty() }
             } else {
                 // Default to the top 6 canonical-order sensors (includes AQI when PM data is present)
                 synthesized.take(6).map { it.sensorId }

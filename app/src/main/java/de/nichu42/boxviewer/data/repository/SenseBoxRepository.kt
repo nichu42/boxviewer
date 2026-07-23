@@ -33,6 +33,10 @@ class SenseBoxRepository(private val context: Context, db: SenseBoxDatabase) {
         savedBoxDao.getSavedBox(boxId)
     }
 
+    suspend fun saveSavedBox(entity: SavedBoxEntity) = withContext(Dispatchers.IO) {
+        savedBoxDao.insertSavedBox(entity)
+    }
+
     suspend fun getCachedSensors(boxId: String): List<SensorCacheEntity> = withContext(Dispatchers.IO) {
         sensorCacheDao.getCachedSensors(boxId)
     }

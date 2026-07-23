@@ -69,6 +69,37 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
         }
     }
 
+    override fun onRestored(context: Context, oldWidgetIds: IntArray, newWidgetIds: IntArray) {
+        super.onRestored(context, oldWidgetIds, newWidgetIds)
+        val db = SenseBoxDatabase.getDatabase(context)
+        val repository = SenseBoxRepository(context, db)
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                for (i in oldWidgetIds.indices) {
+                    val oldId = oldWidgetIds[i]
+                    val newId = newWidgetIds[i]
+                    if (oldId != AppWidgetManager.INVALID_APPWIDGET_ID && newId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                        val oldConfig = repository.getWidgetConfig(oldId)
+                        if (oldConfig != null) {
+                            repository.deleteWidgetConfig(oldId)
+                            repository.saveWidgetConfig(oldConfig.copy(widgetId = newId))
+                            cancelAlarm(context, oldId, this@SenseBoxWidgetProvider.javaClass)
+                            scheduleAlarm(context, newId, oldConfig.refreshIntervalMinutes)
+                            updateWidgetAsync(context, appWidgetManager, newId)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                pendingResult.finish()
+            }
+        }
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         when (intent.action) {

@@ -2,6 +2,13 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [0.52] - 2026-07-23
+
+### Added
+- **Manual JSON Backup & Restore**: Added local JSON file export and import under Settings for saved senseBoxes, app preferences, and widget configurations. Ideal for de-Googled ROMs (GrapheneOS, CalyxOS, LineageOS) and offline data transfers.
+- **Widget Restore Support**: Implemented `AppWidgetManager.ACTION_APPWIDGET_RESTORED` handling in `SenseBoxWidgetProvider` (`onRestored`) to seamlessly remap widget IDs and database configurations when restoring Google or system backups on a new phone.
+- **Widget Template Pre-filling**: Added fallback template pre-filling in `WidgetConfigScreen` so that manually re-added widgets on a restored device automatically load settings from backed-up widget configurations.
+
 ## [0.51] - 2026-07-22
 
 ### Fixed

@@ -50,7 +50,6 @@
     <string name="error_invalid_sensebox_link">"Lien senseBox invalide"</string>
 
     <!-- Settings -->
-    <string name="settings_title">"Paramètres"</string>
 
     <!-- Settings -->
     <string name="settings_section_app_settings">"PARAMÈTRES DE L'APPLICATION"</string>
@@ -136,7 +135,6 @@
     <string name="discovery_exposure_label">"Type d'emplacement"</string>
     <string name="discovery_exposure_outdoor">"Extérieur"</string>
     <string name="discovery_exposure_indoor">"Intérieur"</string>
-    <string name="discovery_exposure_all">"Tous"</string>
     <string name="discovery_last_updated_limit">"Période de mise à jour"</string>
     <string name="discovery_last_updated_15m">"15 dernières minutes"</string>
     <string name="discovery_last_updated_30m">"30 dernières minutes"</string>
@@ -167,10 +165,6 @@
     <string name="discovery_15m_short">"15 m"</string>
     <string name="discovery_2km_short">"2 km"</string>
     <string name="discovery_250km_short">"250 km"</string>
-    <string name="discovery_permission_rationale">"L'autorisation de localisation est requise pour découvrir des senseBoxes près de chez vous. Veuillez accorder l'autorisation dans les paramètres de l'application."</string>
-    <string name="discovery_grant_permission">"Accorder l'autorisation de localisation"</string>
-    <string name="discovery_no_address">"Aucune adresse trouvée pour l'emplacement actuel."</string>
-    <string name="discovery_location_unavailable">"Emplacement non disponible."</string>
 
     <!-- Content descriptions -->
     <string name="cd_search">"Rechercher"</string>
@@ -185,7 +179,6 @@
     <string name="cd_discover">"Découvrir"</string>
     <string name="cd_show_more">"Afficher plus"</string>
     <string name="cd_updated_time">"Heure de mise à jour"</string>
-    <string name="cd_some_metrics_outdated">"Certaines mesures sont obsolètes"</string>
     <string name="cd_save_bookmark">"Enregistrer le favori"</string>
 
     <!-- Content descriptions -->
@@ -445,9 +438,6 @@ Activez la journalisation API dans les paramètres."</string>
     <string name="widget_config_section_text_scaling">"MISE À L'ÉCHELLE DU TEXTE DU WIDGET"</string>
     <string name="widget_config_text_scaling_description">"Ajustez la taille relative du texte du widget pour qu'il s'adapte parfaitement aux mises en page personnalisées. Appuyez et glissez ci-dessous."</string>
     <string name="widget_config_text_scale_label">"Mise à l'échelle du texte du widget"</string>
-    <string name="widget_config_text_scale_compact">"60 % (Compact)"</string>
-    <string name="widget_config_text_scale_default">"100 % (Standard)"</string>
-    <string name="widget_config_text_scale_double">"200 % (Double)"</string>
     <string name="widget_config_section_background_color">"COULEUR D'ARRIÈRE-PLAN DU WIDGET"</string>
     <string name="widget_config_select_preset_palette">"Sélectionner une palette prédéfinie"</string>
     <string name="widget_config_advanced_settings">"Paramètres avancés"</string>
@@ -515,7 +505,6 @@ Si PM2.5 et PM10 sont tous deux présents, la valeur d'indice la plus défavorab
     <string name="error_failed_search_boxes">"Échec de la recherche de boîtes : %1$s"</string>
     <string name="error_no_nearby_senseboxes">"Aucune senseBox trouvée dans un rayon de 500 km."</string>
     <string name="error_failed_find_nearby_boxes">"Échec de la recherche de boîtes à proximité : %1$s"</string>
-    <string name="error_no_senseboxes_near_location">"Aucune senseBox trouvée dans un rayon de 500 km de %1$s."</string>
     <string name="error_could_not_find_location">"Impossible de trouver l'emplacement %1$s sur la carte. Veuillez essayer un autre nom de ville."</string>
     <string name="error_failed_search_location">"Échec de la recherche de l'emplacement : %1$s"</string>
     <string name="error_no_senseboxes_within_radius">"Aucun senseBox trouvé dans un rayon de %1$s km de cet emplacement."</string>
@@ -546,20 +535,10 @@ Si PM2.5 et PM10 sont tous deux présents, la valeur d'indice la plus défavorab
     <string name="cd_transparent">"Transparent"</string>
 
     <!-- About -->
-    <string name="about_title">"À propos de BoxViewer"</string>
 
     <!-- About -->
     <string name="about_version_label">"Version %1$s"</string>
-    <string name="about_developer_label">"Créé avec soin par nichu42"</string>
     <string name="about_support_title">"Support et retours"</string>
-    <string name="about_rate_us">"Évaluer sur GitHub"</string>
-    <string name="about_report_bug">"Signaler un bug"</string>
-    <string name="about_request_feature">"Demande de fonctionnalité"</string>
-    <string name="about_legal_title">"Mentions légales"</string>
-    <string name="about_privacy_policy">"Politique de confidentialité"</string>
-    <string name="about_terms_of_service">"Conditions d'utilisation"</string>
-    <string name="about_open_source_licenses">"Licences Open Source"</string>
-    <string name="about_gpl_license">"GNU General Public License"</string>
     <string name="about_disclaimer_title">"AVIS DE NON-RESPONSABILITÉ CONCERNANT L'AFFILIATION"</string>
     <string name="about_disclaimer_text">"L'application BoxViewer est un projet indépendant et n'est en aucun cas affiliée, soutenue ou associée à openSenseMap (openSenseLab gGmbH) ou senseBox (Reedu GmbH &amp; Co. KG)."</string>
     <string name="about_third_party_title">"Licences tierces"</string>
@@ -609,9 +588,6 @@ Si PM2.5 et PM10 sont tous deux présents, la valeur d'indice la plus défavorab
     <string name="library_category_testing">"Frameworks de test"</string>
     <string name="settings_text_scale_label">"Mise à l'échelle du texte de l'application"</string>
     <string name="settings_text_scale_description">"Ajustez la taille relative du texte de l'interface de l'application en fonction de votre appareil ou de votre distance de lecture."</string>
-    <string name="settings_text_scale_compact">"60 %% (Compact)"</string>
-    <string name="settings_text_scale_default">"100 %% (Standard)"</string>
-    <string name="settings_text_scale_double">"200 %% (Double)"</string>
     <string name="cd_contribute_translations">"Contribuer aux traductions"</string>
     <string name="translation_contrib_title">"Aider à traduire BoxViewer"</string>
     <string name="translation_contrib_message">"Vous pouvez aider à traduire BoxViewer, soumettre des corrections ou ajouter de nouvelles langues ! Cliquez ci-dessous pour visiter le portail de traduction public POEditor, ou lisez notre fichier CONTRIBUTING.md sur GitHub pour plus de détails."</string>

@@ -70,6 +70,7 @@
             android:label="@string/widget_name_medium">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_RESTORED"/>
                 <action android:name="de.nichu42.boxviewer.widget.ACTION_REFRESH_WIDGET"/>
                 <action android:name="android.intent.action.USER_PRESENT"/>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
@@ -90,6 +91,7 @@
             android:label="@string/widget_name_small">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_RESTORED"/>
                 <action android:name="de.nichu42.boxviewer.widget.ACTION_REFRESH_WIDGET"/>
                 <action android:name="android.intent.action.USER_PRESENT"/>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
@@ -107,6 +109,7 @@
             android:label="@string/widget_name_large">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_RESTORED"/>
                 <action android:name="de.nichu42.boxviewer.widget.ACTION_REFRESH_WIDGET"/>
                 <action android:name="android.intent.action.USER_PRESENT"/>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>

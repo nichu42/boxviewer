@@ -2,7 +2,10 @@ package de.nichu42.boxviewer.ui
 
 import android.content.ClipData
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,8 +72,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.nichu42.boxviewer.R
+import de.nichu42.boxviewer.data.db.SenseBoxDatabase
+import de.nichu42.boxviewer.data.repository.SenseBoxRepository
 import de.nichu42.boxviewer.util.ApiLogger
 import de.nichu42.boxviewer.util.AqiSystem
+import de.nichu42.boxviewer.util.BackupManager
 import de.nichu42.boxviewer.util.CrashHandler
 import de.nichu42.boxviewer.util.FontScaleHelper
 import de.nichu42.boxviewer.util.LocaleHelper
@@ -97,6 +103,10 @@ fun SettingsScreen(
     val shareApiLogsTitleMsg = stringResource(R.string.settings_share_api_logs_title)
     val errorSharingLogsMsg = stringResource(R.string.settings_error_sharing_logs)
     val logsClearedMsg = stringResource(R.string.settings_logs_cleared)
+    val backupExportSuccessMsg = stringResource(R.string.settings_backup_export_success)
+    val backupExportFailedFormat = stringResource(R.string.settings_backup_export_failed)
+    val backupImportSuccessFormat = stringResource(R.string.settings_backup_import_success)
+    val backupImportFailedFormat = stringResource(R.string.settings_backup_import_failed)
     var crashLog by remember { mutableStateOf<String?>(null) }
     val useConditionalFormatting by viewModel.useConditionalFormatting.collectAsStateWithLifecycle()
     val temperatureUnit by viewModel.temperatureUnit.collectAsStateWithLifecycle()
@@ -105,6 +115,34 @@ fun SettingsScreen(
     val formatPressure by viewModel.formatPressure.collectAsStateWithLifecycle()
     val appTheme by viewModel.appTheme.collectAsStateWithLifecycle()
     val aqiSystem by viewModel.aqiSystem.collectAsStateWithLifecycle()
+    var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
+    var showImportConfirmDialog by remember { mutableStateOf(false) }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) {
+            clipboardScope.launch {
+                val db = SenseBoxDatabase.getDatabase(context)
+                val repository = SenseBoxRepository(context, db)
+                val result = BackupManager.exportBackupToUri(context, repository, uri)
+                result.onSuccess {
+                    Toast.makeText(context, backupExportSuccessMsg, Toast.LENGTH_LONG).show()
+                }.onFailure { err ->
+                    Toast.makeText(context, String.format(backupExportFailedFormat, err.localizedMessage ?: "Unknown error"), Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            pendingImportUri = uri
+            showImportConfirmDialog = true
+        }
+    }
 
     LaunchedEffect(Unit) {
         crashLog = CrashHandler.getCrashLog(context)
@@ -452,6 +490,137 @@ fun SettingsScreen(
                         onOptionSelected = { viewModel.setWindUnit(it) }
                     )
                 }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            // BACKUP & RESTORE CARD
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("settings_backup_card"),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_section_backup),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.settings_backup_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                exportLauncher.launch(BackupManager.generateBackupFilename())
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .heightIn(min = 48.dp)
+                                .testTag("export_backup_button")
+                        ) {
+                            Text(
+                                stringResource(R.string.settings_backup_export_button),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+
+                        Button(
+                            onClick = {
+                                importLauncher.launch(arrayOf("application/json", "*/*"))
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .heightIn(min = 48.dp)
+                                .testTag("import_backup_button")
+                        ) {
+                            Text(
+                                stringResource(R.string.settings_backup_import_button),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (showImportConfirmDialog && pendingImportUri != null) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showImportConfirmDialog = false
+                        pendingImportUri = null
+                    },
+                    title = { Text(stringResource(R.string.settings_backup_confirm_import_title)) },
+                    text = { Text(stringResource(R.string.settings_backup_confirm_import_message)) },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val uriToImport = pendingImportUri
+                                showImportConfirmDialog = false
+                                pendingImportUri = null
+                                if (uriToImport != null) {
+                                    clipboardScope.launch {
+                                        val db = SenseBoxDatabase.getDatabase(context)
+                                        val repository = SenseBoxRepository(context, db)
+                                        val result = BackupManager.importBackupFromUri(context, repository, uriToImport)
+                                        result.onSuccess { importResult ->
+                                            Toast.makeText(
+                                                context,
+                                                String.format(backupImportSuccessFormat, importResult.boxesRestored, importResult.widgetsRestored),
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            viewModel.refreshAll(force = true)
+                                        }.onFailure { err ->
+                                            Toast.makeText(
+                                                context,
+                                                String.format(backupImportFailedFormat, err.localizedMessage ?: "Unknown error"),
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    }
+                                }
+                            }
+                        ) {
+                            Text(stringResource(R.string.settings_backup_confirm_button))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showImportConfirmDialog = false
+                                pendingImportUri = null
+                            }
+                        ) {
+                            Text(stringResource(R.string.cd_cancel))
+                        }
+                    }
+                )
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))

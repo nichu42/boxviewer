@@ -1341,11 +1341,11 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 _rawDiscoveredBoxes.value = results
                 resolveLocationsFor(results)
                 if (results.isEmpty()) {
-                    _errorMessage.value = getApplication<Application>().getString(R.string.error_no_senseboxes_within_radius, radiusKm)
+                    _errorMessage.value = getApplication<Application>().getString(R.string.error_no_senseboxes_within_radius, radiusKm.toString())
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = getApplication<Application>().getString(R.string.error_failed_fetch_boxes_radius, radiusKm, e.message ?: "")
+                _errorMessage.value = getApplication<Application>().getString(R.string.error_failed_fetch_boxes_radius, radiusKm.toString(), e.message ?: "")
             } finally {
                 _isLoading.value = false
             }

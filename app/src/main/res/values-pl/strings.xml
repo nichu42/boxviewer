@@ -50,7 +50,6 @@
     <string name="error_invalid_sensebox_link">"Nieprawidłowy link senseBox"</string>
 
     <!-- Settings -->
-    <string name="settings_title">"Ustawienia"</string>
 
     <!-- Settings -->
     <string name="settings_section_app_settings">"USTAWIENIA APLIKACJI"</string>
@@ -136,7 +135,6 @@
     <string name="discovery_exposure_label">"Typ lokalizacji"</string>
     <string name="discovery_exposure_outdoor">"Zewnętrzna"</string>
     <string name="discovery_exposure_indoor">"Wewnętrzna"</string>
-    <string name="discovery_exposure_all">"Wszystkie"</string>
     <string name="discovery_last_updated_limit">"Okres aktualizacji"</string>
     <string name="discovery_last_updated_15m">"Ostatnie 15 minut"</string>
     <string name="discovery_last_updated_30m">"Ostatnie 30 minut"</string>
@@ -167,10 +165,6 @@
     <string name="discovery_15m_short">"15 m"</string>
     <string name="discovery_2km_short">"2 km"</string>
     <string name="discovery_250km_short">"250 km"</string>
-    <string name="discovery_permission_rationale">"Uprawnienie do lokalizacji jest wymagane do odkrywania senseBoxów w pobliżu. Przyznaj uprawnienie w ustawieniach aplikacji."</string>
-    <string name="discovery_grant_permission">"Przyznaj uprawnienie do lokalizacji"</string>
-    <string name="discovery_no_address">"Nie znaleziono adresu dla bieżącej lokalizacji."</string>
-    <string name="discovery_location_unavailable">"Lokalizacja niedostępna."</string>
 
     <!-- Content descriptions -->
     <string name="cd_search">"Szukaj"</string>
@@ -185,7 +179,6 @@
     <string name="cd_discover">"Odkryj"</string>
     <string name="cd_show_more">"Pokaż więcej"</string>
     <string name="cd_updated_time">"Czas aktualizacji"</string>
-    <string name="cd_some_metrics_outdated">"Niektóre pomiary są przestarzałe"</string>
     <string name="cd_save_bookmark">"Zapisz zakładkę"</string>
 
     <!-- Content descriptions -->
@@ -445,9 +438,6 @@ Włącz rejestrowanie API w ustawieniach."</string>
     <string name="widget_config_section_text_scaling">"SKALOWANIE TEKSTU WIDŻETU"</string>
     <string name="widget_config_text_scaling_description">"Dostosuj względny rozmiar tekstu widżetu, aby idealnie pasował do niestandardowych układów. Stuknij i przeciągnij poniżej."</string>
     <string name="widget_config_text_scale_label">"Skalowanie tekstu widżetu"</string>
-    <string name="widget_config_text_scale_compact">"60% (Kompaktowy)"</string>
-    <string name="widget_config_text_scale_default">"100% (Standardowy)"</string>
-    <string name="widget_config_text_scale_double">"200% (Podwójny)"</string>
     <string name="widget_config_section_background_color">"KOLOR TŁA WIDŻETU"</string>
     <string name="widget_config_select_preset_palette">"Wybierz wstępnie ustawioną paletę"</string>
     <string name="widget_config_advanced_settings">"Zaawansowane ustawienia"</string>
@@ -515,7 +505,6 @@ Jeśli obecne są zarówno PM2.5, jak i PM10, automatycznie zgłaszany jest najm
     <string name="error_failed_search_boxes">"Wyszukiwanie boxów nie powiodło się: %1$s"</string>
     <string name="error_no_nearby_senseboxes">"Nie znaleziono senseBox w promieniu 500 km."</string>
     <string name="error_failed_find_nearby_boxes">"Wyszukiwanie pobliskich boxów nie powiodło się: %1$s"</string>
-    <string name="error_no_senseboxes_near_location">"Nie znaleziono senseBox w promieniu 500 km od %1$s."</string>
     <string name="error_could_not_find_location">"Nie udało się znaleźć lokalizacji %1$s na mapie. Spróbuj wpisać inną nazwę miasta."</string>
     <string name="error_failed_search_location">"Wyszukiwanie lokalizacji nie powiodło się: %1$s"</string>
     <string name="error_no_senseboxes_within_radius">"Nie znaleziono senseBoxów w promieniu %1$s km od tej lokalizacji."</string>
@@ -546,20 +535,10 @@ Jeśli obecne są zarówno PM2.5, jak i PM10, automatycznie zgłaszany jest najm
     <string name="cd_transparent">"Przezroczysty"</string>
 
     <!-- About -->
-    <string name="about_title">"O aplikacji BoxViewer"</string>
 
     <!-- About -->
     <string name="about_version_label">"Wersja %1$s"</string>
-    <string name="about_developer_label">"Stworzone z dbałością przez nichu42"</string>
     <string name="about_support_title">"Wsparcie i opinie"</string>
-    <string name="about_rate_us">"Oceń na GitHubie"</string>
-    <string name="about_report_bug">"Zgłoś błąd"</string>
-    <string name="about_request_feature">"Prośba o funkcję"</string>
-    <string name="about_legal_title">"Informacje prawne"</string>
-    <string name="about_privacy_policy">"Polityka prywatności"</string>
-    <string name="about_terms_of_service">"Warunki korzystania"</string>
-    <string name="about_open_source_licenses">"Licencje open source"</string>
-    <string name="about_gpl_license">"GNU General Public License"</string>
     <string name="about_disclaimer_title">"ZASTRZEŻENIE DOTYCZĄCE POWIĄZAŃ"</string>
     <string name="about_disclaimer_text">"Aplikacja BoxViewer jest niezależnym projektem i nie jest w żaden sposób powiązana z openSenseMap (openSenseLab gGmbH) ani senseBox (Reedu GmbH &amp; Co. KG), nie jest przez nie wspierana ani z nimi stowarzyszona."</string>
     <string name="about_third_party_title">"Licencje firm trzecich"</string>
@@ -609,9 +588,6 @@ Jeśli obecne są zarówno PM2.5, jak i PM10, automatycznie zgłaszany jest najm
     <string name="library_category_testing">"Frameworki testowe"</string>
     <string name="settings_text_scale_label">"Skalowanie tekstu aplikacji"</string>
     <string name="settings_text_scale_description">"Dostosuj względny rozmiar tekstu interfejsu aplikacji do swojego urządzenia lub odległości czytania."</string>
-    <string name="settings_text_scale_compact">"60%% (Kompaktowy)"</string>
-    <string name="settings_text_scale_default">"100%% (Standardowy)"</string>
-    <string name="settings_text_scale_double">"200%% (Podwójny)"</string>
     <string name="cd_contribute_translations">"Współtwórz tłumaczenia"</string>
     <string name="translation_contrib_title">"Pomóż przetłumaczyć BoxViewer"</string>
     <string name="translation_contrib_message">"Możesz pomóc przetłumaczyć BoxViewer, przesłać poprawki lub dodać nowe języki! Kliknij poniżej, aby odwiedzić publiczny portal tłumaczeń POEditor lub przeczytaj nasz plik CONTRIBUTING.md na GitHubie, aby uzyskać szczegóły."</string>
