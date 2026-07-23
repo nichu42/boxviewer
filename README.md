@@ -9,6 +9,7 @@
 </p>
 
 <p align="center">
+  <a href="https://play.google.com/store/apps/details?id=de.nichu42.boxviewer"><img src="https://img.shields.io/badge/Google%20Play-Official%20Release-412991?style=for-the-badge&logo=google-play&logoColor=white" alt="Google Play Official Release" /></a>
   <a href="https://play.google.com/store/apps/details?id=de.nichu42.boxviewer"><img src="https://img.shields.io/badge/Google%20Play-Open%20Testing-3DDC84?style=for-the-badge&logo=google-play&logoColor=white" alt="Google Play Open Testing" /></a>
   <a href="https://github.com/nichu42/boxviewer/releases"><img src="https://img.shields.io/badge/Download-Stable%20APK-success?style=for-the-badge&logo=android&logoColor=white" alt="Download Stable APK" /></a>
   <a href="https://obtainium.imranr.dev/"><img src="https://img.shields.io/badge/Obtainium-Compatible-purple?style=for-the-badge&logo=android&logoColor=white" alt="Obtainium Compatible" /></a>
@@ -47,12 +48,13 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 
 BoxViewer is compatible with Android 7.0 (API 24) and above and is distributed via Google Play as well as direct APK downloads.
 
-### 🧪 Google Play (Open Beta)
+### 🛍️ Google Play Store
 <a href="https://play.google.com/store/apps/details?id=de.nichu42.boxviewer">
   <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="80" />
 </a>
 
-*   Opt-in directly on Google Play to test the latest beta builds (no sign-up or approval required).
+*   **Official Release**: Download stable production releases directly from the [Google Play Store](https://play.google.com/store/apps/details?id=de.nichu42.boxviewer).
+*   **Open Testing (Beta)**: Opt-in directly on Google Play to test upcoming pre-release builds and new features ahead of general release.
 
 ### 🚀 Direct Download & GitHub Releases
 You can download APK packages directly from the **[GitHub Releases](https://github.com/nichu42/boxviewer/releases)** page:
