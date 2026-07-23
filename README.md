@@ -9,10 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=de.nichu42.boxviewer"><img src="https://img.shields.io/badge/Google%20Play-Official%20Release-412991?style=for-the-badge&logo=google-play&logoColor=white" alt="Google Play Official Release" /></a>
-  <a href="https://play.google.com/store/apps/details?id=de.nichu42.boxviewer"><img src="https://img.shields.io/badge/Google%20Play-Open%20Testing-3DDC84?style=for-the-badge&logo=google-play&logoColor=white" alt="Google Play Open Testing" /></a>
-  <a href="https://github.com/nichu42/boxviewer/releases"><img src="https://img.shields.io/badge/Download-Stable%20APK-success?style=for-the-badge&logo=android&logoColor=white" alt="Download Stable APK" /></a>
-  <a href="https://obtainium.imranr.dev/"><img src="https://img.shields.io/badge/Obtainium-Compatible-purple?style=for-the-badge&logo=android&logoColor=white" alt="Obtainium Compatible" /></a>
+  <a href="https://play.google.com/store/apps/details?id=de.nichu42.boxviewer"><img src="https://img.shields.io/badge/Google_Play-Get_it_on-412991?style=for-the-badge&logo=google-play&logoColor=white" alt="Google Play" /></a>
+  <a href="https://github.com/nichu42/boxviewer/releases"><img src="https://img.shields.io/badge/GitHub-Download_APK-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Download APK" /></a>
+  <a href="https://obtainium.imranr.dev/"><img src="https://img.shields.io/badge/Obtainium-Compatible-purple?style=for-the-badge&logo=obtainium&logoColor=white" alt="Obtainium Compatible" /></a>
 </p>
 
 <p align="center">
@@ -38,30 +37,38 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 *   **🌐 Multi-Language Support**: BoxViewer supports 8 languages (English, German, Czech, Spanish, French, Hungarian, Italian, Dutch, Polish) with POEditor translation integration.
 *   **🔗 Quick Sharing & Deep Linking**: Generate local QR codes to share senseBox stations. Recipients scan the code or open a sharing web link to view the station directly inside the BoxViewer app.
 *   **🔋 Battery & API-Friendly**: Seamless local SQLite caching (`SensorCacheEntity`) and awake-on-unlock widget refresh logic ensure you get fresh data without draining your battery or hammering openSenseMap servers.
-*   **🔒 Privacy-First & De-Googled Friendly**: 100% free of Google Play Services (GMS) dependencies in the app code. Core functionality relies on the native Android `LocationManager` and direct openSenseMap APIs. Address search and location labels may use the device’s native geocoder (ROM-dependent backend) or an OpenStreetMap-based fallback; see the Privacy Policy for details. Zero telemetry, analytics, or third-party trackers.
+*   **🛡️ Privacy-First & De-Googled Friendly**: 100% free of Google Play Services (GMS) dependencies in the app code. Core functionality relies on the native Android `LocationManager` and direct openSenseMap APIs. Address search and location labels may use the device’s native geocoder (ROM-dependent backend) or an OpenStreetMap-based fallback; see the Privacy Policy for details. Zero telemetry, analytics, or third-party trackers.
 *   **🛠️ Local API Debug Logging**: Opt-in to capture raw API requests, responses, and Moshi parsing results in a JSON Lines (`.jsonl`) file stored locally. Copy or share logs via native sheets to diagnose errors easily.
 *   **🔤 App-Wide Text Scaling**: A dedicated Settings slider lets you scale text throughout the UI (60%–200%) independently of the system font size, making BoxViewer comfortable on tablets, foldables, and Android Automotive displays.
 
 ---
 
-## ⬇️ Download & Install
+## 📥 Download & Install
 
-BoxViewer is compatible with Android 7.0 (API 24) and above and is distributed via Google Play as well as direct APK downloads.
+BoxViewer is compatible with Android 7.0 (API 24) and above and is distributed via Google Play, GitHub Releases, and Obtainium.
 
-### 🛍️ Google Play Store
+### ▶️ Google Play Store
 <a href="https://play.google.com/store/apps/details?id=de.nichu42.boxviewer">
-  <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="80" />
+  <img alt="Get it on Google Play" src="metadata/badges/badge_google_play.png" height="80" />
 </a>
 
-*   **Official Release**: Download stable production releases directly from the [Google Play Store](https://play.google.com/store/apps/details?id=de.nichu42.boxviewer).
+*   **Official Release**: Download stable production releases directly from the **[Google Play Store](https://play.google.com/store/apps/details?id=de.nichu42.boxviewer)**.
 *   **Open Testing (Beta)**: Opt-in directly on Google Play to test upcoming pre-release builds and new features ahead of general release.
 
-### 🚀 Direct Download & GitHub Releases
+### 📦 Direct Download & GitHub Releases
+<a href="https://github.com/nichu42/boxviewer/releases">
+  <img alt="Get it on GitHub" src="metadata/badges/badge_github.png" height="80" />
+</a>
+
 You can download APK packages directly from the **[GitHub Releases](https://github.com/nichu42/boxviewer/releases)** page:
 *   **Latest Releases**: Official stable releases, tested and recommended for general use.
 *   **Pre-Releases**: Early test builds (Open Beta) published in parallel with the Google Play Open Testing track for users who prefer to try the newest features immediately.
 
 ### 🔄 Automatic Updates with Obtainium
+<a href="https://github.com/ImranR98/Obtainium">
+  <img alt="Get it on Obtainium" src="metadata/badges/badge_obtainium.png" height="80" />
+</a>
+
 To receive automatic updates on de-googled ROMs or without Google Play Services, we recommend using **[Obtainium](https://obtainium.imranr.dev/)**:
 1. Copy the repository URL: `https://github.com/nichu42/boxviewer`
 2. Open Obtainium, tap **Add App**, and paste the URL.
@@ -82,7 +89,7 @@ BoxViewer is developed with love as an open-source project. If you are happy wit
 
 ## 🌍 Data, Geocoding & Attribution
 
-### openSenseMap API
+### 📡 openSenseMap API
 This app utilizes the open API provided by **openSenseMap**, an open-source platform dedicated to collecting and exploring environmental sensor data from around the globe.
 
 *   **What is openSenseMap?**: Originally emerged from a research project at the University of Münster (Germany), openSenseMap has grown into one of the largest citizen-operated sensor networks in the world. It provides a free platform for schools, universities, scientists, and citizen enthusiasts to publish real-time environmental measurements—such as air quality, temperature, and humidity—and share them as Open Data.
@@ -93,12 +100,14 @@ This app utilizes the open API provided by **openSenseMap**, an open-source plat
     *   **Source code**: [sensebox/openSenseMap](https://github.com/sensebox/openSenseMap) · [sensebox/openSenseMap-API](https://github.com/sensebox/openSenseMap-API)
     *   **Donate**: [Donate via Betterplace](https://www.betterplace.org/en/projects/89947-opensensemap-org-the-free-map-for-environmental-data)
 
-### Geocoding & Address Lookup
+### 📍 Geocoding & Address Lookup
 To resolve coordinates to readable address labels (e.g., city/country) and enable searching for locations without relying on proprietary Google Play Services, BoxViewer integrates open-source OpenStreetMap (OSM) data backends:
 *   **Photon Geocoder**: An open, privacy-friendly search and reverse-geocoding service powered by OpenStreetMap data, operated by **[komoot GmbH](https://www.komoot.com)**, Berlin, Germany.
 *   **Nominatim Geocoder**: An open-source search and reverse-geocoding engine for OpenStreetMap data, operated by the **[OpenStreetMap Foundation](https://osmfoundation.org)**.
 
 We are extremely grateful to the **OpenStreetMap contributors** for providing the underlying open map data that powers the geo features of this app.
+
+📄 **Full Attributions & Licenses**: For a complete inventory of third-party libraries, data sources, and graphic artwork credits, see **[CREDITS.md](CREDITS.md)**.
 
 ---
 
