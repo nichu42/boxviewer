@@ -148,12 +148,13 @@ If you want to add a real linter (ktlint is the most popular choice) as a separa
 
 BoxViewer uses **POEditor** to collaboratively manage app translations. We welcome contributions for correcting existing strings or translating the app into new languages. 
 
-### ✍️ How to Contribute Translations
-1. **Join the Translation Project**: Visit our public join portal on POEditor:
+### ✍️ How Translation Synchronization Works
+BoxViewer uses **POEditor** with GitHub integration and Google Gemini AI translation:
+1. **Adding New Strings (Code Changes):** Developers only add new string keys to the primary English file (`app/src/main/res/values/strings.xml`).
+2. **Automated Translation & Sync:** POEditor imports new English terms from GitHub, auto-translates them into all supported languages using Google Gemini, and automatically commits all language XML files (including English) back to the GitHub repository.
+3. **Editing Existing Strings:** Copy edits or corrections can be made directly in POEditor (for any language, including English). POEditor commits these changes back to GitHub, so contributors should run `git pull` locally to stay up-to-date.
+4. **Join the Translation Project**: Visit our public join portal on POEditor to contribute or refine translations:
    👉 **[Translate BoxViewer on POEditor](https://poeditor.com/join/project/3BO0G8m3BZ)**.
-2. **Submit Translations**: You can suggest corrections or translate untranslated strings directly on the web interface.
-3. **Adding a New Language**: You can suggest/request a new target language within the POEditor project portal. Once translations are complete, a developer will update the app's locale configuration and sync workflows to enable it.
-4. **Moderation**: All submitted translations go through a moderation queue to ensure accuracy and prevent spam before they are merged.
 
 *Alternatively, if you prefer editing XML resources directly, you can submit a Pull Request following the guidelines below:*
 
