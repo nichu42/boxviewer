@@ -3,10 +3,11 @@ name: Build and Release APK & AAB
 on:
   release:
     types: [published, prereleased]
-  push:
-    tags:
-      - 'v*.*'
   workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -72,5 +73,5 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
           packageName: de.nichu42.boxviewer
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
-          track: beta
+          tracks: beta
           status: completed
