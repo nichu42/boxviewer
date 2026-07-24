@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">"BoxViewer"</string>
 
     <!-- Language picker labels -->
@@ -50,6 +50,9 @@ To ensure stability, you can choose to start over fresh (which will clear your b
 
     <!-- Errors -->
     <string name="error_invalid_sensebox_link">"Invalid senseBox link"</string>
+
+    <!-- Settings -->
+    <string name="settings_title">"Settings"</string>
 
     <!-- Settings -->
     <string name="settings_section_app_settings">"APP SETTINGS"</string>
@@ -135,6 +138,7 @@ To ensure stability, you can choose to start over fresh (which will clear your b
     <string name="discovery_exposure_label">"Exposure"</string>
     <string name="discovery_exposure_outdoor">"Outdoor"</string>
     <string name="discovery_exposure_indoor">"Indoor"</string>
+    <string name="discovery_exposure_all">"All"</string>
     <string name="discovery_last_updated_limit">"Last Updated Limit"</string>
     <string name="discovery_last_updated_15m">"Last 15 minutes"</string>
     <string name="discovery_last_updated_30m">"Last 30 minutes"</string>
@@ -165,6 +169,10 @@ To ensure stability, you can choose to start over fresh (which will clear your b
     <string name="discovery_15m_short">"15 m"</string>
     <string name="discovery_2km_short">"2 km"</string>
     <string name="discovery_250km_short">"250 km"</string>
+    <string name="discovery_permission_rationale">"Location permission is required to discover senseBoxes near you. Please grant permission in app settings."</string>
+    <string name="discovery_grant_permission">"Grant Location Permission"</string>
+    <string name="discovery_no_address">"No address found for current location."</string>
+    <string name="discovery_location_unavailable">"Location unavailable."</string>
 
     <!-- Content descriptions -->
     <string name="cd_search">"Search"</string>
@@ -179,6 +187,7 @@ To ensure stability, you can choose to start over fresh (which will clear your b
     <string name="cd_discover">"Discover"</string>
     <string name="cd_show_more">"Show more"</string>
     <string name="cd_updated_time">"Updated time"</string>
+    <string name="cd_some_metrics_outdated">"Some metrics outdated"</string>
     <string name="cd_save_bookmark">"Save Bookmark"</string>
 
     <!-- Content descriptions -->
@@ -441,6 +450,9 @@ only"</string>
     <string name="widget_config_section_text_scaling">"WIDGET TEXT SCALING"</string>
     <string name="widget_config_text_scaling_description">"Adjust the relative text size of the widget to fit custom layouts perfectly. Tap-and-drag below."</string>
     <string name="widget_config_text_scale_label">"Widget Text Scale"</string>
+    <string name="widget_config_text_scale_compact">"60%% (Compact)"</string>
+    <string name="widget_config_text_scale_default">"100%% (Default)"</string>
+    <string name="widget_config_text_scale_double">"200%% (Double)"</string>
     <string name="widget_config_section_background_color">"WIDGET BACKGROUND COLOR"</string>
     <string name="widget_config_select_preset_palette">"Select a Preset Palette"</string>
     <string name="widget_config_advanced_settings">"Advanced settings"</string>
@@ -508,6 +520,7 @@ If both PM2.5 and PM10 exist, it automatically reports the worst-case (maximum) 
     <string name="error_failed_search_boxes">"Failed to search boxes: %1$s"</string>
     <string name="error_no_nearby_senseboxes">"No nearby senseBoxes found within 500 km."</string>
     <string name="error_failed_find_nearby_boxes">"Failed to find nearby boxes: %1$s"</string>
+    <string name="error_no_senseboxes_near_location">"No senseBoxes found within 500 km of %1$s."</string>
     <string name="error_could_not_find_location">"Could not find location %1$s on the map. Please try a different city name."</string>
     <string name="error_failed_search_location">"Failed to search location: %1$s"</string>
     <string name="error_no_senseboxes_within_radius">"No senseBoxes found within %1$s km of this location."</string>
@@ -538,8 +551,20 @@ If both PM2.5 and PM10 exist, it automatically reports the worst-case (maximum) 
     <string name="cd_transparent">"Transparent"</string>
 
     <!-- About -->
+    <string name="about_title">"About BoxViewer"</string>
+
+    <!-- About -->
     <string name="about_version_label">"Version %1$s"</string>
+    <string name="about_developer_label">"Made with care by nichu42"</string>
     <string name="about_support_title">"Support &amp; Feedback"</string>
+    <string name="about_rate_us">"Rate on GitHub"</string>
+    <string name="about_report_bug">"Report a bug"</string>
+    <string name="about_request_feature">"Request a feature"</string>
+    <string name="about_legal_title">"Legal"</string>
+    <string name="about_privacy_policy">"Privacy Policy"</string>
+    <string name="about_terms_of_service">"Terms of Service"</string>
+    <string name="about_open_source_licenses">"Open Source Licenses"</string>
+    <string name="about_gpl_license">"GNU General Public License"</string>
     <string name="about_disclaimer_title">"AFFILIATION DISCLAIMER"</string>
     <string name="about_disclaimer_text">"The BoxViewer app is an independent project and is not affiliated with, endorsed by, or connected to openSenseMap (openSenseLab gGmbH) or senseBox (Reedu GmbH &amp; Co. KG) in any way."</string>
     <string name="about_third_party_title">"Third-Party Licenses"</string>
@@ -589,6 +614,9 @@ If both PM2.5 and PM10 exist, it automatically reports the worst-case (maximum) 
     <string name="library_category_testing">"Testing Frameworks"</string>
     <string name="settings_text_scale_label">"App Text Scale"</string>
     <string name="settings_text_scale_description">"Adjust the relative text size of the app interface to fit your device or viewing distance."</string>
+    <string name="settings_text_scale_compact">"60%% (Compact)"</string>
+    <string name="settings_text_scale_default">"100%% (Default)"</string>
+    <string name="settings_text_scale_double">"200%% (Double)"</string>
     <string name="cd_contribute_translations">"Contribute translations"</string>
     <string name="translation_contrib_title">"Help Translate BoxViewer"</string>
     <string name="translation_contrib_message">"You can help translate BoxViewer, submit corrections, or add new languages! Click below to visit the POEditor public translation portal, or see our GitHub CONTRIBUTING.md for details."</string>
@@ -605,15 +633,15 @@ If both PM2.5 and PM10 exist, it automatically reports the worst-case (maximum) 
     <string name="language_spanish">"Spanish"</string>
 
     <!-- Backup and Restore -->
-    <string name="settings_section_backup" tools:ignore="MissingTranslation">"BACKUP &amp; RESTORE"</string>
-    <string name="settings_backup_description" tools:ignore="MissingTranslation">"Export or import saved senseBoxes, app preferences, and widget configurations locally via JSON file. Ideal for de-Googled ROMs and offline data transfer."</string>
-    <string name="settings_backup_export_button" tools:ignore="MissingTranslation">"Export Backup (JSON)"</string>
-    <string name="settings_backup_import_button" tools:ignore="MissingTranslation">"Import Backup (JSON)"</string>
-    <string name="settings_backup_export_success" tools:ignore="MissingTranslation">"Backup exported successfully to JSON file."</string>
-    <string name="settings_backup_export_failed" tools:ignore="MissingTranslation">"Failed to export backup: %1$s"</string>
-    <string name="settings_backup_import_success" tools:ignore="MissingTranslation">"Restored %1$d senseBoxes, %2$d widget configs, and preferences!"</string>
-    <string name="settings_backup_import_failed" tools:ignore="MissingTranslation">"Failed to import backup: %1$s"</string>
-    <string name="settings_backup_confirm_import_title" tools:ignore="MissingTranslation">"Import Backup?"</string>
-    <string name="settings_backup_confirm_import_message" tools:ignore="MissingTranslation">"This will merge restored senseBoxes, widget configurations, and preferences into your app storage. Continue?"</string>
-    <string name="settings_backup_confirm_button" tools:ignore="MissingTranslation">"Import"</string>
+    <string name="settings_section_backup">"BACKUP &amp; RESTORE"</string>
+    <string name="settings_backup_description">"Export or import saved senseBoxes, app preferences, and widget configurations locally via JSON file. Ideal for de-Googled ROMs and offline data transfer."</string>
+    <string name="settings_backup_export_button">"Export Backup (JSON)"</string>
+    <string name="settings_backup_import_button">"Import Backup (JSON)"</string>
+    <string name="settings_backup_export_success">"Backup exported successfully to JSON file."</string>
+    <string name="settings_backup_export_failed">"Failed to export backup: %1$s"</string>
+    <string name="settings_backup_import_success">"Restored %1$d senseBoxes, %2$d widget configs, and preferences!"</string>
+    <string name="settings_backup_import_failed">"Failed to import backup: %1$s"</string>
+    <string name="settings_backup_confirm_import_title">"Import Backup?"</string>
+    <string name="settings_backup_confirm_import_message">"This will merge restored senseBoxes, widget configurations, and preferences into your app storage. Continue?"</string>
+    <string name="settings_backup_confirm_button">"Import"</string>
 </resources>

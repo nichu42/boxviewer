@@ -50,6 +50,7 @@
     <string name="error_invalid_sensebox_link">"Ongeldige senseBox-link"</string>
 
     <!-- Settings -->
+    <string name="settings_title">"Instellingen"</string>
 
     <!-- Settings -->
     <string name="settings_section_app_settings">"APP-INSTELLINGEN"</string>
@@ -135,6 +136,7 @@
     <string name="discovery_exposure_label">"Locatietype"</string>
     <string name="discovery_exposure_outdoor">"Buiten"</string>
     <string name="discovery_exposure_indoor">"Binnen"</string>
+    <string name="discovery_exposure_all">"Alle"</string>
     <string name="discovery_last_updated_limit">"Periode van update"</string>
     <string name="discovery_last_updated_15m">"Laatste 15 minuten"</string>
     <string name="discovery_last_updated_30m">"Laatste 30 minuten"</string>
@@ -165,6 +167,10 @@
     <string name="discovery_15m_short">"15 m"</string>
     <string name="discovery_2km_short">"2 km"</string>
     <string name="discovery_250km_short">"250 km"</string>
+    <string name="discovery_permission_rationale">"Locatietoestemming is vereist om senseBoxes bij jou in de buurt te ontdekken. Verleen de toestemming in de app-instellingen."</string>
+    <string name="discovery_grant_permission">"Locatietoestemming verlenen"</string>
+    <string name="discovery_no_address">"Geen adres gevonden voor de huidige locatie."</string>
+    <string name="discovery_location_unavailable">"Locatie niet beschikbaar."</string>
 
     <!-- Content descriptions -->
     <string name="cd_search">"Zoeken"</string>
@@ -179,6 +185,7 @@
     <string name="cd_discover">"Ontdekken"</string>
     <string name="cd_show_more">"Meer weergeven"</string>
     <string name="cd_updated_time">"Bijgewerkt tijdstip"</string>
+    <string name="cd_some_metrics_outdated">"Enkele meetwaarden verouderd"</string>
     <string name="cd_save_bookmark">"Bladwijzer opslaan"</string>
 
     <!-- Content descriptions -->
@@ -438,6 +445,9 @@ Schakel API-logging in de instellingen in."</string>
     <string name="widget_config_section_text_scaling">"WIDGET-TEKSTSCHALING"</string>
     <string name="widget_config_text_scaling_description">"Pas de relatieve tekstgrootte van de widget aan zodat deze perfect in aangepaste indelingen past. Tik en sleep hieronder."</string>
     <string name="widget_config_text_scale_label">"Widget-tekstschaling"</string>
+    <string name="widget_config_text_scale_compact">"60% (Compact)"</string>
+    <string name="widget_config_text_scale_default">"100% (Standaard)"</string>
+    <string name="widget_config_text_scale_double">"200% (Dubbel)"</string>
     <string name="widget_config_section_background_color">"ACHTERGRONDKLEUR VAN WIDGET"</string>
     <string name="widget_config_select_preset_palette">"Voor ingesteld palet selecteren"</string>
     <string name="widget_config_advanced_settings">"Geavanceerde instellingen"</string>
@@ -505,6 +515,7 @@ Wanneer zowel PM2.5 als PM10 aanwezig zijn, wordt automatisch de slechtste (maxi
     <string name="error_failed_search_boxes">"Zoeken naar boxen mislukt: %1$s"</string>
     <string name="error_no_nearby_senseboxes">"Geen senseBoxen gevonden binnen een straal van 500 km."</string>
     <string name="error_failed_find_nearby_boxes">"Zoeken naar nabijgelegen boxen mislukt: %1$s"</string>
+    <string name="error_no_senseboxes_near_location">"Geen senseBoxen gevonden binnen een straal van 500 km van %1$s."</string>
     <string name="error_could_not_find_location">"Kon locatie %1$s niet op de kaart vinden. Probeer een andere stadsnaam."</string>
     <string name="error_failed_search_location">"Zoeken naar locatie mislukt: %1$s"</string>
     <string name="error_no_senseboxes_within_radius">"Geen senseBoxen gevonden binnen %1$s km van deze locatie."</string>
@@ -535,10 +546,20 @@ Wanneer zowel PM2.5 als PM10 aanwezig zijn, wordt automatisch de slechtste (maxi
     <string name="cd_transparent">"Transparant"</string>
 
     <!-- About -->
+    <string name="about_title">"Over BoxViewer"</string>
 
     <!-- About -->
     <string name="about_version_label">"Versie %1$s"</string>
+    <string name="about_developer_label">"Met zorg gemaakt door nichu42"</string>
     <string name="about_support_title">"Ondersteuning en feedback"</string>
+    <string name="about_rate_us">"Beoordelen op GitHub"</string>
+    <string name="about_report_bug">"Fout melden"</string>
+    <string name="about_request_feature">"Functieverzoek"</string>
+    <string name="about_legal_title">"Juridisch"</string>
+    <string name="about_privacy_policy">"Privacybeleid"</string>
+    <string name="about_terms_of_service">"Gebruiksvoorwaarden"</string>
+    <string name="about_open_source_licenses">"Open-sourcelicenties"</string>
+    <string name="about_gpl_license">"GNU General Public License"</string>
     <string name="about_disclaimer_title">"DISCLAIMER VAN AFFILIATIE"</string>
     <string name="about_disclaimer_text">"De BoxViewer-app is een onafhankelijk project en heeft geen banden met, wordt niet ondersteund door en is niet geassocieerd met openSenseMap (openSenseLab gGmbH) of senseBox (Reedu GmbH &amp; Co. KG)."</string>
     <string name="about_third_party_title">"Licenties van derden"</string>
@@ -588,6 +609,9 @@ Wanneer zowel PM2.5 als PM10 aanwezig zijn, wordt automatisch de slechtste (maxi
     <string name="library_category_testing">"Testframeworks"</string>
     <string name="settings_text_scale_label">"App-tekstschaling"</string>
     <string name="settings_text_scale_description">"Pas de relatieve tekstgrootte van de app-interface aan op jouw apparaat of leesafstand."</string>
+    <string name="settings_text_scale_compact">"60%% (Compact)"</string>
+    <string name="settings_text_scale_default">"100%% (Standaard)"</string>
+    <string name="settings_text_scale_double">"200%% (Dubbel)"</string>
     <string name="cd_contribute_translations">"Bijdragen aan vertalingen"</string>
     <string name="translation_contrib_title">"Helpen BoxViewer te vertalen"</string>
     <string name="translation_contrib_message">"Je kunt helpen om BoxViewer te vertalen, correcties in te dienen of nieuwe talen toe te voegen! Klik hieronder om het openbare POEditor-vertaalportaal te bezoeken, of lees onze GitHub CONTRIBUTING.md voor details."</string>
@@ -602,4 +626,17 @@ Wanneer zowel PM2.5 als PM10 aanwezig zijn, wordt automatisch de slechtste (maxi
     <string name="language_dutch">"Nederlands"</string>
     <string name="language_polish">"Pools"</string>
     <string name="language_spanish">"Spaans"</string>
+
+    <!-- Backup and Restore -->
+    <string name="settings_section_backup">"BACK-UP &amp; HERSTEL"</string>
+    <string name="settings_backup_description">"Exporteer of importeer opgeslagen senseBoxes, app-voorkeuren en widget-configuratie lokaal via een JSON-bestand. Ideaal voor de-Googled ROMs en offline gegevensoverdracht."</string>
+    <string name="settings_backup_export_button">"Back-up exporteren (JSON)"</string>
+    <string name="settings_backup_import_button">"Back-up importeren (JSON)"</string>
+    <string name="settings_backup_export_success">"Back-up succesvol geëxporteerd naar JSON-bestand."</string>
+    <string name="settings_backup_export_failed">"Exporteren van back-up mislukt: %1$s"</string>
+    <string name="settings_backup_import_success">"%1$d senseBoxes, %2$d widget-configuraties en voorkeuren hersteld!"</string>
+    <string name="settings_backup_import_failed">"Importeren van back-up mislukt: %1$s"</string>
+    <string name="settings_backup_confirm_import_title">"Back-up importeren?"</string>
+    <string name="settings_backup_confirm_import_message">"Hiermee worden herstelde senseBoxes, widget-configuraties en voorkeuren samengevoegd met je app-opslag. Doorgaan?"</string>
+    <string name="settings_backup_confirm_button">"Importeren"</string>
 </resources>

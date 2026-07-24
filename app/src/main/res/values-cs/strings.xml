@@ -50,6 +50,7 @@
     <string name="error_invalid_sensebox_link">"Neplatný odkaz senseBox"</string>
 
     <!-- Settings -->
+    <string name="settings_title">"Nastavení"</string>
 
     <!-- Settings -->
     <string name="settings_section_app_settings">"NASTAVENÍ APLIKACE"</string>
@@ -135,6 +136,7 @@
     <string name="discovery_exposure_label">"Typ umístění"</string>
     <string name="discovery_exposure_outdoor">"Venku"</string>
     <string name="discovery_exposure_indoor">"Uvnitř"</string>
+    <string name="discovery_exposure_all">"Všechny"</string>
     <string name="discovery_last_updated_limit">"Období aktualizace"</string>
     <string name="discovery_last_updated_15m">"Posledních 15 minut"</string>
     <string name="discovery_last_updated_30m">"Posledních 30 minut"</string>
@@ -165,6 +167,10 @@
     <string name="discovery_15m_short">"15 m"</string>
     <string name="discovery_2km_short">"2 km"</string>
     <string name="discovery_250km_short">"250 km"</string>
+    <string name="discovery_permission_rationale">"K objevení senseBoxů ve vašem okolí je vyžadováno oprávnění k umístění. Udělte prosím oprávnění v nastavení aplikace."</string>
+    <string name="discovery_grant_permission">"Udělit oprávnění k umístění"</string>
+    <string name="discovery_no_address">"Pro aktuální polohu nebyla nalezena žádná adresa."</string>
+    <string name="discovery_location_unavailable">"Umístění není k dispozici."</string>
 
     <!-- Content descriptions -->
     <string name="cd_search">"Hledat"</string>
@@ -179,6 +185,7 @@
     <string name="cd_discover">"Objevit"</string>
     <string name="cd_show_more">"Zobrazit více"</string>
     <string name="cd_updated_time">"Čas aktualizace"</string>
+    <string name="cd_some_metrics_outdated">"Některé naměřené hodnoty jsou zastaralé"</string>
     <string name="cd_save_bookmark">"Uložit záložku"</string>
 
     <!-- Content descriptions -->
@@ -438,6 +445,9 @@ Zapněte protokolování API v nastavení."</string>
     <string name="widget_config_section_text_scaling">"ŠKÁLOVÁNÍ TEXTU WIDGETU"</string>
     <string name="widget_config_text_scaling_description">"Uprav relativní velikost textu widgetu tak, aby se perfektně hodila do vlastních rozvržení. Klepni a táhni dole."</string>
     <string name="widget_config_text_scale_label">"Škálování textu widgetu"</string>
+    <string name="widget_config_text_scale_compact">"60 % (Kompaktní)"</string>
+    <string name="widget_config_text_scale_default">"100 % (Výchozí)"</string>
+    <string name="widget_config_text_scale_double">"200 % (Dvojnásobná)"</string>
     <string name="widget_config_section_background_color">"BARVA POZADÍ WIDGETU"</string>
     <string name="widget_config_select_preset_palette">"Vybrat přednastavenou paletu"</string>
     <string name="widget_config_advanced_settings">"Pokročilá nastavení"</string>
@@ -505,6 +515,7 @@ Pokud jsou přítomny PM2.5 i PM10, automaticky se hlásí nejhorší (maximáln
     <string name="error_failed_search_boxes">"Vyhledávání boxů selhalo: %1$s"</string>
     <string name="error_no_nearby_senseboxes">"V okruhu 500 km nebyly nalezeny žádné senseBoxy."</string>
     <string name="error_failed_find_nearby_boxes">"Hledání blízkých boxů selhalo: %1$s"</string>
+    <string name="error_no_senseboxes_near_location">"V okruhu 500 km od %1$s nebyly nalezeny žádné senseBoxy."</string>
     <string name="error_could_not_find_location">"Nepodařilo se najít polohu %1$s na mapě. Zkuste prosím jiný název města."</string>
     <string name="error_failed_search_location">"Hledání polohy selhalo: %1$s"</string>
     <string name="error_no_senseboxes_within_radius">"V okruhu %1$s km od této polohy nebyly nalezeny žádné senseBoxy."</string>
@@ -535,10 +546,20 @@ Pokud jsou přítomny PM2.5 i PM10, automaticky se hlásí nejhorší (maximáln
     <string name="cd_transparent">"Průhledný"</string>
 
     <!-- About -->
+    <string name="about_title">"O aplikaci BoxViewer"</string>
 
     <!-- About -->
     <string name="about_version_label">"Verze %1$s"</string>
+    <string name="about_developer_label">"S péčí vytvořil nichu42"</string>
     <string name="about_support_title">"Podpora a zpětná vazba"</string>
+    <string name="about_rate_us">"Ohodnotit na GitHubu"</string>
+    <string name="about_report_bug">"Nahlásit chybu"</string>
+    <string name="about_request_feature">"Požadavek na funkci"</string>
+    <string name="about_legal_title">"Právní informace"</string>
+    <string name="about_privacy_policy">"Zásady ochrany osobních údajů"</string>
+    <string name="about_terms_of_service">"Podmínky použití"</string>
+    <string name="about_open_source_licenses">"Open-source licence"</string>
+    <string name="about_gpl_license">"GNU General Public License"</string>
     <string name="about_disclaimer_title">"ODMETKNUTÍ ODPOVĚDNOSTI ZA PŘÍSLUŠNOST"</string>
     <string name="about_disclaimer_text">"Aplikace BoxViewer je nezávislý projekt a není v žádném spojení s openSenseMap (openSenseLab gGmbH) ani senseBox (Reedu GmbH &amp; Co. KG), není jimi podporována ani s nimi není asociována."</string>
     <string name="about_third_party_title">"Licence třetích stran"</string>
@@ -588,6 +609,9 @@ Pokud jsou přítomny PM2.5 i PM10, automaticky se hlásí nejhorší (maximáln
     <string name="library_category_testing">"Testovací frameworky"</string>
     <string name="settings_text_scale_label">"Škálování textu aplikace"</string>
     <string name="settings_text_scale_description">"Uprav relativní velikost textu rozhraní aplikace podle svého zařízení nebo vzdálenosti čtení."</string>
+    <string name="settings_text_scale_compact">"60 % (Kompaktní)"</string>
+    <string name="settings_text_scale_default">"100 % (Výchozí)"</string>
+    <string name="settings_text_scale_double">"200 % (Dvojnásobná)"</string>
     <string name="cd_contribute_translations">"Přispět překlady"</string>
     <string name="translation_contrib_title">"Pomoci s překladem BoxViewer"</string>
     <string name="translation_contrib_message">"Můžeš pomoci přeložit BoxViewer, poslat opravy nebo přidat nové jazyky! Klikni níže pro návštěvu veřejného překladového portálu POEditor nebo si přečti náš soubor CONTRIBUTING.md na GitHubu pro podrobnosti."</string>
@@ -602,4 +626,17 @@ Pokud jsou přítomny PM2.5 i PM10, automaticky se hlásí nejhorší (maximáln
     <string name="language_dutch">"Holandština"</string>
     <string name="language_polish">"Polština"</string>
     <string name="language_spanish">"Španělština"</string>
+
+    <!-- Backup and Restore -->
+    <string name="settings_section_backup">"ZÁLOHA A OBNOVENÍ"</string>
+    <string name="settings_backup_description">"Exportujte nebo importujte uložené senseBoxy, předvolby aplikace a konfigurace widgetů lokálně pomocí souboru JSON. Ideální pro ROM bez Google služeb a offline přenos dat."</string>
+    <string name="settings_backup_export_button">"Exportovat zálohu (JSON)"</string>
+    <string name="settings_backup_import_button">"Importovat zálohu (JSON)"</string>
+    <string name="settings_backup_export_success">"Záloha byla úspěšně exportována do souboru JSON."</string>
+    <string name="settings_backup_export_failed">"Export zálohy se zdařil: %1$s"</string>
+    <string name="settings_backup_import_success">"Obnoveno %1$d senseBoxů, %2$d konfigurací widgetů a předvoleb!"</string>
+    <string name="settings_backup_import_failed">"Import zálohy se zdařil: %1$s"</string>
+    <string name="settings_backup_confirm_import_title">"Importovat zálohu?"</string>
+    <string name="settings_backup_confirm_import_message">"Tímto se obnovené senseBoxy, konfigurace widgetů a předvolby sloučí do úložiště vaší aplikace. Pokračovat?"</string>
+    <string name="settings_backup_confirm_button">"Importovat"</string>
 </resources>

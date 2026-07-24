@@ -50,6 +50,7 @@
     <string name="error_invalid_sensebox_link">"Érvénytelen senseBox hivatkozás"</string>
 
     <!-- Settings -->
+    <string name="settings_title">"Beállítások"</string>
 
     <!-- Settings -->
     <string name="settings_section_app_settings">"ALKALMAZÁS BEÁLLÍTÁSOK"</string>
@@ -135,6 +136,7 @@
     <string name="discovery_exposure_label">"Hely típusa"</string>
     <string name="discovery_exposure_outdoor">"Kültér"</string>
     <string name="discovery_exposure_indoor">"Beltér"</string>
+    <string name="discovery_exposure_all">"Összes"</string>
     <string name="discovery_last_updated_limit">"Frissítési időszak"</string>
     <string name="discovery_last_updated_15m">"Utolsó 15 perc"</string>
     <string name="discovery_last_updated_30m">"Utolsó 30 perc"</string>
@@ -165,6 +167,10 @@
     <string name="discovery_15m_short">"15 m"</string>
     <string name="discovery_2km_short">"2 km"</string>
     <string name="discovery_250km_short">"250 km"</string>
+    <string name="discovery_permission_rationale">"A helymeghatározási engedély szükséges a közeli senseBoxok felfedezéséhez. Kérjük, add meg az engedélyt az alkalmazás beállításaiban."</string>
+    <string name="discovery_grant_permission">"Helymeghatározási engedély megadása"</string>
+    <string name="discovery_no_address">"Nem található cím az aktuális tartózkodási helyhez."</string>
+    <string name="discovery_location_unavailable">"A hely nem érhető el."</string>
 
     <!-- Content descriptions -->
     <string name="cd_search">"Keresés"</string>
@@ -179,6 +185,7 @@
     <string name="cd_discover">"Felfedezés"</string>
     <string name="cd_show_more">"Továbbiak megjelenítése"</string>
     <string name="cd_updated_time">"Frissítési idő"</string>
+    <string name="cd_some_metrics_outdated">"Néhány mért érték elavult"</string>
     <string name="cd_save_bookmark">"Könyvjelző mentése"</string>
 
     <!-- Content descriptions -->
@@ -437,6 +444,9 @@
     <string name="widget_config_section_text_scaling">"WIDGET SZÖVEGSSKÁLÁZÁSA"</string>
     <string name="widget_config_text_scaling_description">"Állítsd be a widget relatív szövegméretét, hogy tökéletesen illeszkedjen az egyéni elrendezésekhez. Koppints és húzd alul."</string>
     <string name="widget_config_text_scale_label">"Widget szövepsskálázása"</string>
+    <string name="widget_config_text_scale_compact">"60% (Kompakt)"</string>
+    <string name="widget_config_text_scale_default">"100% (Alapértelmezett)"</string>
+    <string name="widget_config_text_scale_double">"200% (Dupla)"</string>
     <string name="widget_config_section_background_color">"WIDGET HÁTTÉRSZÍNE"</string>
     <string name="widget_config_select_preset_palette">"Előre beállított paletta kiválasztása"</string>
     <string name="widget_config_advanced_settings">"Speciális beállítások"</string>
@@ -504,6 +514,7 @@ Ha mind a PM2.5, mind a PM10 jelen van, automatikusan a legkedvezőtlenebb (maxi
     <string name="error_failed_search_boxes">"A dobozok keresése sikertelen: %1$s"</string>
     <string name="error_no_nearby_senseboxes">"Nem található senseBox 500 km-es körzeten belül."</string>
     <string name="error_failed_find_nearby_boxes">"A közeli dobozok keresése sikertelen: %1$s"</string>
+    <string name="error_no_senseboxes_near_location">"Nem található senseBox 500 km-es körzeten belül ettől: %1$s."</string>
     <string name="error_could_not_find_location">"A %1$s helyszín nem található a térképen. Kérjük, próbálj meg másik városnevet."</string>
     <string name="error_failed_search_location">"A helyszín keresése sikertelen: %1$s"</string>
     <string name="error_no_senseboxes_within_radius">"Nem található senseBox ettől a helyszíntől %1$s km-es körzetben."</string>
@@ -534,10 +545,20 @@ Ha mind a PM2.5, mind a PM10 jelen van, automatikusan a legkedvezőtlenebb (maxi
     <string name="cd_transparent">"Áttetsző"</string>
 
     <!-- About -->
+    <string name="about_title">"A BoxViewer névjegye"</string>
 
     <!-- About -->
     <string name="about_version_label">"Verzió: %1$s"</string>
+    <string name="about_developer_label">"Szeretettel készítette: nichu42"</string>
     <string name="about_support_title">"Támogatás és Visszajelzés"</string>
+    <string name="about_rate_us">"Értékelés a GitHubon"</string>
+    <string name="about_report_bug">"Hiba bejelentése"</string>
+    <string name="about_request_feature">"Funkciókérés"</string>
+    <string name="about_legal_title">"Jogi információk"</string>
+    <string name="about_privacy_policy">"Adatvédelmi irányelvek"</string>
+    <string name="about_terms_of_service">"Felhasználási feltételek"</string>
+    <string name="about_open_source_licenses">"Nyílt forráskódú licencek"</string>
+    <string name="about_gpl_license">"GNU General Public License"</string>
     <string name="about_disclaimer_title">"KAPCSOLATRA VONATKOZÓ JOGI NYILATKOZAT"</string>
     <string name="about_disclaimer_text">"A BoxViewer alkalmazás egy független projekt, amely semmilyen kapcsolatban δεν áll az openSenseMap-mel (openSenseLab gGmbH) vagy a senseBox-szal (Reedu GmbH &amp; Co. KG), azok által nem támogatott, és nem társult velük."</string>
     <string name="about_third_party_title">"Harmadik féltől származó licencek"</string>
@@ -587,6 +608,9 @@ Ha mind a PM2.5, mind a PM10 jelen van, automatikusan a legkedvezőtlenebb (maxi
     <string name="library_category_testing">"Tesztkeretrendszerek"</string>
     <string name="settings_text_scale_label">"Alkalmazás szövepsskálázása"</string>
     <string name="settings_text_scale_description">"Állítsd be az alkalmazás felületének relatív szövegméretét az eszközödnek vagy az olvasási távolságnak megfelelően."</string>
+    <string name="settings_text_scale_compact">"60%% (Kompakt)"</string>
+    <string name="settings_text_scale_default">"100%% (Alapértelmezett)"</string>
+    <string name="settings_text_scale_double">"200%% (Dupla)"</string>
     <string name="cd_contribute_translations">"Fordítások hozzájárulása"</string>
     <string name="translation_contrib_title">"Segíts a BoxViewer fordításában"</string>
     <string name="translation_contrib_message">"Segíthetsz a BoxViewer fordításában, javítások beküldésében vagy új nyelvek hozzáadásában! Kattints alább a nyilvános POEditor fordítási portál megtekintéséhez, vagy olvasd el a GitHub CONTRIBUTING.md fájlját a részletekért."</string>
@@ -601,4 +625,17 @@ Ha mind a PM2.5, mind a PM10 jelen van, automatikusan a legkedvezőtlenebb (maxi
     <string name="language_dutch">"Holland"</string>
     <string name="language_polish">"Lengyel"</string>
     <string name="language_spanish">"Spanyol"</string>
+
+    <!-- Backup and Restore -->
+    <string name="settings_section_backup">"BIZTONSÁGI MÁSOLAT ÉS VISSZAÁLLÍTÁS"</string>
+    <string name="settings_backup_description">"A mentett senseBoxok, alkalmazásbeállítások és widget-konfigurációk helyi exportálása vagy importálása JSON-fájlon keresztül. Ideális a Google-mentes ROM-okhoz és az offline adatátvitelhez."</string>
+    <string name="settings_backup_export_button">"Biztonsági mentés exportálása (JSON)"</string>
+    <string name="settings_backup_import_button">"Biztonsági mentés importálása (JSON)"</string>
+    <string name="settings_backup_export_success">"A biztonsági mentés sikeresen exportálva JSON fájlba."</string>
+    <string name="settings_backup_export_failed">"A biztonsági mentés exportálása sikertelen: %1$s"</string>
+    <string name="settings_backup_import_success">"%1$d senseBox, %2$d widget-konfiguráció és beállítás visszaállítva!"</string>
+    <string name="settings_backup_import_failed">"A biztonsági mentés importálása sikertelen: %1$s"</string>
+    <string name="settings_backup_confirm_import_title">"Biztonsági mentés importálása?"</string>
+    <string name="settings_backup_confirm_import_message">"Ez egyesíti a visszaállított senseBoxokat, widget-konfigurációkat és beállításokat az alkalmazás tárhelyével. Folytatja?"</string>
+    <string name="settings_backup_confirm_button">"Importálás"</string>
 </resources>
