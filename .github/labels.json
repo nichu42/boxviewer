@@ -1,0 +1,17 @@
+[
+  {
+    "name": "dependencies",
+    "color": "0366d6",
+    "description": "Dependencies updates"
+  },
+  {
+    "name": "android",
+    "color": "34A853",
+    "description": "Android-related updates"
+  },
+  {
+    "name": "ci",
+    "color": "FF6B6B",
+    "description": "CI/CD updates"
+  }
+]
