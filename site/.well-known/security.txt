@@ -1,0 +1,7 @@
+# BoxViewer Vulnerability Disclosure Policy
+# Reference: https://rfc9116.org/
+
+Contact: nichu42@42bit.email
+Preferred-Languages: en
+Canonical: https://boxviewer.app/.well-known/security.txt
+Policy: https://github.com/nichu42/boxviewer

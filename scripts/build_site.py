@@ -650,6 +650,7 @@ def build():
     shutil.copy(SITE / "styles.css", DIST / "styles.css")
     shutil.copy(SITE / "theme.js", DIST / "theme.js")
     shutil.copytree(SITE / "assets", DIST / "assets")
+    shutil.copytree(SITE / ".well-known", DIST / ".well-known")
     print("[ok] Copied static assets")
 
     # Read source files
