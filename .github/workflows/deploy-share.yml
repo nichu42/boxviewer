@@ -1,11 +1,11 @@
-name: Deploy to bunny.net
+name: Deploy share page to bunny.net
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'web/**'
+      - 'share/**'
   workflow_dispatch:
 
 permissions:
@@ -44,11 +44,11 @@ jobs:
           acl = private
           EOF
 
-      - name: Sync web assets to Bunny Storage
+      - name: Sync share assets to Bunny Storage
         env:
           BUNNY_S3_BUCKET: ${{ secrets.BUNNY_S3_BUCKET }}
         run: |
-          rclone sync ./web "bunny:${BUNNY_S3_BUCKET}" \
+          rclone sync ./share "bunny:${BUNNY_S3_BUCKET}" \
             --fast-list --checksum --transfers 16 --verbose
 
       - name: Purge CDN cache for changed files
@@ -63,11 +63,11 @@ jobs:
           domain="share.boxviewer.app"
           base="${{ github.event.before }}"
           if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
-            echo "No previous commit available (force push or manual run); purging all web assets"
-            files=$(find ./web -type f | sed 's#^./web/##')
+            echo "No previous commit available (force push or manual run); purging all share assets"
+            files=$(find ./share -type f | sed 's#^./share/##')
           else
             echo "Detecting changed files between $base and ${{ github.sha }}"
-            files=$(git diff --name-only "$base" "${{ github.sha }}" -- web/ | sed 's#^web/##')
+            files=$(git diff --name-only "$base" "${{ github.sha }}" -- share/ | sed 's#^share/##')
           fi
           if [ -z "$files" ]; then
             echo "No web files changed, nothing to purge"

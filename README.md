@@ -22,12 +22,15 @@
 
 ---
 
+<!-- web:intro-start -->
 **BoxViewer** is a modern, fully-featured, open-source Android app for [openSenseMap](https://opensensemap.org) — a global open-data platform for environmental sensor networks and DIY weather stations (senseBoxes).
 
 Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guidelines, BoxViewer enables environmentalists, hobbyists, and researchers to locate nearby sensor stations, monitor micro-climate telemetry streams in real time, and configure home-screen widgets for instant, glanceable observation.
+<!-- web:intro-end -->
 
 ## ✨ Key Features
 
+<!-- web:features-start -->
 *   **📊 Live Interactive Dashboard**: Favorite and save specific environmental stations. Customize exactly which sensor metrics (Temperature, Humidity, UV, PM2.5, Barometric Pressure, etc.) you want to track at a glance.
 *   **📱 Glanceable Home Widgets**: Customize home screen widgets featuring Material Design 3 theme colors to monitor your favorite senseBox metrics. Supports per-widget text & icon scaling up to 200%, toggling detail styles (Full Details, Value & Unit, Value Only), conditional formatting, AQI display modes, and direct home-screen reconfiguration on Android 12+. 
 *   **🌬️ Air Quality Index Engine**: Six international AQI standards (US EPA, UK DAQI, EU EAQI, Canada AQHI, India, China) with a virtual synthesized sensor and 12-hour NowCast averaging computed locally from cached openSenseMap data.
@@ -40,11 +43,13 @@ Crafted with **Kotlin** and **Jetpack Compose** following Material Design 3 guid
 *   **🛡️ Privacy-First & De-Googled Friendly**: 100% free of Google Play Services (GMS) dependencies in the app code. Core functionality relies on the native Android `LocationManager` and direct openSenseMap APIs. Address search and location labels may use the device’s native geocoder (ROM-dependent backend) or an OpenStreetMap-based fallback; see the Privacy Policy for details. Zero telemetry, analytics, or third-party trackers.
 *   **🛠️ Local API Debug Logging**: Opt-in to capture raw API requests, responses, and Moshi parsing results in a JSON Lines (`.jsonl`) file stored locally. Copy or share logs via native sheets to diagnose errors easily.
 *   **🔤 App-Wide Text Scaling**: A dedicated Settings slider lets you scale text throughout the UI (60%–200%) independently of the system font size, making BoxViewer comfortable on tablets, foldables, and Android Automotive displays.
+<!-- web:features-end -->
 
 ---
 
 ## 📥 Download & Install
 
+<!-- web:download-start -->
 BoxViewer is compatible with Android 7.0 (API 24) and above and is distributed via Google Play, GitHub Releases, and Obtainium.
 
 ### ▶️ Google Play Store
@@ -65,29 +70,33 @@ You can download APK packages directly from the **[GitHub Releases](https://gith
 *   **Pre-Releases**: Early test builds (Open Beta) published in parallel with the Google Play Open Testing track for users who prefer to try the newest features immediately.
 
 ### 🔄 Automatic Updates with Obtainium
-<a href="https://github.com/ImranR98/Obtainium">
+<a href="obtainium://add/https%3A%2F%2Fgithub.com%2Fnichu42%2Fboxviewer">
   <img alt="Get it on Obtainium" src="metadata/badges/badge_obtainium.png" height="80" />
 </a>
 
-To receive automatic updates on de-googled ROMs or without Google Play Services, we recommend using **[Obtainium](https://obtainium.imranr.dev/)**:
-1. Copy the repository URL: `https://github.com/nichu42/boxviewer`
-2. Open Obtainium, tap **Add App**, and paste the URL.
-3. Obtainium will automatically track GitHub releases (including pre-releases if enabled).
+Tap the button above to add BoxViewer directly to your existing **[Obtainium](https://obtainium.imranr.dev/)** installation — it will open the *Add App* screen pre-filled and ready to confirm. Don't have Obtainium yet? Download it first from **[obtainium.imranr.dev](https://obtainium.imranr.dev/)**.
+
+Once added, Obtainium will automatically track GitHub releases (including pre-releases if enabled).
+<!-- web:download-end -->
 
 ---
 
 ## ☕ Support the Developer
 
+<!-- web:support-start -->
 BoxViewer is developed with love as an open-source project. If you are happy with the app and would like to support its ongoing development, please consider donating:
 
 <p align="left">
   <a href="https://ko-fi.com/nichu42"><img src="https://img.shields.io/badge/Support_on_Ko--fi-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Support on Ko-fi" /></a>
   <a href="https://liberapay.com/nichu42"><img src="https://img.shields.io/badge/Donate_via_Liberapay-F6C915?style=for-the-badge&logo=liberapay&logoColor=black" alt="Donate via Liberapay" /></a>
 </p>
+<!-- web:support-end -->
 
 ---
 
 ## 🌍 Data, Geocoding & Attribution
+
+<!-- web:attribution-start -->
 
 ### 📡 openSenseMap API
 This app utilizes the open API provided by **openSenseMap**, an open-source platform dedicated to collecting and exploring environmental sensor data from around the globe.
@@ -108,10 +117,13 @@ To resolve coordinates to readable address labels (e.g., city/country) and enabl
 We are extremely grateful to the **OpenStreetMap contributors** for providing the underlying open map data that powers the geo features of this app.
 
 📄 **Full Attributions & Licenses**: For a complete inventory of third-party libraries, data sources, and graphic artwork credits, see **[CREDITS.md](CREDITS.md)**.
+<!-- web:attribution-end -->
 
 ---
 
 ## 🍃 Air Quality Index (AQI) Integration
+
+<!-- web:aqi-start -->
 
 BoxViewer features a built-in Air Quality Index engine that supports six major international standards:
 1. **US EPA AQI**: 0–500 numerical scale (United States standard)
@@ -127,16 +139,20 @@ BoxViewer features a built-in Air Quality Index engine that supports six major i
 *   **InstantCast**: The live virtual sensor value displayed on the dashboard cards and home screen widgets represents the **InstantCast** (instantaneous concentration converted directly to the selected AQI standard).
 *   **NowCast**: When expanding a detailed sensor card, BoxViewer pulls up to 12 hours of historical readings and applies the official **NowCast** algorithm (a weighted rolling average designed by the EPA to smooth out short-term noise and spikes) to display a true 12-hour AQI NowCast banner.
 *   **Customization**: You can switch between the six AQI standards under the **AQI Standard** setting.
+<!-- web:aqi-end -->
 
 ---
 
 ## 🌐 Translation & Localization
+
+<!-- web:translation-start -->
 
 Help make BoxViewer accessible to everyone! We collaboratively translate the app using **POEditor**. You can help translate the app, submit corrections, or suggest new languages on our POEditor project page:
 
 👉 **[Help Translate BoxViewer on POEditor](https://poeditor.com/join/project/3BO0G8m3BZ)**
 
 For more details on translating and how the sync workflow works, check our [CONTRIBUTING.md](./CONTRIBUTING.md#translations--localization).
+<!-- web:translation-end -->
 
 ---
 
@@ -172,4 +188,6 @@ For details on how user location privacy and on-device telemetry logs are strict
 
 ## ⚠️ Affiliation Disclaimer
 
+<!-- web:disclaimer-start -->
 *The BoxViewer app is an independent project and is not affiliated with, endorsed by, or connected to openSenseMap (openSenseLab gGmbH) or senseBox (Reedu GmbH & Co. KG) in any way.*
+<!-- web:disclaimer-end -->

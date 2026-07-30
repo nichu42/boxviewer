@@ -1,6 +1,6 @@
 # Legal Disclosures & Privacy Policy / Impressum & Datenschutzerklärung
 
-**Effective Date / Stand:** June 27, 2026
+**Effective Date / Stand:** July 30, 2026
 
 *   [English Version (Imprint & Privacy Policy)](#english-version)
 *   [Deutsche Version (Impressum & Datenschutzerklärung)](#deutsche-version)
@@ -79,10 +79,16 @@ The app stores your preferences, bookmarked senseBoxes, and cached sensor data l
 * If you uninstall the app or clear its data in Android settings, all stored bookmarks, cached sensor values, and configurations are permanently deleted.
 
 ### 5. Website Hosting & Redirect Services
-When you visit the BoxViewer landing and deep-link forwarding page (`https://share.boxviewer.app`):
-* **Server Log Files & Hosting:** The website is hosted on bunny.net, operated by BunnyWay d.o.o. (Slovenia, EU). When loading the page, your browser automatically transmits connection metadata (such as your IP address, browser type, operating system, referrer URL, and access timestamps) to bunny.net's servers and global CDN edge locations. This project uses bunny.net's high-volume tier, which serves content from edge points of presence worldwide to minimize latency. For further details on how bunny.net processes this data, please refer to the [bunny.net Privacy Policy](https://bunny.net/privacy) and the [bunny.net GDPR information](https://bunny.net/gdpr).
-* **No Web Tracking:** The website does not use cookies, local storage tracking keys, or third-party web analytics tools.
-* **Local Redirect Script:** The redirect script extracts the senseBox ID entirely client-side inside your browser to open the application via deep link (`boxviewer://box/{id}`). No ID parameters or navigation history are sent to our servers.
+BoxViewer operates two public web properties, both hosted on bunny.net (operated by BunnyWay d.o.o., Slovenia, EU) using Storage Zones and a global Pull Zone CDN. When your browser loads either site, it automatically transmits connection metadata — including your IP address, browser type, operating system, referrer URL, and access timestamps — to bunny.net's servers and global CDN edge locations. For further details, refer to the [bunny.net Privacy Policy](https://bunny.net/privacy) and the [bunny.net GDPR information](https://bunny.net/gdpr). Neither website uses cookies, local storage tracking keys, or third-party web analytics tools.
+
+**Main website (`https://boxviewer.app`):**
+* A static product website describing BoxViewer's features, changelog, credits, and legal information.
+* The page is fully static HTML/CSS/JS with no server-side logic, no forms, and no user accounts.
+* No personal data is collected or processed by the website itself beyond what bunny.net logs as part of serving the CDN request.
+
+**Deep-link forwarding page (`https://share.boxviewer.app`):**
+* Handles QR-code sharing links that open a specific senseBox directly in the BoxViewer app.
+* The redirect script extracts the senseBox ID entirely client-side inside your browser to open the application via deep link (`boxviewer://box/{id}`). No ID parameters or navigation history are sent to our servers.
 
 ### 6. Contact Info & Data Controller
 BoxViewer is an open-source project. If you have any questions, feedback, or data privacy inquiries, you can contact the project maintainer and data controller:
@@ -172,10 +178,16 @@ Die App speichert Ihre Einstellungen, favorisierten senseBoxes und zwischengespe
 * Bei Deinstallation der App oder Löschen der App-Daten in den Android-Einstellungen werden alle gespeicherten Favoriten, Cache-Werte und Konfigurationen dauerhaft gelöscht.
 
 ### 5. Website-Hosting & Weiterleitungsdienste
-Beim Besuch unserer Landingpage und Deep-Link-Weiterleitung (`https://share.boxviewer.app`):
-* **Server-Logfiles & Hosting:** Die Webseite wird auf bunny.net gehostet (betrieben von BunnyWay d.o.o., Slowenien, EU). Beim Laden der Seite übermittelt Ihr Webbrowser automatisch Verbindungsmetadaten (wie IP-Adresse, Browsertyp, Betriebssystem, Referrer-URL und Zugriffszeitstempel) an die Server und globalen CDN-Edge-Standorte von bunny.net. Dieses Projekt nutzt bunny.nets High-Volume-Tarif, der Inhalte weltweit über Edge-Standorte ausliefert, um die Latenz zu minimieren. Weitere Einzelheiten zur Verarbeitung dieser Daten finden Sie in der [Datenschutzerklärung von bunny.net](https://bunny.net/privacy) und den [bunny.net GDPR-Informationen](https://bunny.net/gdpr).
-* **Kein Web-Tracking:** Die Website verwendet keine Cookies, lokale Tracking-Identifikatoren oder Drittanbieter-Webanalyse-Tools.
-* **Lokales Weiterleitungsskript:** Das Skript extrahiert die senseBox-ID ausschließlich lokal in Ihrem Webbrowser, um die mobile Anwendung per Deep Link (`boxviewer://box/{id}`) zu starten. Es werden keine ID-Parameter oder Navigationsdaten an unsere Server übermittelt.
+BoxViewer betreibt zwei öffentliche Web-Auftritte, die beide auf bunny.net (betrieben von BunnyWay d.o.o., Slowenien, EU) über Storage Zones und ein globales Pull Zone CDN gehostet werden. Beim Laden einer dieser Seiten übermittelt Ihr Browser automatisch Verbindungsmetadaten — darunter IP-Adresse, Browsertyp, Betriebssystem, Referrer-URL und Zugriffszeitstempel — an die Server und globalen CDN-Edge-Standorte von bunny.net. Weitere Einzelheiten finden Sie in der [Datenschutzerklärung von bunny.net](https://bunny.net/privacy) und den [DSGVO-Informationen von bunny.net](https://bunny.net/gdpr). Keine der Webseiten verwendet Cookies, lokale Tracking-Identifikatoren oder Drittanbieter-Webanalyse-Tools.
+
+**Hauptwebseite (`https://boxviewer.app`):**
+* Eine statische Produktwebseite mit Informationen zu den Funktionen, dem Changelog, den Credits und den rechtlichen Hinweisen von BoxViewer.
+* Die Seite besteht aus reinem statischen HTML/CSS/JS ohne serverseitige Logik, Formulare oder Benutzerkonten.
+* Über die bunny.net-CDN-Anfrage hinaus werden von der Webseite selbst keine personenbezogenen Daten erhoben oder verarbeitet.
+
+**Deep-Link-Weiterleitungsseite (`https://share.boxviewer.app`):**
+* Verarbeitet QR-Code-Sharing-Links, die eine bestimmte senseBox direkt in der BoxViewer-App öffnen.
+* Das Weiterleitungsskript extrahiert die senseBox-ID ausschließlich lokal in Ihrem Browser, um die App per Deep Link (`boxviewer://box/{id}`) zu starten. Es werden keine ID-Parameter oder Navigationsdaten an unsere Server übermittelt.
 
 ### 6. Kontakt & Datenschutzverantwortlicher
 BoxViewer ist ein Open-Source-Projekt. Bei Fragen, Rückmeldungen oder datenschutzrechtlichen Anfragen können Sie sich an den Projektbetreiber und Verantwortlichen wenden:

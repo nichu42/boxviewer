@@ -26,3 +26,5 @@ debug.keystore.base64
 .env.example
 app/build*/
 AGENTS.md
+site/dist/
+.zed/*
