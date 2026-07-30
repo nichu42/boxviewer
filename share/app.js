@@ -33,13 +33,13 @@
         } else {
             heading.textContent = "Invalid Station Link";
             statusText.textContent = "The senseBox ID provided in this URL is invalid or malformed. Please verify that you have copied the correct sharing link from your device.";
-            actionBtn.textContent = "Visit GitHub Project";
-            actionBtn.href = "https://github.com/nichu42/boxviewer";
+            actionBtn.textContent = "Visit BoxViewer website";
+            actionBtn.href = "https://boxviewer.app";
         }
     } else {
         heading.textContent = "BoxViewer for openSenseMap";
         statusText.textContent = "BoxViewer is a beautiful, tracking-free Android companion client for the openSenseMap community. This sharing page helps you open community weather stations and DIY senseBoxes directly in the app.";
-        actionBtn.textContent = "Get BoxViewer on GitHub";
-        actionBtn.href = "https://github.com/nichu42/boxviewer";
+        actionBtn.textContent = "Get BoxViewer";
+        actionBtn.href = "https://boxviewer.app";
     }
 })();
