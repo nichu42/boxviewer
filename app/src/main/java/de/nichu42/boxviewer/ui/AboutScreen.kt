@@ -146,7 +146,7 @@ fun AboutScreen(
                     Button(
                         onClick = {
                             try {
-                                uriHandler.openUri("https://github.com/nichu42/boxviewer")
+                                uriHandler.openUri("https://boxviewer.app")
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
