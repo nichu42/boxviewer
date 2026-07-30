@@ -361,7 +361,7 @@ section.alt { background: var(--section-alt); }
 }
 .hero-badge-link:hover { transform: translateY(-3px); opacity: 0.88; }
 .hero-badge-img {
-    height: 60px;
+    height: 72px;
     width: auto;
     display: block;
     border-radius: 8px;
@@ -405,7 +405,7 @@ section.alt { background: var(--section-alt); }
 }
 .download-card img { height: 44px; width: auto; margin-bottom: 1rem; border-radius: 6px; }
 .download-card a.badge-link { display: inline-block; margin-bottom: 1rem; border-radius: 10px; transition: transform 0.2s ease, opacity 0.2s ease; }
-.download-card a.badge-link img { height: 60px; width: auto; margin-bottom: 0; border-radius: 8px; display: block; }
+.download-card a.badge-link img { height: 72px; width: auto; margin-bottom: 0; border-radius: 8px; display: block; }
 .download-card a.badge-link:hover { transform: translateY(-3px); opacity: 0.88; }
 .download-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 0.5rem; }
 .download-card p, .download-card li { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
