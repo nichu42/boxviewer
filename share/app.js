@@ -27,7 +27,7 @@
                 actionBtn.textContent = "Open in App";
 
                 const installContainer = document.createElement('div');
-                installContainer.innerHTML = '<a href="https://github.com/nichu42/boxviewer" class="install-link">Get BoxViewer on GitHub &rarr;</a>';
+                installContainer.innerHTML = '<a href="https://boxviewer.app" class="install-link">Get BoxViewer</a>';
                 actionBtn.parentNode.insertBefore(installContainer, actionBtn.nextSibling);
             }, 2500);
         } else {
