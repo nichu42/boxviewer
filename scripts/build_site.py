@@ -652,29 +652,15 @@ def build():
     shutil.copytree(SITE / "assets", DIST / "assets")
     print("[ok] Copied static assets")
 
-    # Compute cache-busting hash from CSS + JS content
-    import hashlib
-    css_content = (SITE / "styles.css").read_bytes()
-    js_content = (SITE / "theme.js").read_bytes()
-    cache_v = hashlib.md5(css_content + js_content).hexdigest()[:8]
-
     # Read source files
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     changelog_text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     credits_text = (ROOT / "CREDITS.md").read_text(encoding="utf-8")
     privacy_text = (ROOT / "PRIVACY.md").read_text(encoding="utf-8")
     license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
-    index_tpl = (SITE / "template_index.html").read_text(encoding="utf-8").replace(
-        'href="styles.css"', f'href="styles.css?v={cache_v}"'
-    ).replace(
-        'src="theme.js"', f'src="theme.js?v={cache_v}"'
-    )
-    page_tpl = (SITE / "template_page.html").read_text(encoding="utf-8").replace(
-        'href="styles.css"', f'href="styles.css?v={cache_v}"'
-    ).replace(
-        'src="theme.js"', f'src="theme.js?v={cache_v}"'
-    )
-    print(f"[ok] Read source files (cache bust: {cache_v})")
+    index_tpl = (SITE / "template_index.html").read_text(encoding="utf-8")
+    page_tpl = (SITE / "template_page.html").read_text(encoding="utf-8")
+    print("[ok] Read source files")
 
     # ── index.html ──
     intro_md = extract_section(readme, "intro")
