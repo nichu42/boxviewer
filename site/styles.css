@@ -497,7 +497,9 @@ section.alt { background: var(--section-alt); }
     gap: 1.25rem;
 }
 @media (max-width: 700px) { .translate-support-grid { grid-template-columns: 1fr; } }
-.translate-support-grid .card { padding: 1.75rem; height: 100%; box-sizing: border-box; }
+.translate-support-grid .card { padding: 1.75rem; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; }
+.translate-support-grid .card .mt-sm,
+.translate-support-grid .card .support-btns { margin-top: auto; padding-top: 1.25rem; }
 .support-btns {
     display: flex;
     gap: 0.75rem;
