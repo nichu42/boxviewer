@@ -56,7 +56,8 @@ jobs:
           HOMEPAGE_BUNNY_S3_BUCKET: ${{ secrets.HOMEPAGE_BUNNY_S3_BUCKET }}
         run: |
           rclone sync ./site/dist "bunny:${HOMEPAGE_BUNNY_S3_BUCKET}" \
-            --fast-list --checksum --transfers 16 --verbose
+            --fast-list --checksum --transfers 16 --verbose \
+            --header-upload "Cache-Control: no-cache"
 
       - name: Purge CDN cache
         continue-on-error: true
