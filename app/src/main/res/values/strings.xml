@@ -250,7 +250,7 @@ To ensure stability, you can choose to start over fresh (which will clear your b
     <string name="cd_attention_warning">"Attention warning"</string>
     <string name="cd_build">"Build"</string>
     <string name="cd_donate">"Donate"</string>
-    <string name="cd_github_project">"BoxViewer website"</string>
+    <string name="cd_github_project">"GitHub project"</string>
     <string name="cd_gpl_logo">"GPL v3 logo"</string>
     <string name="cd_kofi">"Ko-fi"</string>
     <string name="cd_liberapay">"Liberapay"</string>
@@ -577,7 +577,7 @@ If both PM2.5 and PM10 exist, it automatically reports the worst-case (maximum) 
     <string name="about_loading_license">"Loading…"</string>
     <string name="about_section_home_support">"APP HOME &amp; SUPPORT"</string>
     <string name="about_home_description">"BoxViewer is open-source and developed with love. Check out the project repository to contribute, report issues, or view the source code:"</string>
-    <string name="about_link_github">"Project Website"</string>
+    <string name="about_link_github">"Project Homepage (GitHub)"</string>
     <string name="about_support_description">"If you are happy with the app and would like to support the ongoing development, please consider donating:"</string>
     <string name="about_link_kofi">"Support on Ko-fi"</string>
     <string name="about_link_liberapay">"Donate via Liberapay"</string>
