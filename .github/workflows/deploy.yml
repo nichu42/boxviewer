@@ -26,6 +26,7 @@ jobs:
     with:
       source_dir: share
       cdn_domain: share.boxviewer.app
+      pull_zone_id: ${{ secrets.BUNNY_PULL_ZONE_ID }}
     secrets:
       S3_ENDPOINT: ${{ secrets.BUNNY_S3_ENDPOINT }}
       S3_ZONE: ${{ secrets.BUNNY_S3_ZONE }}
