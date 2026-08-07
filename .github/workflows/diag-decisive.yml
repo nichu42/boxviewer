@@ -1,0 +1,58 @@
+name: Decisive site endpoint test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rclone
+        run: curl -fsSL https://rclone.org/install.sh | sudo bash
+
+      - name: Test A: raw scheme-less endpoint (as stored)
+        env:
+          ENDPOINT: ${{ secrets.HOMEPAGE_BUNNY_S3_ENDPOINT }}
+          ACCESS: ${{ secrets.HOMEPAGE_BUNNY_S3_ACCESS_KEY }}
+          SECRET: ${{ secrets.HOMEPAGE_BUNNY_S3_SECRET_KEY }}
+          BUCKET: ${{ secrets.HOMEPAGE_BUNNY_S3_BUCKET }}
+        run: |
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf <<EOF
+          [bunny]
+          type = s3
+          provider = Other
+          env_auth = false
+          access_key_id = ${ACCESS}
+          secret_access_key = ${SECRET}
+          endpoint = ${ENDPOINT}
+          force_path_style = true
+          acl = private
+          EOF
+          echo "=== A: raw endpoint ==="
+          timeout 60 rclone lsd "bunny:${BUCKET}" --fast-list --verbose 2>&1 | tail -15
+          echo "EXIT A: $?"
+
+      - name: Test B: force https:// scheme
+        env:
+          ENDPOINT: ${{ secrets.HOMEPAGE_BUNNY_S3_ENDPOINT }}
+          ACCESS: ${{ secrets.HOMEPAGE_BUNNY_S3_ACCESS_KEY }}
+          SECRET: ${{ secrets.HOMEPAGE_BUNNY_S3_SECRET_KEY }}
+          BUCKET: ${{ secrets.HOMEPAGE_BUNNY_S3_BUCKET }}
+        run: |
+          NORM=$(echo "$ENDPOINT" | sed -E 's#^https?://##; s#^#https://#')
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf <<EOF
+          [bunny]
+          type = s3
+          provider = Other
+          env_auth = false
+          access_key_id = ${ACCESS}
+          secret_access_key = ${SECRET}
+          endpoint = ${NORM}
+          force_path_style = true
+          acl = private
+          EOF
+          echo "=== B: normalized endpoint ==="
+          timeout 60 rclone lsd "bunny:${BUCKET}" --fast-list --verbose 2>&1 | tail -15
+          echo "EXIT B: $?"
