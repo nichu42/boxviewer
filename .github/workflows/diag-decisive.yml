@@ -10,7 +10,7 @@ jobs:
       - name: Install rclone
         run: curl -fsSL https://rclone.org/install.sh | sudo bash
 
-      - name: Test A: raw scheme-less endpoint (as stored)
+      - name: "Test A: raw scheme-less endpoint (as stored)"
         env:
           ENDPOINT: ${{ secrets.HOMEPAGE_BUNNY_S3_ENDPOINT }}
           ACCESS: ${{ secrets.HOMEPAGE_BUNNY_S3_ACCESS_KEY }}
@@ -33,7 +33,7 @@ jobs:
           timeout 60 rclone lsd "bunny:${BUCKET}" --fast-list --verbose 2>&1 | tail -15
           echo "EXIT A: $?"
 
-      - name: Test B: force https:// scheme
+      - name: "Test B: force https:// scheme"
         env:
           ENDPOINT: ${{ secrets.HOMEPAGE_BUNNY_S3_ENDPOINT }}
           ACCESS: ${{ secrets.HOMEPAGE_BUNNY_S3_ACCESS_KEY }}
