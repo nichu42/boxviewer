@@ -1,0 +1,61 @@
+name: Diagnose Bunny S3 connectivity
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rclone
+        run: curl -fsSL https://rclone.org/install.sh | sudo bash
+
+      - name: Configure rclone for Bunny S3 (share zone)
+        env:
+          ENDPOINT: ${{ secrets.BUNNY_S3_ENDPOINT }}
+          ACCESS: ${{ secrets.BUNNY_S3_ACCESS_KEY }}
+          SECRET: ${{ secrets.BUNNY_S3_SECRET_KEY }}
+        run: |
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf <<EOF
+          [bunny]
+          type = s3
+          provider = Other
+          env_auth = false
+          access_key_id = ${ACCESS}
+          secret_access_key = ${SECRET}
+          endpoint = ${ENDPOINT}
+          force_path_style = true
+          acl = private
+          EOF
+
+      - name: Diagnose DNS resolution of endpoint
+        env:
+          ENDPOINT: ${{ secrets.BUNNY_S3_ENDPOINT }}
+        run: |
+          echo "resolv.conf:"
+          cat /etc/resolv.conf
+          echo "---"
+          echo "Trying getent ahosts (system resolver):"
+          getent ahosts "$ENDPOINT" || echo "getent FAILED for $ENDPOINT"
+          echo "---"
+          echo "Trying nslookup:"
+          nslookup "$ENDPOINT" 1.1.1.1 || echo "nslookup via 1.1.1.1 FAILED"
+          echo "---"
+          echo "Trying dig via 1.1.1.1:"
+          dig +short "@1.1.1.1" "$ENDPOINT" || echo "dig FAILED"
+
+      - name: Test TCP + HTTPS to endpoint
+        env:
+          ENDPOINT: ${{ secrets.BUNNY_S3_ENDPOINT }}
+        run: |
+          echo "curl -v to endpoint root (expect 403/400 on S3 root):"
+          timeout 30 curl -sv --max-time 25 "$ENDPOINT/" 2>&1 | tail -40 || echo "curl FAILED or timed out"
+
+      - name: Quick rclone lsd with short timeouts
+        env:
+          BUCKET: ${{ secrets.BUNNY_S3_BUCKET }}
+        run: |
+          timeout 60 rclone lsd "bunny:${BUCKET}" \
+            --fast-list --retries 1 --low-level-retries 2 \
+            --contimeout 10s --timeout 20s --verbose 2>&1 | tail -40 || echo "rclone lsd FAILED or timed out (exit $?)"
