@@ -1,0 +1,114 @@
+name: TEST shared-workflow sync block
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'CREDITS.md'
+      - 'PRIVACY.md'
+      - 'site/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bunny-site-deploy
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v7
+
+      - name: Build site
+        run: python scripts/build_site.py
+
+      - name: Install rclone
+        run: curl -fsSL https://rclone.org/install.sh | sudo bash
+
+      - name: Configure rclone for Bunny S3
+        env:
+          HOMEPAGE_BUNNY_S3_ENDPOINT: ${{ secrets.HOMEPAGE_BUNNY_S3_ENDPOINT }}
+          HOMEPAGE_BUNNY_S3_ACCESS_KEY: ${{ secrets.HOMEPAGE_BUNNY_S3_ACCESS_KEY }}
+          HOMEPAGE_BUNNY_S3_SECRET_KEY: ${{ secrets.HOMEPAGE_BUNNY_S3_SECRET_KEY }}
+        run: |
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf <<EOF
+          [bunny]
+          type = s3
+          provider = Other
+          env_auth = false
+          access_key_id = ${HOMEPAGE_BUNNY_S3_ACCESS_KEY}
+          secret_access_key = ${HOMEPAGE_BUNNY_S3_SECRET_KEY}
+          endpoint = ${HOMEPAGE_BUNNY_S3_ENDPOINT}
+          force_path_style = true
+          acl = private
+          EOF
+
+      - name: Sync site to Bunny Storage
+        env:
+          HOMEPAGE_BUNNY_S3_BUCKET: ${{ secrets.HOMEPAGE_BUNNY_S3_BUCKET }}
+        run: |
+          ARGS=(--fast-list --checksum --transfers 16 --verbose)
+          if [ -n "no-cache" ]; then
+            ARGS+=(--header-upload "Cache-Control: no-cache")
+          fi
+          for attempt in 1 2 3 4 5; do
+            echo "--- Sync attempt $attempt ---"
+            if rclone sync "site/dist" "bunny:${HOMEPAGE_BUNNY_S3_BUCKET}" "${ARGS[@]}"; then
+              echo "Sync succeeded on attempt $attempt"
+              exit 0
+            fi
+            echo "Sync attempt $attempt failed; retrying in 20s..."
+            sleep 20
+          done
+          echo "Sync failed after 5 attempts"
+          exit 1
+
+      - name: Purge CDN cache
+        continue-on-error: true
+        env:
+          HOMEPAGE_BUNNY_API_KEY: ${{ secrets.HOMEPAGE_BUNNY_API_KEY }}
+        run: |
+          if [ -z "$HOMEPAGE_BUNNY_API_KEY" ]; then
+            echo "HOMEPAGE_BUNNY_API_KEY not set, skipping cache purge"
+            exit 0
+          fi
+          domain="boxviewer.app"
+          base="${{ github.event.before }}"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            echo "No previous commit (force push or manual run); purging all site assets"
+            files=$(find ./site/dist -type f | sed 's#^./site/dist/##')
+          else
+            echo "Detecting changed files between $base and ${{ github.sha }}"
+            # Always purge all 4 pages when any source MD changes, plus changed site/** files
+            md_changed=$(git diff --name-only "$base" "${{ github.sha }}" -- README.md CHANGELOG.md CREDITS.md PRIVACY.md)
+            if [ -n "$md_changed" ]; then
+              files="index.html changelog.html credits.html privacy.html styles.css"
+            else
+              files=$(git diff --name-only "$base" "${{ github.sha }}" -- site/ | sed 's#^site/##' | grep -v '^dist/' || true)
+              files="index.html changelog.html credits.html privacy.html styles.css"
+            fi
+          fi
+          if [ -z "$files" ]; then
+            echo "Nothing to purge"
+            exit 0
+          fi
+          urls=""
+          while IFS= read -r path; do
+            [ -n "$path" ] && urls="${urls}\"https://${domain}/${path}\","
+          done <<< "$files"
+          urls="[${urls%,}]"
+          echo "Purging URLs: $urls"
+          curl -s -X POST "https://api.bunny.net/purge" \
+            -H "AccessKey: ${HOMEPAGE_BUNNY_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"Urls\":${urls}}"
+
+
