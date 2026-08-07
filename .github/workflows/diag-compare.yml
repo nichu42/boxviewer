@@ -1,0 +1,19 @@
+name: Compare site vs share endpoint hosts
+
+on:
+  workflow_dispatch:
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compare hostnames (base64-encoded to inspect, temp diagnostic only)
+        env:
+          SITE: ${{ secrets.HOMEPAGE_BUNNY_S3_ENDPOINT }}
+          SHARE: ${{ secrets.BUNNY_S3_ENDPOINT }}
+        run: |
+          SITE_HOST=$(echo "$SITE" | sed -E 's#^https?://##; s#[/:].*##')
+          SHARE_HOST=$(echo "$SHARE" | sed -E 's#^https?://##; s#[/:].*##')
+          echo "site host b64:  $(printf '%s' "$SITE_HOST" | base64)"
+          echo "share host b64: $(printf '%s' "$SHARE_HOST" | base64)"
+          echo "identical: $([ "$SITE_HOST" = "$SHARE_HOST" ] && echo YES || echo NO)"
