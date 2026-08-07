@@ -71,6 +71,11 @@ updates:
       - dependency-name: "com.google.android.libraries.mapsplatform.secrets-gradle-plugin"
         update-types:
           - "version-update:semver-major"
+      # netty-codec-http2 is only pulled in transitively by AGP's internal
+      # Unified Test Platform (via io.grpc:grpc-netty). It is build tooling,
+      # never packaged into the app, and BoxViewer has no instrumented tests.
+      # The patched version will arrive with a future AGP bump (GHSA-93wv-jw9v-4972).
+      - dependency-name: "io.netty:netty-codec-http2"
 
   - package-ecosystem: "github-actions"
     directory: "/"
