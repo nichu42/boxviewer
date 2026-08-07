@@ -31,7 +31,7 @@ jobs:
       S3_ZONE: ${{ secrets.BUNNY_S3_ZONE }}
       S3_PASSWORD: ${{ secrets.BUNNY_S3_PASSWORD }}
       BUNNY_API_KEY: ${{ secrets.BUNNY_API_KEY }}
-      PULL_ZONE_ID: ${{ secrets.BUNNY_PULL_ZONE_ID }}
+      BUNNY_PULL_ZONE_ID: ${{ secrets.BUNNY_PULL_ZONE_ID }}
 
   deploy-site:
     uses: nichu42/shared-workflows/.github/workflows/deploy-bunny.yml@v1
@@ -46,7 +46,7 @@ jobs:
       S3_ZONE: ${{ secrets.HOMEPAGE_BUNNY_S3_ZONE }}
       S3_PASSWORD: ${{ secrets.HOMEPAGE_BUNNY_S3_PASSWORD }}
       BUNNY_API_KEY: ${{ secrets.HOMEPAGE_BUNNY_API_KEY }}
-      PULL_ZONE_ID: ${{ secrets.HOMEPAGE_BUNNY_PULL_ZONE_ID }}
+      BUNNY_PULL_ZONE_ID: ${{ secrets.HOMEPAGE_BUNNY_PULL_ZONE_ID }}
 
 
 
