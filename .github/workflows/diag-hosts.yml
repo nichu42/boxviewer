@@ -1,0 +1,57 @@
+name: Validate /etc/hosts DNS bypass for Bunny
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rclone
+        run: curl -fsSL https://rclone.org/install.sh | sudo bash
+
+      - name: Configure rclone for Bunny S3 (share zone)
+        env:
+          ENDPOINT: ${{ secrets.BUNNY_S3_ENDPOINT }}
+          ACCESS: ${{ secrets.BUNNY_S3_ACCESS_KEY }}
+          SECRET: ${{ secrets.BUNNY_S3_SECRET_KEY }}
+        run: |
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf <<EOF
+          [bunny]
+          type = s3
+          provider = Other
+          env_auth = false
+          access_key_id = ${ACCESS}
+          secret_access_key = ${SECRET}
+          endpoint = ${ENDPOINT}
+          force_path_style = true
+          acl = private
+          EOF
+
+      - name: Pin endpoint host in /etc/hosts
+        env:
+          ENDPOINT: ${{ secrets.BUNNY_S3_ENDPOINT }}
+        run: |
+          HOST=$(echo "$ENDPOINT" | sed -E 's#^https?://##; s#[/:].*##')
+          echo "Endpoint host: $HOST"
+          IP=""
+          for attempt in 1 2 3 4 5; do
+            IP=$(getent ahostsv4 "$HOST" 2>/dev/null | awk '{print $1}' | sort -u | head -1)
+            if [ -n "$IP" ]; then echo "Resolved (attempt $attempt): $IP"; break; fi
+            echo "Attempt $attempt: resolution failed, retrying..."
+            sleep 2
+          done
+          if [ -z "$IP" ]; then
+            echo "WARN: never resolved; falling back to known Bunny storage IP 109.61.89.53"
+            IP="109.61.89.53"
+          fi
+          echo "$IP $HOST" | sudo tee -a /etc/hosts >/dev/null
+          echo "Pinned in /etc/hosts:"
+          grep "$HOST" /etc/hosts
+
+      - name: rclone lsd with /etc/hosts pin
+        env:
+          BUCKET: ${{ secrets.BUNNY_S3_BUCKET }}
+        run: |
+          timeout 60 rclone lsd "bunny:${BUCKET}" --fast-list --verbose 2>&1 | tail -20 || echo "rclone lsd FAILED (exit $?)"
