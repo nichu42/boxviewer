@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   deploy-share:
-    uses: nichu42/shared-workflows/.github/workflows/deploy-bunny.yml@v2
+    uses: nichu42/shared-workflows/.github/workflows/deploy-bunny.yml@v3
     with:
       source_dir: share
       cdn_domain: share.boxviewer.app
@@ -34,7 +34,7 @@ jobs:
       BUNNY_API_KEY: BUNNY_API_KEY
 
   deploy-site:
-    uses: nichu42/shared-workflows/.github/workflows/deploy-bunny.yml@v2
+    uses: nichu42/shared-workflows/.github/workflows/deploy-bunny.yml@v3
     with:
       source_dir: site/dist
       build_command: python scripts/build_site.py
