@@ -437,7 +437,7 @@ class MainActivity : AppCompatActivity() {
         val uri = intent.data ?: return null
 
         val id = when (uri.scheme) {
-            "https" -> if (uri.host in setOf("share.boxviewer.app", "nichu42.codeberg.page")) uri.getQueryParameter("id") else null
+            "https" -> if (uri.host == "share.boxviewer.app") uri.getQueryParameter("id") else null
             "boxviewer" -> if (uri.host == "box") uri.pathSegments.firstOrNull() else null
             else -> null
         }

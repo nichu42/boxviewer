@@ -2,6 +2,23 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [0.53] - 2026-08-24
+
+### Added
+- **Official Website `boxviewer.app`**: New static website (homepage, changelog, credits, privacy) generated from the project Markdown files and deployed via a shared Bunny CDN workflow, with a light/dark/auto theme toggle.
+- **Bug Reports & Feature Requests Section**: Added to the website with download badges for the official release and Google Play open-testing tracks.
+
+### Changed
+- **Branding Migration to boxviewer.app**: Replaced GitHub repository links with the new website in the About screen and share page CTA; added `security.txt` for `boxviewer.app`.
+- **Deployment Consolidation**: The separate share-page and website deploy workflows were replaced by a single shared reusable Bunny Storage/CDN deploy workflow (with DNS hardening and cache purge fixes).
+- **Translation Sync**: Latest POEditor translations pulled for all supported languages (`de`, `cs`, `es`, `fr`, `hu`, `it`, `nl`, `pl`).
+
+### Removed
+- **Legacy Codeberg Deep Link Removed**: Dropped the dead `nichu42.codeberg.page` HTTPS App Link from the manifest and deep-link handler. Only `https://share.boxviewer.app` and `boxviewer://box/{id}` links are registered now; stale Play Store deep-link entries disappear once this build is published.
+
+### Dependencies
+- Gradle wrapper 9.7.1, Android Gradle Plugin 9.3.2, OkHttp/logging-interceptor 5.5.0, plus Compose BOM, AppCompat, KSP, coroutines, and test-library updates.
+
 ## [0.52] - 2026-07-23
 
 ### Added

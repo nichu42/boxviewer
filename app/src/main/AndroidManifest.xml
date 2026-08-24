@@ -43,14 +43,6 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="share.boxviewer.app" android:pathPrefix="/" />
             </intent-filter>
-
-            <!-- Legacy HTTPS App Link for Codeberg Pages forwarding service (backward compatibility for old shared links) -->
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="nichu42.codeberg.page" android:pathPrefix="/BoxViewer" />
-            </intent-filter>
         </activity>
 
         <!-- Widget Configuration Activity -->
