@@ -46,6 +46,7 @@ jobs:
       S3_ZONE: ${{ secrets.HOMEPAGE_BUNNY_S3_BUCKET }}
       S3_PASSWORD: ${{ secrets.HOMEPAGE_BUNNY_S3_SECRET_KEY }}
       BUNNY_API_KEY: ${{ secrets.BUNNY_API_KEY }}
+      BUNNY_PULL_ZONE_ID: ${{ secrets.HOMEPAGE_BUNNY_PULLZONE_ID }}
 
 
 
