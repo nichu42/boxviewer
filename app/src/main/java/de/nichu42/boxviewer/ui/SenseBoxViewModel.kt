@@ -252,6 +252,13 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     private val boxAddressCache = java.util.concurrent.ConcurrentHashMap<String, String>()
     private val boxFullAddressCache = java.util.concurrent.ConcurrentHashMap<String, String>()
 
+    /**
+     * Test seam: when false, reverse geocoding is skipped so callers deterministically
+     * fall back to raw coordinate labels (keeps screenshot tests offline and stable).
+     */
+    @androidx.annotation.VisibleForTesting
+    var isGeocodingEnabled = true
+
     // Per-box sensor history cache: key = "$boxId/$sensorId" -> measurements list
     // Survives LazyColumn item disposal and back-and-forth navigation within the same box.
     private val _sensorHistoryCache = MutableStateFlow<Map<String, List<de.nichu42.boxviewer.data.api.Measurement>>>(emptyMap())
@@ -557,18 +564,20 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun formatLastUpdated(box: SenseBox): String {
-        val cached = boxLastUpdatedTextCache[box.id]
+        val ctx = de.nichu42.boxviewer.util.LocaleHelper.getLocalizedContext(getApplication())
+        val locale = ctx.resources.configuration.locales[0]
+        val cacheKey = "${locale.toLanguageTag()}|${box.id}"
+        val cached = boxLastUpdatedTextCache[cacheKey]
         if (cached != null) return cached
-        val ctx = getApplication<Application>()
 
         val date = getBoxLastUpdatedDate(box) ?: return ctx.getString(R.string.last_updated_never)
         val result = try {
-            val sdf = java.text.SimpleDateFormat(ctx.getString(R.string.date_format_full), java.util.Locale.getDefault())
+            val sdf = java.text.SimpleDateFormat(ctx.getString(R.string.date_format_full), locale)
             ctx.getString(R.string.last_updated_format, sdf.format(date))
         } catch (_: Exception) {
             ctx.getString(R.string.last_updated_never)
         }
-        boxLastUpdatedTextCache[box.id] = result
+        boxLastUpdatedTextCache[cacheKey] = result
         return result
     }
 
@@ -598,8 +607,8 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         }
         val maxDate = dates.maxOrNull() ?: return ""
         return try {
-            val ctx = getApplication<Application>()
-            val sdf = java.text.SimpleDateFormat(ctx.getString(R.string.date_format_short), java.util.Locale.getDefault())
+            val ctx = de.nichu42.boxviewer.util.LocaleHelper.getLocalizedContext(getApplication())
+            val sdf = java.text.SimpleDateFormat(ctx.getString(R.string.date_format_short), ctx.resources.configuration.locales[0])
             sdf.format(maxDate)
         } catch (_: Exception) {
             ""
@@ -607,7 +616,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun formatAppSyncTime(sensors: List<SensorCacheEntity>): String {
-        val ctx = getApplication<Application>()
+        val ctx = de.nichu42.boxviewer.util.LocaleHelper.getLocalizedContext(getApplication())
         if (sensors.isEmpty()) return ctx.getString(R.string.sync_time_never)
         val maxFetchedAt = sensors.maxOfOrNull { it.localFetchedAt } ?: return ctx.getString(R.string.sync_time_never)
         if (maxFetchedAt == 0L) return ctx.getString(R.string.sync_time_never)
@@ -759,6 +768,8 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         lng: Double,
         fullAddress: Boolean = false
     ): String {
+        if (!isGeocodingEnabled) return ""
+
         // 1. Try native Android Geocoder reverse lookup
         val nativeAddress = withContext(kotlinx.coroutines.Dispatchers.IO) {
             try {

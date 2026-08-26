@@ -81,6 +81,21 @@ object LocaleHelper {
         return SUPPORTED_LOCALES.find { it.tag == tag } ?: SUPPORTED_LOCALES.first()
     }
 
+    /**
+     * Returns a [Context] whose resources resolve against the saved per-app locale.
+     *
+     * Needed because on API < 33 AppCompatDelegate only localizes Activity contexts;
+     * the raw Application context (as held by ViewModels) still uses the device
+     * locale. When following the system default, the context is returned unchanged.
+     */
+    fun getLocalizedContext(context: Context): Context {
+        val tag = getSavedLanguageTag(context)
+        if (tag.isEmpty()) return context
+        val config = android.content.res.Configuration(context.resources.configuration)
+        config.setLocales(android.os.LocaleList.forLanguageTags(tag))
+        return context.createConfigurationContext(config)
+    }
+
     private fun applyLocale(tag: String) {
         val localeList = if (tag.isEmpty()) {
             LocaleListCompat.getEmptyLocaleList()

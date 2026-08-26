@@ -238,10 +238,15 @@ fun BoxDetailScreen(
 
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(top = 6.dp),
+                                        modifier = Modifier
+                                            .padding(top = 6.dp)
+                                            .fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.weight(1f)
+                                        ) {
                                             Icon(
                                                 imageVector = Icons.Default.Schedule,
                                                 contentDescription = stringResource(R.string.cd_last_updated),
