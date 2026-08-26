@@ -201,6 +201,7 @@ To ensure stability, you can choose to start over fresh (which will clear your b
     <string name="widget_updated_just_now">"Updated just now"</string>
     <string name="widget_refresh">"Refresh Widget"</string>
     <string name="widget_configure">"Configure Widget"</string>
+    <string name="widget_error_tap_reconfigure" translatable="false">"Tap to reconfigure widget"</string>
     <string name="widget_sensor_type">"Sensor type"</string>
     <string name="widget_sensor_category_icon">"Sensor category icon"</string>
     <string name="widget_select_sensor">"Select Sensor"</string>

@@ -2,6 +2,12 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [0.54] - 2026-08-26
+
+### Fixed
+- **Widget Delivery Race (Android 12+ "Can't load widget")**: The AppWidgetProvider's `onUpdate`, manual-refresh (`ACTION_REFRESH_WIDGET`), and `USER_PRESENT` (wake/unlock) paths previously fired their updates from a `Dispatchers.IO` coroutine without holding the broadcast alive. On Android 12+ the hosting process could be reaped as soon as `onReceive` returned, before `updateAppWidget` ever ran, leaving the launcher showing "Can't load widget" — most visibly after an app update or re-adding a widget on memory-tight devices (e.g. Android 14). All update paths now use `goAsync()` and await delivery.
+- **Silent Widget Failures → Visible Fallback**: Widget updates no longer fail silently. `getWidgetConfig`, `buildRemoteViews`, and `updateAppWidget` are guarded with `runCatching`; on any failure (missing config, Room/DB error, build/apply exception) the provider now pushes an always-inflatable "Tap to reconfigure widget" RemoteViews (with a click-to-configure intent) instead of an opaque error. Failures are also logged so they are diagnosable via logcat.
+
 ## [0.53] - 2026-08-24
 
 ### Added

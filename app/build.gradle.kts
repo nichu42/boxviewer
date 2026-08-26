@@ -14,8 +14,8 @@ android {
     applicationId = "de.nichu42.boxviewer"
     minSdk = 24
     targetSdk = 37
-    versionCode = 17
-    versionName = "0.53"
+    versionCode = 18
+    versionName = "0.54"
   }
 
   signingConfigs {

@@ -20,6 +20,7 @@ import de.nichu42.boxviewer.util.SensorValueColorResolver
 import de.nichu42.boxviewer.util.AqiSystem
 import de.nichu42.boxviewer.util.AqiCalculator
 import android.os.Bundle
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,9 +43,21 @@ private data class WidgetSensorDisplay(
 open class SenseBoxWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        // Build the update stream for each widget on bootstrap
-        for (appWidgetId in appWidgetIds) {
-            updateWidgetAsync(context, appWidgetManager, appWidgetId)
+        // Keep the broadcast alive (goAsync) until every widget's RemoteViews have actually
+        // been delivered. Without this, Android may reap the process as soon as onReceive
+        // returns and the async update never reaches the launcher, which surfaces as
+        // "Can't load widget" — especially on Android 12+ and heavier builds.
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                for (appWidgetId in appWidgetIds) {
+                    updateFromCacheSuspend(context, appWidgetManager, appWidgetId)
+                }
+            } catch (e: Exception) {
+                Log.e(WIDGET_TAG, "onUpdate failed", e)
+            } finally {
+                pendingResult.finish()
+            }
         }
     }
 
@@ -108,13 +121,31 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
                 val force = intent.getBooleanExtra("force", false)
                 if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
                     val appWidgetManager = AppWidgetManager.getInstance(context)
-                    updateWidgetByFetchingAsync(context, appWidgetManager, appWidgetId, force = force)
+                    val pendingResult = goAsync()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            fetchAndUpdateSuspend(context, appWidgetManager, appWidgetId, force)
+                        } catch (e: Exception) {
+                            Log.e(WIDGET_TAG, "ACTION_REFRESH_WIDGET failed", e)
+                        } finally {
+                            pendingResult.finish()
+                        }
+                    }
                 }
             }
             // ACTION_SCREEN_ON cannot be delivered to manifest-declared receivers; only
             // ACTION_USER_PRESENT (device unlocked) reliably triggers here.
             Intent.ACTION_USER_PRESENT -> {
-                updateAllWidgets(context, force = true)
+                val pendingResult = goAsync()
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        updateAllWidgetsSuspend(context, force = true)
+                    } catch (e: Exception) {
+                        Log.e(WIDGET_TAG, "ACTION_USER_PRESENT failed", e)
+                    } finally {
+                        pendingResult.finish()
+                    }
+                }
             }
             Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> {
                 // AlarmManager alarms don't survive reboots or APK updates.
@@ -127,6 +158,7 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
 
     companion object {
         const val ACTION_REFRESH_WIDGET = "de.nichu42.boxviewer.widget.ACTION_REFRESH_WIDGET"
+        private const val WIDGET_TAG = "BoxViewerWidget"
 
         private fun isLightColor(color: Int): Boolean {
             val r = (color shr 16) and 0xFF
@@ -196,18 +228,37 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
         }
 
         fun updateWidgetAsync(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+            CoroutineScope(Dispatchers.IO).launch {
+                updateFromCacheSuspend(context, appWidgetManager, appWidgetId)
+            }
+        }
+
+        /**
+         * Reads the widget config + cached sensors and pushes a valid RemoteViews to the launcher.
+         * Any failure (missing config, DB error, build/apply exception) is caught and replaced with a
+         * visible "tap to reconfigure" fallback so the host never shows an opaque "Can't load widget".
+         */
+        private suspend fun updateFromCacheSuspend(
+            context: Context,
+            appWidgetManager: AppWidgetManager,
+            appWidgetId: Int
+        ) {
             val db = SenseBoxDatabase.getDatabase(context)
             val repository = SenseBoxRepository(context, db)
-            CoroutineScope(Dispatchers.IO).launch {
-                val config = repository.getWidgetConfig(appWidgetId) ?: return@launch
-                val cachedSensors = repository.getCachedSensors(config.boxId)
-
-                val views = buildRemoteViews(context, config, cachedSensors)
-                appWidgetManager.updateAppWidget(appWidgetId, views)
-                
-                // Ensure repeating auto-update alarm is scheduled matching config
-                scheduleAlarm(context, appWidgetId, config.refreshIntervalMinutes)
+            val config = runCatching { repository.getWidgetConfig(appWidgetId) }.getOrNull()
+            if (config == null) {
+                applyFallbackRemoteViews(context, appWidgetManager, appWidgetId)
+                return
             }
+            val cachedSensors = runCatching { repository.getCachedSensors(config.boxId) }.getOrElse { emptyList() }
+            val views = runCatching { buildRemoteViews(context, config, cachedSensors) }
+                .getOrElse {
+                    Log.e(WIDGET_TAG, "buildRemoteViews failed for widget $appWidgetId", it)
+                    return applyFallbackRemoteViews(context, appWidgetManager, appWidgetId)
+                }
+            runCatching { appWidgetManager.updateAppWidget(appWidgetId, views) }
+                .onFailure { Log.e(WIDGET_TAG, "updateAppWidget failed for widget $appWidgetId", it) }
+            runCatching { scheduleAlarm(context, appWidgetId, config.refreshIntervalMinutes) }
         }
 
         fun rescheduleAllAlarms(context: Context) {
@@ -240,6 +291,12 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
         }
 
         fun updateAllWidgets(context: Context, force: Boolean = false) {
+            CoroutineScope(Dispatchers.IO).launch {
+                updateAllWidgetsSuspend(context, force)
+            }
+        }
+
+        private suspend fun updateAllWidgetsSuspend(context: Context, force: Boolean = false) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val providers = listOf(
                 SenseBoxWidgetProvider::class.java,
@@ -250,7 +307,7 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
                 val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, provider))
                 if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
                     for (appWidgetId in appWidgetIds) {
-                        updateWidgetByFetchingAsync(context, appWidgetManager, appWidgetId, force = force)
+                        fetchAndUpdateSuspend(context, appWidgetManager, appWidgetId, force = force)
                     }
                 }
             }
@@ -276,65 +333,80 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
         }
 
         fun updateWidgetByFetchingAsync(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, force: Boolean = false) {
+            CoroutineScope(Dispatchers.IO).launch {
+                fetchAndUpdateSuspend(context, appWidgetManager, appWidgetId, force)
+            }
+        }
+
+        private suspend fun fetchAndUpdateSuspend(
+            context: Context,
+            appWidgetManager: AppWidgetManager,
+            appWidgetId: Int,
+            force: Boolean = false
+        ) {
             val db = SenseBoxDatabase.getDatabase(context)
             val repository = SenseBoxRepository(context, db)
-            CoroutineScope(Dispatchers.IO).launch {
-                val config = repository.getWidgetConfig(appWidgetId) ?: run {
-                    // No config means this widget was deleted while the old buggy cancelAlarm
-                    // left the alarm behind. Cancel it now so the ghost alarm self-destructs.
-                    cancelAlarm(context, appWidgetId)
-                    return@launch
-                }
+            val config = runCatching { repository.getWidgetConfig(appWidgetId) }.getOrNull()
+            if (config == null) {
+                // No config means this widget was deleted while a stale alarm was left behind.
+                // Cancel the ghost alarm and show the reconfigure fallback.
+                runCatching { cancelAlarm(context, appWidgetId) }
+                applyFallbackRemoteViews(context, appWidgetManager, appWidgetId)
+                return
+            }
 
-                // Keep things battery friendly: skip network fetches when the screen is off (non-interactive).
-                // Wake-time forced refreshes (force = true) bypass this check so they don't silently skip
-                // on devices where isInteractive lags behind ACTION_SCREEN_ON / ACTION_USER_PRESENT.
-                val powerManager = context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
-                if (powerManager != null && !powerManager.isInteractive && !force) {
-                    return@launch
-                }
+            // Keep things battery friendly: skip network fetches when the screen is off (non-interactive).
+            // Wake-time forced refreshes (force = true) bypass this check so they don't silently skip
+            // on devices where isInteractive lags behind ACTION_SCREEN_ON / ACTION_USER_PRESENT.
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+            if (powerManager != null && !powerManager.isInteractive && !force) {
+                return
+            }
 
-                val lastFetched = config.lastFetchedTime
-                val now = System.currentTimeMillis()
-                // Throttle automatic refreshes to at least 5 minutes to protect API and conserve battery.
-                // Manual updates (force = true) bypass this check.
-                val shouldFetch = force || (now - lastFetched >= 5 * 60 * 1000L)
+            val lastFetched = config.lastFetchedTime
+            val now = System.currentTimeMillis()
+            // Throttle automatic refreshes to at least 5 minutes to protect API and conserve battery.
+            // Manual updates (force = true) bypass this check.
+            val shouldFetch = force || (now - lastFetched >= 5 * 60 * 1000L)
 
-                if (!shouldFetch) {
-                    // Update the widget UI immediately using cached values, avoiding any network calls or background tasks
-                    val cachedSensors = repository.getCachedSensors(config.boxId)
-                    val views = buildRemoteViews(context, config, cachedSensors)
-                    appWidgetManager.updateAppWidget(appWidgetId, views)
-                    return@launch
-                }
+            if (!shouldFetch) {
+                // Update the widget UI immediately using cached values, avoiding any network calls or background tasks
+                val cachedSensors = runCatching { repository.getCachedSensors(config.boxId) }.getOrElse { emptyList() }
+                val views = runCatching { buildRemoteViews(context, config, cachedSensors) }
+                    .getOrElse { return applyFallbackRemoteViews(context, appWidgetManager, appWidgetId) }
+                runCatching { appWidgetManager.updateAppWidget(appWidgetId, views) }
+                return
+            }
 
-                // Show spinner/loader immediately
-                val startCachedSensors = repository.getCachedSensors(config.boxId)
-                val loadingViews = buildRemoteViews(context, config, startCachedSensors, isLoading = true)
-                appWidgetManager.updateAppWidget(appWidgetId, loadingViews)
+            // Show spinner/loader immediately
+            val startCachedSensors = runCatching { repository.getCachedSensors(config.boxId) }.getOrElse { emptyList() }
+            val loadingViews = runCatching { buildRemoteViews(context, config, startCachedSensors, isLoading = true) }
+                .getOrElse { return applyFallbackRemoteViews(context, appWidgetManager, appWidgetId) }
+            runCatching { appWidgetManager.updateAppWidget(appWidgetId, loadingViews) }
 
-                try {
-                    // Fetch latest sensor values
-                    repository.fetchAndSyncBox(config.boxId, force)
-                    
-                    // Update configuration timestamp in local store
-                    val updatedConfig = config.copy(lastFetchedTime = System.currentTimeMillis())
-                    repository.saveWidgetConfig(updatedConfig)
+            try {
+                // Fetch latest sensor values
+                repository.fetchAndSyncBox(config.boxId, force)
 
-                    val cachedSensors = repository.getCachedSensors(config.boxId)
+                // Update configuration timestamp in local store
+                val updatedConfig = config.copy(lastFetchedTime = System.currentTimeMillis())
+                runCatching { repository.saveWidgetConfig(updatedConfig) }
 
-                    val views = buildRemoteViews(context, updatedConfig, cachedSensors, isLoading = false)
-                    appWidgetManager.updateAppWidget(appWidgetId, views)
+                val cachedSensors = runCatching { repository.getCachedSensors(config.boxId) }.getOrElse { emptyList() }
 
-                    // Instantly sync the new values to all other active widgets
-                    updateAllWidgetsFromCache(context, excludeWidgetId = appWidgetId)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    // Re-draw in case network fails with what is cached
-                    val cachedSensors = repository.getCachedSensors(config.boxId)
-                    val views = buildRemoteViews(context, config, cachedSensors, isLoading = false)
-                    appWidgetManager.updateAppWidget(appWidgetId, views)
-                }
+                val views = runCatching { buildRemoteViews(context, updatedConfig, cachedSensors, isLoading = false) }
+                    .getOrElse { return applyFallbackRemoteViews(context, appWidgetManager, appWidgetId) }
+                runCatching { appWidgetManager.updateAppWidget(appWidgetId, views) }
+
+                // Instantly sync the new values to all other active widgets
+                updateAllWidgetsFromCache(context, excludeWidgetId = appWidgetId)
+            } catch (e: Exception) {
+                Log.e(WIDGET_TAG, "fetchAndUpdateSuspend failed for widget $appWidgetId", e)
+                // Re-draw in case network fails with what is cached
+                val cachedSensors = runCatching { repository.getCachedSensors(config.boxId) }.getOrElse { emptyList() }
+                val views = runCatching { buildRemoteViews(context, config, cachedSensors, isLoading = false) }
+                    .getOrElse { return applyFallbackRemoteViews(context, appWidgetManager, appWidgetId) }
+                runCatching { appWidgetManager.updateAppWidget(appWidgetId, views) }
             }
         }
 
@@ -719,6 +791,51 @@ open class SenseBoxWidgetProvider : AppWidgetProvider() {
             // Tapping on the values block also triggers auto-refresh
             views.setOnClickPendingIntent(R.id.widget_values_container, pendingRefreshIntent)
 
+            return views
+        }
+
+        /**
+         * Delivers a safe, always-inflatable fallback view ("tap to reconfigure") instead of leaving
+         * the launcher showing an opaque "Can't load widget". Guarantees the host always receives
+         * valid RemoteViews so a delivery failure becomes visible and recoverable rather than silent.
+         */
+        private fun applyFallbackRemoteViews(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+            runCatching {
+                val views = buildFallbackRemoteViews(context, appWidgetId)
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+            }.onFailure { Log.e(WIDGET_TAG, "applyFallbackRemoteViews failed for widget $appWidgetId", it) }
+        }
+
+        private fun buildFallbackRemoteViews(context: Context, appWidgetId: Int): RemoteViews {
+            val views = RemoteViews(context.packageName, R.layout.widget_layout_list)
+            views.setViewVisibility(R.id.widget_header, View.VISIBLE)
+            views.setTextViewText(R.id.widget_box_name, context.getString(R.string.app_name))
+            views.setViewVisibility(R.id.widget_box_name, View.VISIBLE)
+            views.setViewVisibility(R.id.widget_update_time, View.GONE)
+            views.setViewVisibility(R.id.widget_refresh_button, View.GONE)
+            views.setViewVisibility(R.id.widget_loading_spinner, View.GONE)
+            views.setViewVisibility(R.id.widget_settings_button, View.VISIBLE)
+            views.setInt(R.id.widget_root, "setBackgroundColor", 0xFF0F172A.toInt())
+            views.setViewVisibility(R.id.row_1, View.VISIBLE)
+            views.setViewVisibility(R.id.sensor_title_1, View.GONE)
+            views.setTextViewText(R.id.sensor_value_1, context.getString(R.string.widget_error_tap_reconfigure))
+            views.setTextColor(R.id.sensor_value_1, 0xFFF8FAFC.toInt())
+            views.setViewVisibility(R.id.row_2, View.GONE)
+            views.setViewVisibility(R.id.row_3, View.GONE)
+            views.setViewVisibility(R.id.row_4, View.GONE)
+            views.setViewVisibility(R.id.row_5, View.GONE)
+            views.setViewVisibility(R.id.row_6, View.GONE)
+            val configIntent = Intent(context, WidgetConfigActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            }
+            val pendingConfigIntent = PendingIntent.getActivity(
+                context,
+                appWidgetId + 10000,
+                configIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.widget_values_container, pendingConfigIntent)
             return views
         }
 
