@@ -259,6 +259,13 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     @androidx.annotation.VisibleForTesting
     var isGeocodingEnabled = true
 
+    /**
+     * Test seam: when false, selectBox skips its network refresh and renders purely
+     * from the local cache (screenshot tests must not race a live API call).
+     */
+    @androidx.annotation.VisibleForTesting
+    var isAutoRefreshEnabled = true
+
     // Per-box sensor history cache: key = "$boxId/$sensorId" -> measurements list
     // Survives LazyColumn item disposal and back-and-forth navigation within the same box.
     private val _sensorHistoryCache = MutableStateFlow<Map<String, List<de.nichu42.boxviewer.data.api.Measurement>>>(emptyMap())
@@ -1150,6 +1157,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             }
 
             val hasInitialValue = _selectedBox.value?.id == boxId
+            if (!isAutoRefreshEnabled && hasInitialValue) return@launch
             _isLoading.value = true
 
             try {

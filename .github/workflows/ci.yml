@@ -64,6 +64,7 @@ jobs:
           path: |
             app/build/reports/tests/
             app/build/reports/lint-results-debug.html
+            app/build/outputs/roborazzi/
             app/src/test/snapshots/*.diff.png
             app/src/test/snapshots/*_actual.png
           if-no-files-found: ignore

@@ -136,8 +136,10 @@ class AppScreenshotsTest {
     }
 
     viewModel = SenseBoxViewModel(app)
-    // Never hit the live geocoder network from tests; labels fall back to raw coordinates.
+    // Never hit the live geocoder/API network from tests; labels and renders come
+    // purely from the seeded SQLite cache.
     viewModel.isGeocodingEnabled = false
+    viewModel.isAutoRefreshEnabled = false
   }
 
   @After
@@ -148,7 +150,12 @@ class AppScreenshotsTest {
 
   private fun snapshotPath(name: String): String = "src/test/snapshots/$name.png"
 
-  private fun captureSnapshot(name: String) {
+  private fun captureSnapshot(name: String, waitForLoading: Boolean = false) {
+    if (waitForLoading) {
+      // Screens that refresh on launch must finish their (cache-path) fetch before
+      // capturing, otherwise the pull-to-refresh spinner bakes into the reference.
+      composeTestRule.waitUntil(10_000L) { !viewModel.isLoading.value }
+    }
     composeTestRule.waitForIdle()
     composeTestRule.onRoot().captureRoboImage(snapshotPath(name))
   }
@@ -164,7 +171,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("dashboard_phone")
+    captureSnapshot("dashboard_phone", waitForLoading = true)
   }
 
   @Test
@@ -179,7 +186,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_phone")
+    captureSnapshot("detail_phone", waitForLoading = true)
   }
 
   @Test
@@ -209,7 +216,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("dashboard_tablet7")
+    captureSnapshot("dashboard_tablet7", waitForLoading = true)
   }
 
   @Test
@@ -225,7 +232,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_tablet7")
+    captureSnapshot("detail_tablet7", waitForLoading = true)
   }
 
   @Test
@@ -240,7 +247,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("dashboard_tablet10")
+    captureSnapshot("dashboard_tablet10", waitForLoading = true)
   }
 
   @Test
@@ -256,7 +263,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_tablet10")
+    captureSnapshot("detail_tablet10", waitForLoading = true)
   }
 
   private companion object {
