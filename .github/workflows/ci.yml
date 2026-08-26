@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      record_screenshots:
+        description: 'Re-record reference screenshots instead of verifying them'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v7
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Run unit tests and lint
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:testDebugUnitTest :app:lintDebug --stacktrace --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m"
+
+      - name: Verify reference screenshots
+        if: ${{ inputs.record_screenshots != true }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:verifyRoborazziDebug --stacktrace --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m"
+
+      - name: Record reference screenshots (manual re-record)
+        if: ${{ inputs.record_screenshots == true }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:recordRoborazziDebug --stacktrace --no-daemon -Dorg.gradle.jvmargs="-Xmx2048m"
+
+      - name: Upload recorded screenshots for committing
+        if: ${{ inputs.record_screenshots == true }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: reference-screenshots
+          path: app/src/test/snapshots/
+
+      - name: Upload test and lint reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: |
+            app/build/reports/tests/
+            app/build/reports/lint-results-debug.html
+            app/src/test/snapshots/*.diff.png
+            app/src/test/snapshots/*_actual.png
+          if-no-files-found: ignore
