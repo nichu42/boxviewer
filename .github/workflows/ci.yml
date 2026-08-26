@@ -18,6 +18,8 @@ concurrency:
 jobs:
   unit-tests-and-lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout source code
         uses: actions/checkout@v7
