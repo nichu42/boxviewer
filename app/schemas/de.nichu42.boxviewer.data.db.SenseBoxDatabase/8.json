@@ -1,0 +1,234 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 8,
+    "identityHash": "d35d2253b4c854d8c166d9ac376879a8",
+    "entities": [
+      {
+        "tableName": "saved_boxes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`boxId` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `exposure` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `savedAt` INTEGER NOT NULL, `dashboardSensorIds` TEXT, PRIMARY KEY(`boxId`))",
+        "fields": [
+          {
+            "fieldPath": "boxId",
+            "columnName": "boxId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "exposure",
+            "columnName": "exposure",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "savedAt",
+            "columnName": "savedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dashboardSensorIds",
+            "columnName": "dashboardSensorIds",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "boxId"
+          ]
+        }
+      },
+      {
+        "tableName": "widget_configs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`widgetId` INTEGER NOT NULL, `boxId` TEXT NOT NULL, `boxName` TEXT NOT NULL, `sensorIdsString` TEXT NOT NULL, `refreshIntervalMinutes` INTEGER NOT NULL, `visualizationType` TEXT NOT NULL, `themeColorIndex` INTEGER NOT NULL, `lastFetchedTime` INTEGER NOT NULL, `textScale` REAL NOT NULL, `metricDisplayMode` TEXT NOT NULL, `showRefreshButton` INTEGER NOT NULL, `showConfigButton` INTEGER NOT NULL, `showBoxName` INTEGER NOT NULL, `showUpdateTime` INTEGER NOT NULL, `useConditionalFormatting` INTEGER NOT NULL, `aqiDisplayMode` TEXT NOT NULL, PRIMARY KEY(`widgetId`))",
+        "fields": [
+          {
+            "fieldPath": "widgetId",
+            "columnName": "widgetId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boxId",
+            "columnName": "boxId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boxName",
+            "columnName": "boxName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sensorIdsString",
+            "columnName": "sensorIdsString",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "refreshIntervalMinutes",
+            "columnName": "refreshIntervalMinutes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "visualizationType",
+            "columnName": "visualizationType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "themeColorIndex",
+            "columnName": "themeColorIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastFetchedTime",
+            "columnName": "lastFetchedTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textScale",
+            "columnName": "textScale",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "metricDisplayMode",
+            "columnName": "metricDisplayMode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "showRefreshButton",
+            "columnName": "showRefreshButton",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "showConfigButton",
+            "columnName": "showConfigButton",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "showBoxName",
+            "columnName": "showBoxName",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "showUpdateTime",
+            "columnName": "showUpdateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "useConditionalFormatting",
+            "columnName": "useConditionalFormatting",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "aqiDisplayMode",
+            "columnName": "aqiDisplayMode",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "widgetId"
+          ]
+        }
+      },
+      {
+        "tableName": "sensor_caches",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sensorId` TEXT NOT NULL, `boxId` TEXT NOT NULL, `sensorTitle` TEXT NOT NULL, `sensorUnit` TEXT, `sensorType` TEXT, `value` TEXT, `updatedAt` TEXT, `localFetchedAt` INTEGER NOT NULL, PRIMARY KEY(`sensorId`))",
+        "fields": [
+          {
+            "fieldPath": "sensorId",
+            "columnName": "sensorId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boxId",
+            "columnName": "boxId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sensorTitle",
+            "columnName": "sensorTitle",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sensorUnit",
+            "columnName": "sensorUnit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sensorType",
+            "columnName": "sensorType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "localFetchedAt",
+            "columnName": "localFetchedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "sensorId"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd35d2253b4c854d8c166d9ac376879a8')"
+    ]
+  }
+}

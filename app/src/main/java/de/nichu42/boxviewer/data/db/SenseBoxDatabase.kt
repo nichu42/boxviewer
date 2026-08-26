@@ -17,7 +17,7 @@ const val DB_VERSION = 8
         SensorCacheEntity::class
     ],
     version = DB_VERSION,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class SenseBoxDatabase : RoomDatabase() {
     abstract fun savedBoxDao(): SavedBoxDao
