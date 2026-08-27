@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.nichu42.boxviewer.R
@@ -50,6 +49,11 @@ object QrCodeGenerator {
     fun overlayLogo(qrBitmap: Bitmap, logo: Bitmap): Bitmap {
         val size = qrBitmap.width
         val result = qrBitmap.copy(Bitmap.Config.ARGB_8888, true)
+        // Free the source bitmap's native memory early — caller replaces `var bmp = overlayLogo(bmp, logo)`
+        // so the original is no longer needed. Recycle only if the copy succeeded.
+        if (result != qrBitmap && !qrBitmap.isRecycled) {
+            qrBitmap.recycle()
+        }
         val canvas = Canvas(result)
 
         // Logo size: 22% of QR size (H error correction handles up to 30% loss)
@@ -76,6 +80,7 @@ object QrCodeGenerator {
         )
 
         canvas.drawBitmap(scaledLogo, left, top, null)
+        if (!scaledLogo.isRecycled) scaledLogo.recycle()
         return result
     }
 }
@@ -103,8 +108,9 @@ fun QrCodeCanvas(
     showLogo: Boolean = true
 ) {
     val context = LocalContext.current
-    val density = LocalDensity.current
-    val px = with(density) { sizeDp.toPx().toInt() }
+    // Fixed 512px canvas bitmap — fits 240dp at any density (2 MB) and avoids
+    // per-density allocation spikes (720/960px) that pressure Play's Bitmap thresholds.
+    val px = 512
     val fgArgb = androidx.compose.ui.graphics.Color.Black.toArgb()
     val bgArgb = androidx.compose.ui.graphics.Color.White.toArgb()
 

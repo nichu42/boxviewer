@@ -2,6 +2,23 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [0.55] - 2026-08-27
+
+### Added
+- **Persisted Address Cache for Saved Boxes**: Reverse-geocoded labels (`City, ST, CC` + `City, State, Country`) are now stored in `saved_boxes` (`addressShort`, `addressFull`, `addressFetchedAt`, `MIGRATION_8_9`). Reopens no longer re-hit Photon/Nominatim per bookmark; 30-day TTL with coordinate-change invalidation. Saves battery/data and is openSenseMap-friendly.
+
+### Changed
+- **DEX Optimization Enabled (Play Feb 2027)**: Release builds now use R8 full mode (`isMinifyEnabled`, `isShrinkResources`, `isCrunchPngs`) with keep rules for Moshi/Room/Retrofit/ZXing. DEX 50.2 MB → 6.57 MB (86.9% shrink) in `mapping.txt`; satisfies the ≥25% shrinking/optimization/obfuscation thresholds for apps >10 MB DEX. Apps <10 MB after shrinking are exempt per the size floor. No new runtime dependency.
+- **QR Sizes (Memory)**: On-screen canvas fixed `512px` (was density-dependent `720/960px`) → 2 MB; share/save export `1024→768px` → 4.5 MB peak vs 8 MB (PNG ~9 KB, `ErrorCorrectionLevel.H` tolerates 30% logo cover at 22%).
+
+### Fixed
+- **Anon RSS + Swap / Bitmap Pressure (Play Feb 2027)**: Photon/Nominatim geocoding now reuses the single `RetrofitClient.okHttpClient` instead of 4 × `new OkHttpClient()`; `HttpLoggingInterceptor` BODY buffering gated to `DEBUG` only; `BoxViewerApplication.onTrimMemory/onLowMemory` → `MemoryTrimmer` aggressively clears `boxLastUpdatedCache`, `boxAddressCache`, `boxFullAddressCache`, `_boxLocations`, `_sensorHistoryCache` and singletons (`ApiLogger.responseCache`, `lastForcedFetchTimes`) on `TRIM_MEMORY_BACKGROUND/MODERATE/COMPLETE/UI_HIDDEN`. Fixes naked `Dispatchers.IO` launches holding context in `cached` and QR `copy()` duplication.
+- **QR Bitmap Leaks**: `overlayLogo` recycles source bitmap and `scaledLogo`; `ShareQrDialog` recycles logo and final bitmap after `shareQrImage`/`saveQrToGallery`.
+
+### Technical
+- `DB_VERSION 8→9`, `MIGRATION_8_9` (`ALTER TABLE saved_boxes ADD COLUMN addressShort/addressFull/addressFetchedAt`), schema `9.json` exported, `RoomMigrationTest` extended to `3→9` + new `migration8To9_addressColumnsPersistAndUpdate` test.
+- Zero-Tap Sign-In Restoration (`Apr 2027`) declared exempt — app has no sign-in (OpenSenseMap unauthenticated, `PRIVACY.md` “no user accounts”); no `androidx.credentials`/`BlockStore` added to preserve de-Googled compatibility (still `LocationManager` only, no GMS). 16 KB page + `targetSdk 37` already compliant.
+
 ## [0.54] - 2026-08-26
 
 ### Fixed

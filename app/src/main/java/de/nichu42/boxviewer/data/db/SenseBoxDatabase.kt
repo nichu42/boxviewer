@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-const val DB_VERSION = 8
+const val DB_VERSION = 9
 
 @Database(
     entities = [
@@ -67,6 +67,16 @@ abstract class SenseBoxDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // In version 9, persist reverse-geocoded addresses for saved boxes to avoid
+                // re-hitting Photon/Nominatim on every cold start.
+                db.execSQL("ALTER TABLE saved_boxes ADD COLUMN addressShort TEXT DEFAULT NULL")
+                db.execSQL("ALTER TABLE saved_boxes ADD COLUMN addressFull TEXT DEFAULT NULL")
+                db.execSQL("ALTER TABLE saved_boxes ADD COLUMN addressFetchedAt INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getDatabase(context: Context): SenseBoxDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -74,7 +84,7 @@ abstract class SenseBoxDatabase : RoomDatabase() {
                     SenseBoxDatabase::class.java,
                     "sensebox_database"
                 )
-                .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+                .addMigrations(MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
                 .addCallback(object : Callback() {
                     override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
                         super.onDestructiveMigration(db)

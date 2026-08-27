@@ -22,6 +22,15 @@ interface SavedBoxDao {
 
     @Query("DELETE FROM saved_boxes WHERE boxId = :boxId")
     suspend fun deleteSavedBox(boxId: String)
+
+    @Query("UPDATE saved_boxes SET addressShort = :shortLabel, addressFetchedAt = :fetchedAt WHERE boxId = :boxId")
+    suspend fun updateShortAddress(boxId: String, shortLabel: String, fetchedAt: Long)
+
+    @Query("UPDATE saved_boxes SET addressFull = :fullLabel, addressFetchedAt = :fetchedAt WHERE boxId = :boxId")
+    suspend fun updateFullAddress(boxId: String, fullLabel: String, fetchedAt: Long)
+
+    @Query("UPDATE saved_boxes SET addressShort = :shortLabel, addressFull = :fullLabel, addressFetchedAt = :fetchedAt WHERE boxId = :boxId")
+    suspend fun updateAddresses(boxId: String, shortLabel: String?, fullLabel: String?, fetchedAt: Long)
 }
 
 @Dao

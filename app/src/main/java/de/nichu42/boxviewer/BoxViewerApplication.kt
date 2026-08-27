@@ -18,6 +18,16 @@ class BoxViewerApplication : Application() {
         }
     }
 
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        de.nichu42.boxviewer.util.MemoryTrimmer.trim(level)
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        de.nichu42.boxviewer.util.MemoryTrimmer.trimAllForLowMemory()
+    }
+
     override fun onCreate() {
         super.onCreate()
         

@@ -12,7 +12,10 @@ data class SavedBoxEntity(
     val latitude: Double,
     val longitude: Double,
     val savedAt: Long = System.currentTimeMillis(),
-    val dashboardSensorIds: String? = null
+    val dashboardSensorIds: String? = null,
+    val addressShort: String? = null,
+    val addressFull: String? = null,
+    val addressFetchedAt: Long = 0
 )
 
 @Entity(tableName = "widget_configs")

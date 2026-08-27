@@ -141,6 +141,17 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
     }
 
     init {
+        // Register in-memory caches for OS memory pressure callbacks (Play Feb 2027 Anon RSS/Bitmap thresholds).
+        de.nichu42.boxviewer.util.MemoryTrimmer.register {
+            boxLastUpdatedCache.clear()
+            boxLastUpdatedTextCache.clear()
+            boxAddressCache.clear()
+            boxFullAddressCache.clear()
+            _boxLocations.value = emptyMap()
+            _sensorHistoryCache.value = emptyMap()
+            _sensorHistoryLoading.value = emptySet()
+        }
+
         val prefs = getApplication<Application>().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
         _useConditionalFormatting.value = prefs.getBoolean("use_conditional_formatting", true)
 
@@ -166,6 +177,14 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
                 e.printStackTrace()
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // ViewModelStore is clearing (activity finished) — drop history to avoid leaking Bitmaps/sensors in cached state.
+        _sensorHistoryCache.value = emptyMap()
+        _sensorHistoryLoading.value = emptySet()
+        _expandedSensorIds.value = emptySet()
     }
 
     fun setUseConditionalFormatting(use: Boolean) {
@@ -658,7 +677,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             try {
                 val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
                 val url = "https://photon.komoot.io/api/?q=$encodedQuery&limit=5&lang=en"
-                val client = okhttp3.OkHttpClient()
+                val client = de.nichu42.boxviewer.data.api.RetrofitClient.okHttpClient
                 val request = okhttp3.Request.Builder()
                     .url(url)
                     .header("User-Agent", "BoxViewer/${de.nichu42.boxviewer.BuildConfig.VERSION_NAME} (contact: nichu42@42bit.email)")
@@ -727,7 +746,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             try {
                 val encodedQuery = java.net.URLEncoder.encode(query, "UTF-8")
                 val url = "https://nominatim.openstreetmap.org/search?q=$encodedQuery&format=json&limit=5&accept-language=en"
-                val client = okhttp3.OkHttpClient()
+                val client = de.nichu42.boxviewer.data.api.RetrofitClient.okHttpClient
                 val request = okhttp3.Request.Builder()
                     .url(url)
                     .header("User-Agent", "BoxViewer/${de.nichu42.boxviewer.BuildConfig.VERSION_NAME} (contact: nichu42@42bit.email)")
@@ -818,7 +837,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         return withContext(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 val url = "https://photon.komoot.io/reverse?lon=$lng&lat=$lat&lang=en"
-                val client = okhttp3.OkHttpClient()
+                val client = de.nichu42.boxviewer.data.api.RetrofitClient.okHttpClient
                 val request = okhttp3.Request.Builder()
                     .url(url)
                     .header("User-Agent", "BoxViewer/${de.nichu42.boxviewer.BuildConfig.VERSION_NAME} (contact: nichu42@42bit.email)")
@@ -874,7 +893,7 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         return withContext(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 val url = "https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=json&accept-language=en"
-                val client = okhttp3.OkHttpClient()
+                val client = de.nichu42.boxviewer.data.api.RetrofitClient.okHttpClient
                 val request = okhttp3.Request.Builder()
                     .url(url)
                     .header("User-Agent", "BoxViewer/${de.nichu42.boxviewer.BuildConfig.VERSION_NAME} (contact: nichu42@42bit.email)")
@@ -987,6 +1006,14 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         return s.take(3).uppercase(java.util.Locale.US)
     }
 
+    companion object {
+        private const val ADDRESS_CACHE_TTL_MS = 30L * 24 * 60 * 60 * 1000 // 30 days
+        private fun isAddressCacheFresh(fetchedAt: Long): Boolean =
+            fetchedAt != 0L && System.currentTimeMillis() - fetchedAt < ADDRESS_CACHE_TTL_MS
+        private fun isSameLocation(savedLat: Double, savedLng: Double, lat: Double, lng: Double): Boolean =
+            kotlin.math.abs(savedLat - lat) < 0.00005 && kotlin.math.abs(savedLng - lng) < 0.00005
+    }
+
     fun getCityStateCountryFromLocation(boxId: String, lat: Double, lng: Double, onResult: (String) -> Unit) {
         val cached = boxAddressCache[boxId]
         if (cached != null) {
@@ -995,6 +1022,21 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         }
 
         viewModelScope.launch {
+            // 1) Check persisted cache in SavedBoxEntity (survives process death) — short label
+            try {
+                val saved = repository.getSavedBox(boxId)
+                if (saved != null && !saved.addressShort.isNullOrBlank()
+                    && isAddressCacheFresh(saved.addressFetchedAt)
+                    && isSameLocation(saved.latitude, saved.longitude, lat, lng)
+                ) {
+                    boxAddressCache[boxId] = saved.addressShort
+                    onResult(saved.addressShort)
+                    return@launch
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
             var label = ""
             try {
                 label = reverseGeocodeWithFallback(lat, lng)
@@ -1007,6 +1049,12 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             }
             boxAddressCache[boxId] = label
             onResult(label)
+            // 2) Persist to DB for bookmarks (so next cold start skips network)
+            if (label.isNotBlank() && !label.contains("°")) {
+                try {
+                    repository.updateBoxShortAddress(boxId, label)
+                } catch (_: Exception) { /* not a saved box — ignore */ }
+            }
         }
     }
 
@@ -1018,6 +1066,21 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
         }
 
         viewModelScope.launch {
+            // 1) Check persisted cache — full label
+            try {
+                val saved = repository.getSavedBox(boxId)
+                if (saved != null && !saved.addressFull.isNullOrBlank()
+                    && isAddressCacheFresh(saved.addressFetchedAt)
+                    && isSameLocation(saved.latitude, saved.longitude, lat, lng)
+                ) {
+                    boxFullAddressCache[boxId] = saved.addressFull
+                    onResult(saved.addressFull)
+                    return@launch
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
             var label = ""
             try {
                 label = reverseGeocodeWithFallback(lat, lng, fullAddress = true)
@@ -1030,6 +1093,11 @@ class SenseBoxViewModel(application: Application) : AndroidViewModel(application
             }
             boxFullAddressCache[boxId] = label
             onResult(label)
+            if (label.isNotBlank() && !label.contains("°")) {
+                try {
+                    repository.updateBoxFullAddress(boxId, label)
+                } catch (_: Exception) { }
+            }
         }
     }
 

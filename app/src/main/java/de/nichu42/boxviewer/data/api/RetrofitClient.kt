@@ -16,10 +16,14 @@ object RetrofitClient {
         .addLast(KotlinJsonAdapterFactory())
         .build()
 
-    private val okHttpClient = OkHttpClient.Builder()
+    // Shared OkHttpClient for all network calls (including Photon/Nominatim geocoding).
+    // Reusing avoids per-geocode ConnectionPool/Dispatcher thread spikes in cached state.
+    val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(ApiLoggingInterceptor())
         .addInterceptor(HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            // In release, BODY buffers entire JSON into heap (50 KB per call) for logcat.
+            // Gate behind BuildConfig.DEBUG so background widget refreshes don't spike Anon RSS.
+            level = if (de.nichu42.boxviewer.BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         })
         .addInterceptor { chain ->
             val request = chain.request().newBuilder()

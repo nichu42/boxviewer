@@ -14,8 +14,8 @@ android {
     applicationId = "de.nichu42.boxviewer"
     minSdk = 24
     targetSdk = 37
-    versionCode = 18
-    versionName = "0.54"
+    versionCode = 19
+    versionName = "0.55"
   }
 
   signingConfigs {
@@ -30,8 +30,9 @@ android {
 
   buildTypes {
     release {
-      isCrunchPngs = false
-      isMinifyEnabled = false
+      isCrunchPngs = true
+      isMinifyEnabled = true
+      isShrinkResources = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       signingConfig = signingConfigs.getByName("release")
     }

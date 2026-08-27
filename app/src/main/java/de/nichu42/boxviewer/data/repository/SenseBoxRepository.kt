@@ -136,19 +136,25 @@ class SenseBoxRepository(private val context: Context, db: SenseBoxDatabase) {
             sensorCacheDao.insertSensors(caches)
         }
 
-        // If saved, update SavedBoxEntity details
+        // If saved, update SavedBoxEntity details (preserve persisted address cache unless coordinates changed)
         val saved = savedBoxDao.getSavedBox(boxId)
         if (saved != null) {
+            val newLat = box.currentLocation?.latitude ?: saved.latitude
+            val newLng = box.currentLocation?.longitude ?: saved.longitude
+            val coordsChanged = newLat != saved.latitude || newLng != saved.longitude
             savedBoxDao.insertSavedBox(
                 SavedBoxEntity(
                     boxId = box.id,
                     name = box.name,
                     description = box.description,
                     exposure = box.exposure,
-                    latitude = box.currentLocation?.latitude ?: saved.latitude,
-                    longitude = box.currentLocation?.longitude ?: saved.longitude,
+                    latitude = newLat,
+                    longitude = newLng,
                     savedAt = saved.savedAt, // keep original order of selection
-                    dashboardSensorIds = saved.dashboardSensorIds
+                    dashboardSensorIds = saved.dashboardSensorIds,
+                    addressShort = if (coordsChanged) null else saved.addressShort,
+                    addressFull = if (coordsChanged) null else saved.addressFull,
+                    addressFetchedAt = if (coordsChanged) 0 else saved.addressFetchedAt
                 )
             )
         }
@@ -280,6 +286,18 @@ class SenseBoxRepository(private val context: Context, db: SenseBoxDatabase) {
         savedBoxDao.insertSavedBoxes(updatedBoxes)
     }
 
+    suspend fun updateBoxShortAddress(boxId: String, shortLabel: String) = withContext(Dispatchers.IO) {
+        savedBoxDao.updateShortAddress(boxId, shortLabel, System.currentTimeMillis())
+    }
+
+    suspend fun updateBoxFullAddress(boxId: String, fullLabel: String) = withContext(Dispatchers.IO) {
+        savedBoxDao.updateFullAddress(boxId, fullLabel, System.currentTimeMillis())
+    }
+
+    suspend fun updateBoxAddresses(boxId: String, shortLabel: String?, fullLabel: String?) = withContext(Dispatchers.IO) {
+        savedBoxDao.updateAddresses(boxId, shortLabel, fullLabel, System.currentTimeMillis())
+    }
+
     suspend fun getSensorData(boxId: String, sensorId: String, limit: Int = 20): List<de.nichu42.boxviewer.data.api.Measurement> = withContext(Dispatchers.IO) {
         val url = ("https://api.opensensemap.org/boxes/$boxId/data/$sensorId").toHttpUrlOrNull()!!
             .newBuilder()
@@ -401,5 +419,10 @@ class SenseBoxRepository(private val context: Context, db: SenseBoxDatabase) {
         private val lastForcedFetchTimes = java.util.concurrent.ConcurrentHashMap<String, Long>()
         @Volatile
         private var lastToastTime = 0L
+
+        fun clearMemoryCaches() {
+            // Aggressive clear on trim — throttle map is small and repopulates on next force refresh.
+            lastForcedFetchTimes.clear()
+        }
     }
 }

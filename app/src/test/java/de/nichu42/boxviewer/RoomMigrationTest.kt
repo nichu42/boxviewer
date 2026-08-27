@@ -104,7 +104,8 @@ class RoomMigrationTest {
                 SenseBoxDatabase.MIGRATION_4_5,
                 SenseBoxDatabase.MIGRATION_5_6,
                 SenseBoxDatabase.MIGRATION_6_7,
-                SenseBoxDatabase.MIGRATION_7_8
+                SenseBoxDatabase.MIGRATION_7_8,
+                SenseBoxDatabase.MIGRATION_8_9
             )
             .allowMainThreadQueries()
             .build()
@@ -121,6 +122,10 @@ class RoomMigrationTest {
         assertNotNull("Favorite saved box lost during migration", box)
         assertEquals("Legacy Box", box!!.name)
         assertEquals("temp,hum", box.dashboardSensorIds)
+        // 8→9 address columns carry their defaults (null / 0) for legacy rows.
+        assertEquals(null, box.addressShort)
+        assertEquals(null, box.addressFull)
+        assertEquals(0L, box.addressFetchedAt)
 
         // Widget config must survive; columns added by migrations carry their defaults.
         val config = db.widgetConfigDao().getWidgetConfig(42)
@@ -141,6 +146,44 @@ class RoomMigrationTest {
         assertEquals("Temperature", sensors[0].sensorTitle)
         assertEquals("21.5", sensors[0].value)
         assertEquals(0L, sensors[0].localFetchedAt)
+
+        db.close()
+    }
+
+    @Test
+    fun migration8To9_addressColumnsPersistAndUpdate() = runBlocking {
+        // Start from a fresh DB at version 8, then verify 8→9 handles address writes.
+        val db = openWithMigrations()
+        val now = System.currentTimeMillis()
+        db.savedBoxDao().insertSavedBox(
+            SavedBoxEntity(
+                boxId = "box_addr",
+                name = "Addr Box",
+                description = null,
+                exposure = "outdoor",
+                latitude = 52.0,
+                longitude = 13.0,
+                savedAt = now,
+                dashboardSensorIds = null,
+                addressShort = "Berlin, BE, DE",
+                addressFull = "Berlin, Berlin, Germany",
+                addressFetchedAt = now
+            )
+        )
+        val loaded = db.savedBoxDao().getSavedBox("box_addr")
+        assertNotNull(loaded)
+        assertEquals("Berlin, BE, DE", loaded!!.addressShort)
+        assertEquals("Berlin, Berlin, Germany", loaded.addressFull)
+        assertEquals(now, loaded.addressFetchedAt)
+
+        // Simulate coordinate change invalidates cache via repository logic — DAO update should work
+        db.savedBoxDao().updateShortAddress("box_addr", "Munich, BY, DE", now + 1000)
+        val afterShort = db.savedBoxDao().getSavedBox("box_addr")
+        assertEquals("Munich, BY, DE", afterShort!!.addressShort)
+
+        db.savedBoxDao().updateFullAddress("box_addr", "Munich, Bayern, Germany", now + 2000)
+        val afterFull = db.savedBoxDao().getSavedBox("box_addr")
+        assertEquals("Munich, Bayern, Germany", afterFull!!.addressFull)
 
         db.close()
     }

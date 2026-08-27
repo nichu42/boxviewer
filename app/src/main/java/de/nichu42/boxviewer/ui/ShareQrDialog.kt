@@ -147,18 +147,21 @@ fun ShareQrDialog(
                         isExporting = true
                         coroutineScope.launch {
                             try {
+                                // 768px export: 4.5 MB peak vs 8 MB at 1024, still ~9 KB PNG and sharp at 6.5 cm.
                                 val matrix = withContext(Dispatchers.Default) {
-                                    QrCodeGenerator.generateQrBitMatrix(link, 1024)
+                                    QrCodeGenerator.generateQrBitMatrix(link, 768)
                                 }
                                 val bitmap = withContext(Dispatchers.Default) {
                                     var bmp = matrix.toBitmap()
                                     val logo = QrCodeGenerator.decodeLogo(context)
                                     if (logo != null) {
                                         bmp = QrCodeGenerator.overlayLogo(bmp, logo)
+                                        if (!logo.isRecycled) logo.recycle()
                                     }
                                     bmp
                                 }
                                 ShareUtils.shareQrImage(context, bitmap, fileName, summaryText)
+                                if (!bitmap.isRecycled) bitmap.recycle()
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 withContext(Dispatchers.Main) {
@@ -185,17 +188,19 @@ fun ShareQrDialog(
                         coroutineScope.launch {
                             try {
                                 val matrix = withContext(Dispatchers.Default) {
-                                    QrCodeGenerator.generateQrBitMatrix(link, 1024)
+                                    QrCodeGenerator.generateQrBitMatrix(link, 768)
                                 }
                                 val bitmap = withContext(Dispatchers.Default) {
                                     var bmp = matrix.toBitmap()
                                     val logo = QrCodeGenerator.decodeLogo(context)
                                     if (logo != null) {
                                         bmp = QrCodeGenerator.overlayLogo(bmp, logo)
+                                        if (!logo.isRecycled) logo.recycle()
                                     }
                                     bmp
                                 }
                                 val savedUri = ShareUtils.saveQrToGallery(context, bitmap, fileName)
+                                if (!bitmap.isRecycled) bitmap.recycle()
                                 withContext(Dispatchers.Main) {
                                     if (savedUri != null) {
                                             Toast.makeText(context, shareQrSavedSuccessMsg, Toast.LENGTH_SHORT).show()
