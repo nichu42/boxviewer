@@ -135,7 +135,6 @@ fun DashboardScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
         ) {
             Column(
                 modifier = Modifier

@@ -125,7 +125,6 @@ fun DiscoveryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
             
