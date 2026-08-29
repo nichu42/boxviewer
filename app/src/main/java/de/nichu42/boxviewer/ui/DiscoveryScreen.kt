@@ -731,7 +731,9 @@ fun DiscoveryScreen(
                         start = 16.dp,
                         top = 8.dp,
                         end = 16.dp,
-                        bottom = 8.dp
+                        bottom = WindowInsets.safeDrawing
+                            .asPaddingValues()
+                            .calculateBottomPadding() + 8.dp
                     ),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
