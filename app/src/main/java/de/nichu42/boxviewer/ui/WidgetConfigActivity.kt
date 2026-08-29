@@ -23,8 +23,8 @@ class WidgetConfigActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LocaleHelper.applySavedLocale(this)
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
 
         // Find the widget id from the intent
         appWidgetId = intent?.extras?.getInt(

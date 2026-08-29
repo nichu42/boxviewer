@@ -29,6 +29,7 @@ fun AqiInfoScreen(
     val scrollState = rememberScrollState()
 
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.aqi_info_title), fontWeight = FontWeight.Bold) },
@@ -54,6 +55,7 @@ fun AqiInfoScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
                 .padding(16.dp),

@@ -2,6 +2,11 @@
 
 All notable changes to the BoxViewer project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- **Android 15 Edge-to-Edge**: Activity edge-to-edge setup now runs before activity creation, and Compose screens explicitly use and consume safe-drawing insets. Removed fixed bottom spacing from dashboard and discovery lists so navigation-bar spacing follows the active window insets.
+
 ## [0.55] - 2026-08-27
 
 ### Added

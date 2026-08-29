@@ -81,11 +81,12 @@ fun AboutScreen(
         }
     }
 
-    Scaffold { innerPadding ->
+    Scaffold(contentWindowInsets = WindowInsets.safeDrawing) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
@@ -765,6 +766,7 @@ fun LicenseScreen(
     val scrollState = rememberScrollState()
 
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.about_license_title), fontWeight = FontWeight.Bold) },
@@ -790,7 +792,7 @@ fun LicenseScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .statusBarsPadding()
+                .consumeWindowInsets(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
             Row(
@@ -1187,6 +1189,7 @@ fun ThirdPartyLicensesScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.about_third_party_title), fontWeight = FontWeight.Bold) },
@@ -1212,7 +1215,7 @@ fun ThirdPartyLicensesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .statusBarsPadding()
+                .consumeWindowInsets(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
                 .padding(16.dp),
@@ -1361,4 +1364,3 @@ fun ThirdPartyLicensesScreen(
         }
     }
 }
-

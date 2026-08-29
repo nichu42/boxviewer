@@ -10,6 +10,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.layout.padding
@@ -63,9 +66,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         LocaleHelper.applySavedLocale(this)
         installSplashScreen()
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         ApiLogger.init(applicationContext)
-        enableEdgeToEdge()
 
         pendingBoxIdFromWidget.value = intent?.getStringExtra("box_id")
 
@@ -171,6 +174,7 @@ class MainActivity : AppCompatActivity() {
 
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
+                        contentWindowInsets = WindowInsets.safeDrawing,
                         bottomBar = {
                             val navBackStackEntry by navController.currentBackStackEntryAsState()
                             val currentRoute = navBackStackEntry?.destination?.route
@@ -268,10 +272,15 @@ class MainActivity : AppCompatActivity() {
                         }
 
                     ) { innerPadding ->
+                        val navHostPadding = PaddingValues(
+                            bottom = innerPadding.calculateBottomPadding()
+                        )
                         NavHost(
                             navController = navController,
                             startDestination = "dashboard",
-                            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
+                            modifier = Modifier
+                                .padding(navHostPadding)
+                                .consumeWindowInsets(navHostPadding)
                         ) {
                             composable("dashboard") {
                                 DashboardScreen(

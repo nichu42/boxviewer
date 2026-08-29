@@ -286,6 +286,7 @@ fun WidgetConfigScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.widget_config_title), fontWeight = FontWeight.Bold) },
@@ -305,6 +306,7 @@ fun WidgetConfigScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
             if (isLoading) {

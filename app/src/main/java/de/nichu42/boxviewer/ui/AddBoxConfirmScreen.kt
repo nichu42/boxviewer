@@ -51,6 +51,7 @@ fun AddBoxConfirmScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.add_box_title), fontWeight = FontWeight.Bold) },
@@ -70,6 +71,7 @@ fun AddBoxConfirmScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

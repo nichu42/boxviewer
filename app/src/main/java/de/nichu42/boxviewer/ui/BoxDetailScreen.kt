@@ -98,6 +98,7 @@ fun BoxDetailScreen(
     var showShareQrDialog by remember { mutableStateOf(false) }
 
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.box_detail_title), fontWeight = FontWeight.Bold) },
@@ -161,6 +162,7 @@ fun BoxDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
         ) {
             Column(
                 modifier = Modifier
@@ -1177,5 +1179,4 @@ private fun titleLabelStyle() = androidx.compose.ui.text.TextStyle(
     fontSize = 10.sp,
     color = MaterialTheme.colorScheme.primary
 )
-
 

@@ -119,6 +119,7 @@ fun ApiLogViewerScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.api_log_title), fontWeight = FontWeight.Bold) },
@@ -160,6 +161,7 @@ fun ApiLogViewerScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
             if (isLoading) {
