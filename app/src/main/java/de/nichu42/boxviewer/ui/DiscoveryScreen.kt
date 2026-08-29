@@ -110,7 +110,9 @@ fun DiscoveryScreen(
 
 
     Scaffold(
-        contentWindowInsets = WindowInsets.safeDrawing,
+        contentWindowInsets = WindowInsets.safeDrawing.only(
+            WindowInsetsSides.Top + WindowInsetsSides.Horizontal
+        ),
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.discovery_title), fontWeight = FontWeight.Bold) },
@@ -125,6 +127,7 @@ fun DiscoveryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .navigationBarsPadding()
                 .background(MaterialTheme.colorScheme.background)
         ) {
             
@@ -730,9 +733,7 @@ fun DiscoveryScreen(
                         start = 16.dp,
                         top = 8.dp,
                         end = 16.dp,
-                        bottom = WindowInsets.safeDrawing
-                            .asPaddingValues()
-                            .calculateBottomPadding() + 8.dp
+                        bottom = 8.dp
                     ),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {

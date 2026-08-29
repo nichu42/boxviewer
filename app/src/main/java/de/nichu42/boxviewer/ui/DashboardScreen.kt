@@ -86,7 +86,9 @@ fun DashboardScreen(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets.safeDrawing,
+        contentWindowInsets = WindowInsets.safeDrawing.only(
+            WindowInsetsSides.Top + WindowInsetsSides.Horizontal
+        ),
         topBar = {
             TopAppBar(
                 title = {
@@ -135,6 +137,7 @@ fun DashboardScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .navigationBarsPadding()
         ) {
             Column(
                 modifier = Modifier
@@ -393,9 +396,7 @@ fun DashboardScreen(
                             start = 16.dp,
                             top = 8.dp,
                             end = 16.dp,
-                            bottom = WindowInsets.safeDrawing
-                                .asPaddingValues()
-                                .calculateBottomPadding() + 8.dp
+                            bottom = 8.dp
                         ),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
