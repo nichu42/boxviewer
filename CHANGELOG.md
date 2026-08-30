@@ -4,6 +4,11 @@ All notable changes to the BoxViewer project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.56] - 2026-08-30
+
+### Added
+- **System Status Link**: Added an external link to the hosted status page at `https://status.boxviewer.app` (operated by Lightkeeper OÜ / Phare, Estonia, via Bunny CDN, EU) on the About screen Data & Attribution card, the main website footer (`boxviewer.app`), and the share-page footer (`share.boxviewer.app`). The link is tap-gated — no request is made until the user taps it — and attributed in the in-app Third-Party Licenses screen, `CREDITS.md`, and `PRIVACY.md` (EN/DE) with a link to `https://phare.io/legal/privacy-policy`. Helps users distinguish openSenseMap outages from app or connectivity issues.
+
 ### Fixed
 - **Android 15 Edge-to-Edge**: Activity edge-to-edge setup now runs before activity creation, and Compose screens explicitly use and consume safe-drawing insets. Removed fixed bottom spacing from dashboard and discovery lists so navigation-bar spacing follows the active window insets.
 

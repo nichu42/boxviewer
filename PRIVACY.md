@@ -51,11 +51,14 @@ To provide its core functionality, BoxViewer communicates with the official **op
 * **Purpose:** To fetch public senseBox configurations, metadata, and current sensor measurements.
 * **Privacy Policy:** [https://opensensemap.org/privacy](https://opensensemap.org/privacy)
 
-**Geocoding Services — the only non-openSenseMap connections:**
+**Geocoding Services — non-openSenseMap connections:**
 For address search (text → coordinates) and reverse location labels (coordinates → city/country), the app may contact the geocoding services described under "Location Data" below. These calls are triggered only by explicit user action and are not used for tracking, analytics, or advertising. BoxViewer does not intentionally contact Google; however, on stock Android devices the native `Geocoder` backend is typically provided by Google.
 
+**Service-Status Page:**
+The About screen provides an optional link to the service-status page at `https://status.boxviewer.app`, which shows current openSenseMap availability. This page is operated by **Lightkeeper OÜ (Phare), Tallinn, Estonia** and delivered via the Bunny CDN (BunnyWay d.o.o., Slovenia, EU). No request is made until you tap **View System Status**; the destination is opened in your browser / system handler, not embedded in the app. Privacy policy: [https://phare.io/legal/privacy-policy](https://phare.io/legal/privacy-policy) · CDN: [https://bunny.net/privacy](https://bunny.net/privacy).
+
 **IP Address Disclosure:**
-Whenever BoxViewer connects to any external service — including openSenseMap, the geocoding services listed below, and the bunny.net-hosted website described in Section 5 — your device's IP address is transmitted as part of the network request. Under the GDPR, IP addresses are generally considered personal data. The respective service operator processes this data for technical delivery and may log it in accordance with their own privacy policy. No telemetry, analytics, or identifiers are sent by BoxViewer.
+Whenever BoxViewer or your browser connects to any external service — including openSenseMap, the geocoding services listed below, the status page above, and the bunny.net-hosted websites described in Section 5 — your device's IP address is transmitted as part of the network request. Under the GDPR, IP addresses are generally considered personal data. The respective service operator processes this data for technical delivery and may log it in accordance with their own privacy policy. No telemetry, analytics, or identifiers are sent by BoxViewer.
 
 ### 3. Location Data
 When you grant location permissions to BoxViewer:
@@ -150,11 +153,14 @@ Zur Bereitstellung der Kernfunktionalitäten kommuniziert BoxViewer mit der offi
 * **Zweck:** Abrufen öffentlicher senseBox-Konfigurationen, Metadaten und aktueller Sensormesswerte.
 * **Datenschutzerklärung:** [https://opensensemap.org/privacy](https://opensensemap.org/privacy)
 
-**Geocoding-Dienste — die einzigen nicht-openSenseMap-Verbindungen:**
+**Geocoding-Dienste — nicht-openSenseMap-Verbindungen:**
 Für die Adresssuche (Text → Koordinaten) und die Umkehrung von Ortsbezeichnungen (Koordinaten → Stadt/Land) kann die App die unter "Standortdaten" beschriebenen Geocoding-Dienste kontaktieren. Diese Aufrufe werden nur durch ausdrückliche Benutzeraktion ausgelöst und nicht für Tracking, Analyse oder Werbung verwendet. BoxViewer kontaktiert Google nicht bewusst; auf Standard-Android-Geräten wird der native `Geocoder`-Backend jedoch in der Regel von Google bereitgestellt.
 
+**Service-Status-Seite:**
+Auf der Über-Seite bietet die App einen optionalen Link zur Service-Status-Seite unter `https://status.boxviewer.app`, die die aktuelle Verfügbarkeit von openSenseMap anzeigt. Diese Seite wird von **Lightkeeper OÜ (Phare), Tallinn, Estland** betrieben und über das Bunny CDN (BunnyWay d.o.o., Slowenien, EU) ausgeliefert. Es wird keine Anfrage gestellt, bis Sie auf **Systemstatus ansehen** tippen; das Ziel wird in Ihrem Browser / System-Handler geöffnet, nicht in der App eingebettet. Datenschutzerklärung: [https://phare.io/legal/privacy-policy](https://phare.io/legal/privacy-policy) · CDN: [https://bunny.net/privacy](https://bunny.net/privacy).
+
 **IP-Adresse:**
-Wann immer BoxViewer eine Verbindung zu einem externen Dienst herstellt — einschließlich openSenseMap, der unten aufgeführten Geocoding-Dienste und der in Abschnitt 5 beschriebenen bunny.net-Webseite — wird die IP-Adresse Ihres Geräts im Rahmen der Netzwerkanfrage übertragen. Nach der DSGVO wird eine IP-Adresse in der Regel als personenbezogenes Datum betrachtet. Der jeweilige Dienstbetreiber verarbeitet diese Daten zur technischen Bereitstellung und kann sie gemäß seiner eigenen Datenschutzerklärung protokollieren. BoxViewer selbst übermittelt keine Telemetrie-, Analyse- oder Identifikationsdaten.
+Wann immer BoxViewer oder Ihr Browser eine Verbindung zu einem externen Dienst herstellt — einschließlich openSenseMap, der unten aufgeführten Geocoding-Dienste, der oben genannten Status-Seite und der in Abschnitt 5 beschriebenen bunny.net-Webseiten — wird die IP-Adresse Ihres Geräts im Rahmen der Netzwerkanfrage übertragen. Nach der DSGVO wird eine IP-Adresse in der Regel als personenbezogenes Datum betrachtet. Der jeweilige Dienstbetreiber verarbeitet diese Daten zur technischen Bereitstellung und kann sie gemäß seiner eigenen Datenschutzerklärung protokollieren. BoxViewer selbst übermittelt keine Telemetrie-, Analyse- oder Identifikationsdaten.
 
 ### 3. Standortdaten
 Wenn Sie BoxViewer die Freigabe des Standorts erlauben:

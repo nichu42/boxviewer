@@ -599,6 +599,10 @@ Si están presentes tanto PM2.5 como PM10, se informa automáticamente el valor 
     <string name="about_link_opensensemap">"Explorar: opensensemap.org"</string>
     <string name="about_link_sensebox">"Construir: sensebox.de"</string>
     <string name="about_link_betterplace">"Donar vía Betterplace"</string>
+    <string name="about_status_title">"System Status"</string>
+    <string name="about_status_description">"Is the openSenseMap API unreachable? Check whether the platform itself is having an outage — before troubleshooting the app or your connection."</string>
+    <string name="about_status_button">"View System Status"</string>
+    <string name="about_status_disclaimer">Status page by Lightkeeper OÜ (Phare, Estonia) · bunny.net (EU)</string>
 
     <!-- Library categories -->
     <string name="library_category_core_ui">"IU principal y arquitectura"</string>

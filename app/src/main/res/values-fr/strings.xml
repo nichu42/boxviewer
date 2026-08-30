@@ -599,6 +599,10 @@ Si PM2.5 et PM10 sont tous deux présents, la valeur d'indice la plus défavorab
     <string name="about_link_opensensemap">"Explorer : opensensemap.org"</string>
     <string name="about_link_sensebox">"Construire : sensebox.de"</string>
     <string name="about_link_betterplace">"Faire un don via Betterplace"</string>
+    <string name="about_status_title">"System Status"</string>
+    <string name="about_status_description">"Is the openSenseMap API unreachable? Check whether the platform itself is having an outage — before troubleshooting the app or your connection."</string>
+    <string name="about_status_button">"View System Status"</string>
+    <string name="about_status_disclaimer">Status page by Lightkeeper OÜ (Phare, Estonia) · bunny.net (EU)</string>
 
     <!-- Library categories -->
     <string name="library_category_core_ui">"Interface utilisateur principale et architecture"</string>
