@@ -15,9 +15,10 @@ object MemoryTrimmer {
     }
 
     fun trim(level: Int) {
+        // TRIM_MEMORY_BACKGROUND (40) already covers MODERATE (60) and COMPLETE (80),
+        // so we only need the background threshold plus UI_HIDDEN (20).
+        // This avoids referencing the deprecated MODERATE/COMPLETE constants.
         val aggressive = level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND
-                || level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE
-                || level >= ComponentCallbacks2.TRIM_MEMORY_COMPLETE
                 || level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN
 
         if (!aggressive) return
@@ -34,6 +35,14 @@ object MemoryTrimmer {
     }
 
     fun trimAllForLowMemory() {
-        trim(ComponentCallbacks2.TRIM_MEMORY_COMPLETE)
+        // onLowMemory() is more severe than any trim level — clear unconditionally
+        // without going through the level check (avoids TRIM_MEMORY_COMPLETE deprecated).
+        synchronized(callbacks) {
+            for (cb in callbacks) {
+                try { cb() } catch (_: Exception) { }
+            }
+        }
+        try { ApiLogger.responseCache.clear() } catch (_: Exception) { }
+        try { de.nichu42.boxviewer.data.repository.SenseBoxRepository.clearMemoryCaches() } catch (_: Exception) { }
     }
 }
