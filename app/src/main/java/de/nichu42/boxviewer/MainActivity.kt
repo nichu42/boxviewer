@@ -67,8 +67,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         LocaleHelper.applySavedLocale(this)
         installSplashScreen()
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        // Fully transparent navigation bar on 3-button mode (Android 15 default is translucent scrim).
+        // Matches developer.android.com “About system bar protection” guidance.
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
         ApiLogger.init(applicationContext)
 
         pendingBoxIdFromWidget.value = intent?.getStringExtra("box_id")

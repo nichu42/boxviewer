@@ -129,6 +129,7 @@ fun DiscoveryScreen(
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
                 .navigationBarsPadding()
+                .imePadding()
                 .background(MaterialTheme.colorScheme.background)
         ) {
             
