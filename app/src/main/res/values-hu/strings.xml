@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">"BoxViewer"</string>
 
     <!-- Language picker labels -->
@@ -12,7 +12,7 @@
     <string name="dashboard_empty_title">"Még nincsenek senseBoxok hozzáadva"</string>
     <string name="dashboard_empty_description">"Fedezd fel a nyilvános senseBoxokat és mentsd el könyvjelzőként, hogy testreszabd a műszerfaladat és a kezdőképernyő widgetjeit."</string>
     <string name="dashboard_empty_button">"senseBox hozzáadása"</string>
-    <string name="dashboard_info_title">"Mi az az openSenseMap?"</string>
+    <string name="dashboard_info_title" tools:ignore="Typos">"Mi az az openSenseMap?"</string>
     <string name="dashboard_info_description_1">"Az openSenseMap egy világszintű nyílt adatszolgáltató platform, ahol emberek ezrei osztanak meg környezeti adatokat saját időjárási állomásaikról (senseBoxok)."</string>
     <string name="dashboard_info_description_2">"A BoxViewer lehetővé teszi ezen közösségi állomások felfedezését, személyes műszerfalon történő mentését, sőt widgetként való hozzáadását is a kezdőképernyőhöz valós idejű figyeléshez az alkalmazás megnyitása nélkül."</string>
     <string name="dashboard_reorder_hint">"Nyomd meg és húzd meg a doboz fogantyúját a sorrend megváltoztatásához. Koppints a könyvjelző gombra egy doboz eltávolításához. Koppints a pipás gombra a mentéshez."</string>
@@ -589,7 +589,7 @@ Ha mind a PM2.5, mind a PM10 jelen van, automatikusan a legkedvezőtlenebb (maxi
     <string name="about_label_measurements">"Mérések"</string>
     <string name="about_active_rate_value">"%1$s/m"</string>
     <string name="about_label_active_rate">"Aktív arány"</string>
-    <string name="about_what_is_opensensemap">"Mi az az openSenseMap?"</string>
+    <string name="about_what_is_opensensemap" tools:ignore="Typos">"Mi az az openSenseMap?"</string>
     <string name="about_opensensemap_description">"Eredetileg a Münsteri Egyetem kutatási projektjeként indult openSenseMap a világ egyik legnagyobb közösségi üzemeltetésű szenzorhálózatává vált. Ingyenes platformot biztosít iskolák, egyetemek, kutatók és az érdeklődő polgárok számára, hogy valós időben közzétegyék a környezeti adatokat – mint például a levegőminőség, a hőmérséklet és a páratartalom –, és megosszák azokat nyílt adatként (Open Data)."</string>
     <string name="about_who_operates">"Ki üzemelteti?"</string>
     <string name="about_operator_description">"A platformot az openSenseLab gGmbH üzemelteti és tartja karban. Ez egy münsteri székhelyű non-profit szervezet, amely elkötelezett a digitális szuverenitás, az oktatás és a tudományos környezetmegfigyelésben való nyilvános részvétel mellett."</string>
@@ -601,7 +601,7 @@ Ha mind a PM2.5, mind a PM10 jelen van, automatikusan a legkedvezőtlenebb (maxi
     <string name="about_status_title">"System Status"</string>
     <string name="about_status_description">"Is the openSenseMap API unreachable? Check whether the platform itself is having an outage — before troubleshooting the app or your connection."</string>
     <string name="about_status_button">"View System Status"</string>
-    <string name="about_status_disclaimer">Status page by Lightkeeper OÜ (Phare, Estonia) · bunny.net (EU)</string>
+    <string name="about_status_disclaimer">Status page by Lightkeeper OÜ (Phare, Estonia)</string>
 
     <!-- Library categories -->
     <string name="library_category_core_ui">"Alapvető UI és architektúra"</string>

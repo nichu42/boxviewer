@@ -14,8 +14,8 @@ android {
     applicationId = "de.nichu42.boxviewer"
     minSdk = 24
     targetSdk = 37
-    versionCode = 20
-    versionName = "0.56"
+    versionCode = 21
+    versionName = "0.57"
   }
 
   signingConfigs {
@@ -137,5 +137,4 @@ dependencies {
   "ksp"(libs.androidx.room.compiler)
   "ksp"(libs.moshi.kotlin.codegen)
 }
-
 

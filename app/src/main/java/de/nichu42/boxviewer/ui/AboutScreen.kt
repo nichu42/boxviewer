@@ -705,57 +705,6 @@ fun AboutScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // System Status Link — external browser, tap-gated (no auto iframe)
-                    Text(
-                        text = stringResource(R.string.about_status_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.about_status_description),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 20.sp
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Button(
-                        onClick = {
-                            try {
-                                uriHandler.openUri("https://status.boxviewer.app")
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("link_status_page")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = stringResource(R.string.cd_website),
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stringResource(R.string.about_status_button),
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(R.string.about_status_disclaimer),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        lineHeight = 14.sp
-                    )
                 }
             }
 
@@ -1240,7 +1189,7 @@ fun ThirdPartyLicensesScreen(
             ThirdPartyLib(
                 name = "Phare Status Page",
                 author = "Lightkeeper OÜ (Phare), Estonia",
-                description = "Branded status page at status.boxviewer.app for openSenseMap outage visibility. Linked from the About screen; no request is made until the user taps the link.",
+                description = "Branded status page at status.boxviewer.app for openSenseMap outage visibility. Linked from Settings > API Debug Logging; no request is made until the user taps the link.",
                 licenseName = "Service — Terms & Privacy",
                 licenseText = "Service operated by Lightkeeper OÜ (Phare), Tallinn, Estonia. Status pages delivered via Bunny CDN (BunnyWay d.o.o., EU). Privacy policy: https://phare.io/legal/privacy-policy",
                 url = "https://phare.io/legal/privacy-policy",

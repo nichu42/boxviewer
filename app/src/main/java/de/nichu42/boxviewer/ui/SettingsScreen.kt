@@ -94,6 +94,7 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
+    val uriHandler = LocalUriHandler.current
     val clipboardScope = rememberCoroutineScope()
 
     val crashReportCopiedMsg = stringResource(R.string.settings_crash_report_copied)
@@ -234,7 +235,6 @@ fun SettingsScreen(
                     // Language picker
                     var currentLocale by remember { mutableStateOf(LocaleHelper.getSavedLocale(context)) }
                     var languageExpanded by remember { mutableStateOf(false) }
-                    val uriHandler = LocalUriHandler.current
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -953,6 +953,57 @@ fun SettingsScreen(
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = stringResource(R.string.about_status_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.about_status_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 20.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = {
+                            try {
+                                uriHandler.openUri("https://status.boxviewer.app")
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("link_status_page")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = stringResource(R.string.cd_website),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.about_status_button),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.about_status_disclaimer),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        lineHeight = 14.sp
+                    )
                 }
             }
             

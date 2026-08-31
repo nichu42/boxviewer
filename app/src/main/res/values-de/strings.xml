@@ -602,7 +602,7 @@ Wenn sowohl PM2.5 als auch PM10 vorhanden sind, wird automatisch der ungünstigs
     <string name="about_status_title">"System Status"</string>
     <string name="about_status_description">"Is the openSenseMap API unreachable? Check whether the platform itself is having an outage — before troubleshooting the app or your connection."</string>
     <string name="about_status_button">"View System Status"</string>
-    <string name="about_status_disclaimer">Status page by Lightkeeper OÜ (Phare, Estonia) · bunny.net (EU)</string>
+    <string name="about_status_disclaimer">Status page by Lightkeeper OÜ (Phare, Estonia)</string>
 
     <!-- Library categories -->
     <string name="library_category_core_ui">"Kern-UI &amp; Architektur"</string>

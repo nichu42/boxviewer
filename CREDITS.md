@@ -27,7 +27,7 @@ BoxViewer is built on open data platforms, open-source software, and creative co
 
 * **Phare Status Page**
   * **Operator:** Lightkeeper OÜ (Phare), Tallinn, Estonia — delivered via Bunny CDN (BunnyWay d.o.o., Slovenia, EU)
-  * **Description:** Branded status page at [status.boxviewer.app](https://status.boxviewer.app) linked from the About screen for openSenseMap outage visibility. No request is made until the user taps the link.
+  * **Description:** Branded status page at [status.boxviewer.app](https://status.boxviewer.app) linked from Settings > API Debug Logging for openSenseMap outage visibility. No request is made until the user taps the link.
   * **Privacy Policy:** [phare.io/legal/privacy-policy](https://phare.io/legal/privacy-policy) · CDN: [bunny.net/privacy](https://bunny.net/privacy) · [bunny.net/gdpr](https://bunny.net/gdpr)
 
 ---

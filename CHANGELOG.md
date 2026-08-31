@@ -4,6 +4,16 @@ All notable changes to the BoxViewer project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.57] - 2026-08-31
+
+### Changed
+- **System Status Placement**: Moved the in-app System Status link from About to Settings → API Debug Logging. Updated related documentation and credits.
+- **Dependency Updates**: Updated Navigation Compose from 2.9.8 to 2.10.0 and the Roborazzi testing dependencies from 1.72.0 to 1.73.0.
+
+### Fixed
+- **API Debug Log Resilience**: Hardened API log parsing, filtering, statistics, and detail rendering against corrupted entries and unexpected null fields. This should fix a crash that could have occured.
+- **Memory Trimming**: Removed deprecated memory trim constants and ensured severe low-memory callbacks clear registered and repository caches directly.
+
 ## [0.56] - 2026-08-30
 
 ### Added

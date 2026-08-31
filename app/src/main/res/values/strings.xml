@@ -608,7 +608,7 @@ If both PM2.5 and PM10 exist, it automatically reports the worst-case (maximum) 
     <string name="about_status_title">"System Status"</string>
     <string name="about_status_description">"Is the openSenseMap API unreachable? Check whether the platform itself is having an outage — before troubleshooting the app or your connection."</string>
     <string name="about_status_button">"View System Status"</string>
-    <string name="about_status_disclaimer">Status page by Lightkeeper OÜ (Phare, Estonia) · bunny.net (EU)</string>
+    <string name="about_status_disclaimer">Status page by Lightkeeper OÜ (Phare, Estonia)</string>
 
     <!-- Library categories -->
     <string name="library_category_core_ui">"Core UI &amp; Architecture"</string>
