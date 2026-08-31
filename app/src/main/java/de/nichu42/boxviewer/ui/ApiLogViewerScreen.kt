@@ -58,7 +58,7 @@ fun ApiLogViewerScreen(
     val responseCopiedMsg = stringResource(R.string.api_log_response_copied)
     val entryCopiedMsg = stringResource(R.string.api_log_entry_copied)
 
-    var diagnostics by remember { mutableStateOf<Map<String, Any>?>(null) }
+    var diagnostics by remember { mutableStateOf<Map<String, Any?>?>(null) }
     var logEntries by remember { mutableStateOf<List<ApiLogger.ApiLogEntry>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -91,30 +91,41 @@ fun ApiLogViewerScreen(
         reloadLogs()
     }
 
-    // Filter logic
+    // Filter logic — null-safe: corrupted entries with null fields are filtered in parseLogs,
+    // but guard here defensively so a single bad entry never crashes the viewer (NPE getClass).
     val filteredEntries = remember(logEntries, searchQuery, selectedMethodFilter, selectedStatusFilter) {
         logEntries.filter { entry ->
-            val matchesSearch = if (searchQuery.isBlank()) true else {
-                entry.url.contains(searchQuery, ignoreCase = true) ||
-                        (entry.responseJson?.contains(searchQuery, ignoreCase = true) ?: false) ||
-                        (entry.error?.contains(searchQuery, ignoreCase = true) ?: false) ||
-                        entry.status.toString().contains(searchQuery)
+            try {
+                val url = (entry.url as? String).orEmpty()
+                val method = (entry.method as? String).orEmpty()
+                val error = entry.error as? String
+                val responseJson = entry.responseJson as? String
+                // status and durationMs are primitives; if they were null via unsafe reflection they'd have already thrown
+                val status = try { entry.status } catch (_: Exception) { 0 }
+                val matchesSearch = if (searchQuery.isBlank()) true else {
+                    url.contains(searchQuery, ignoreCase = true) ||
+                            (responseJson?.contains(searchQuery, ignoreCase = true) ?: false) ||
+                            (error?.contains(searchQuery, ignoreCase = true) ?: false) ||
+                            status.toString().contains(searchQuery)
+                }
+                val matchesMethod = when (selectedMethodFilter) {
+                    "All" -> true
+                    "GET" -> method.equals("GET", ignoreCase = true)
+                    "POST" -> method.equals("POST", ignoreCase = true)
+                    else -> true
+                }
+                val matchesStatus = when (selectedStatusFilter) {
+                    "All" -> true
+                    "Success (2xx)" -> status in 200..299
+                    "Client Error (4xx)" -> status in 400..499
+                    "Server Error (5xx)" -> status in 500..599
+                    "Failed/Exceptions" -> status == 0 || error != null
+                    else -> true
+                }
+                matchesSearch && matchesMethod && matchesStatus
+            } catch (_: Exception) {
+                false // skip corrupted entry
             }
-            val matchesMethod = when (selectedMethodFilter) {
-                "All" -> true
-                "GET" -> entry.method.equals("GET", ignoreCase = true)
-                "POST" -> entry.method.equals("POST", ignoreCase = true)
-                else -> true
-            }
-            val matchesStatus = when (selectedStatusFilter) {
-                "All" -> true
-                "Success (2xx)" -> entry.status in 200..299
-                "Client Error (4xx)" -> entry.status in 400..499
-                "Server Error (5xx)" -> entry.status in 500..599
-                "Failed/Exceptions" -> entry.status == 0 || entry.error != null
-                else -> true
-            }
-            matchesSearch && matchesMethod && matchesStatus
         }
     }
 
@@ -280,7 +291,7 @@ fun ApiLogViewerScreen(
 
 @Composable
 fun DiagnosticsCollapsiblePanel(
-    diagnostics: Map<String, Any>,
+    diagnostics: Map<String, Any?>,
     isExpanded: Boolean,
     onToggle: () -> Unit
 ) {
@@ -363,20 +374,34 @@ fun StatsCollapsiblePanel(
     isExpanded: Boolean,
     onToggle: () -> Unit
 ) {
+    // Defensive: any corrupted entry with null status/durationMs (via unsafe reflection)
+    // must not crash stats (NPE getClass on null unboxing).
     val total = entries.size
-    val successes = entries.count { it.status in 200..299 }
-    val clientErrors = entries.count { it.status in 400..499 }
-    val serverErrors = entries.count { it.status in 500..599 }
-    val exceptions = entries.count { it.status == 0 || it.error != null }
+    val successes = entries.count { try { val s = it.status as? Int ?: 0; s in 200..299 } catch (_: Exception) { false } }
+    val clientErrors = entries.count { try { val s = it.status as? Int ?: 0; s in 400..499 } catch (_: Exception) { false } }
+    val serverErrors = entries.count { try { val s = it.status as? Int ?: 0; s in 500..599 } catch (_: Exception) { false } }
+    val exceptions = entries.count { try { val s = it.status as? Int ?: 0; s == 0 || (it.error as? String) != null } catch (_: Exception) { true } }
     val successRate = if (total > 0) (successes.toFloat() / total * 100).toInt() else 100
-    val avgLatency = if (total > 0) entries.map { it.durationMs }.average().toInt() else 0
+    val avgLatency = if (total > 0) try {
+        entries.map { try { it.durationMs as? Long ?: 0L } catch (_: Exception) { 0L } }.average().toInt()
+    } catch (_: Exception) { 0 } else 0
 
-    // Top endpoints
+    // Top endpoints — null-safe: a single corrupted entry with null url/method must not crash the viewer.
+    // parseLogs already filters, but guard here for defense in depth (NPE getClass on null).
     val topEndpoints = remember(entries) {
-        entries.groupBy {
+        // Pre-filter to only valid entries; corrupted ones are ignored for stats.
+        val validEntries = entries.filter {
             try {
-                val path = URL(it.url).path
-                // Clean path to show generic stats
+                val u = (it.url as? String)
+                !u.isNullOrBlank()
+            } catch (_: Exception) { false }
+        }
+        if (validEntries.isEmpty()) emptyList()
+        else validEntries.groupBy { entry ->
+            val rawUrl = try { (entry.url as? String).orEmpty().ifBlank { "unknown" } } catch (_: Exception) { "unknown" }
+            try {
+                val rawPath = try { URL(rawUrl).path } catch (_: Exception) { null }
+                val path = rawPath?.takeIf { it.isNotBlank() } ?: rawUrl
                 if (path.startsWith("/boxes/")) {
                     val parts = path.split("/")
                     if (parts.size > 2 && parts[2].length >= 24) { // senseBox ID length
@@ -388,10 +413,14 @@ fun StatsCollapsiblePanel(
                     path
                 }
             } catch (e: Exception) {
-                it.url
+                rawUrl
             }
         }.map { (path, pathEntries) ->
-            Triple(path, pathEntries.size, pathEntries.map { it.durationMs }.average().toInt())
+            val safePath = path?.takeIf { it.isNotBlank() } ?: "unknown"
+            val avg = try {
+                pathEntries.map { try { it.durationMs } catch (_: Exception) { 0L } }.average().toInt()
+            } catch (_: Exception) { 0 }
+            Triple(safePath, pathEntries.size, avg)
         }.sortedByDescending { it.second }.take(3)
     }
 
@@ -553,6 +582,9 @@ fun StatsCollapsiblePanel(
                             ) {
                                 Column(modifier = Modifier.padding(8.dp)) {
                                     topEndpoints.forEachIndexed { index, (path, count, lat) ->
+                                        // Defensive: path is non-null String from Triple, but guard against
+                                        // blank/corrupted values that could be empty after filtering.
+                                        val displayPath = try { (path as? String).orEmpty().ifBlank { "unknown" } } catch (_: Exception) { "unknown" }
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -561,7 +593,7 @@ fun StatsCollapsiblePanel(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Text(
-                                                text = path,
+                                                text = displayPath,
                                                 style = MaterialTheme.typography.bodySmall,
                                                 fontFamily = FontFamily.Monospace,
                                                 maxLines = 1,
@@ -758,13 +790,22 @@ fun ApiLogEntryRow(
     entry: ApiLogger.ApiLogEntry,
     onClick: () -> Unit
 ) {
-    val methodColor = when (entry.method.uppercase()) {
+    // Defensive: method/url/timestamp may be null at runtime if log file was corrupted
+    // (Moshi can inject null into non-null Kotlin fields via reflection). Guard every access.
+    val safeMethod = try { (entry.method as? String).orEmpty().ifBlank { "UNKNOWN" } } catch (_: Exception) { "UNKNOWN" }
+    val safeStatus = try { entry.status as? Int ?: 0 } catch (_: Exception) { 0 }
+    val safeTimestamp = try { (entry.timestamp as? String).orEmpty().ifBlank { "unknown" } } catch (_: Exception) { "unknown" }
+    val safeDuration = try { entry.durationMs as? Long ?: 0L } catch (_: Exception) { 0L }
+    val safeError = try { entry.error as? String } catch (_: Exception) { null }
+    val safeUrl = try { (entry.url as? String).orEmpty().ifBlank { "unknown" } } catch (_: Exception) { "unknown" }
+
+    val methodColor = when (safeMethod.uppercase()) {
         "GET" -> Color(0xFF4CAF50)
         "POST" -> Color(0xFF2196F3)
         else -> Color(0xFF757575)
     }
 
-    val statusColor = when (entry.status) {
+    val statusColor = when (safeStatus) {
         in 200..299 -> Color(0xFF4CAF50)
         in 400..499 -> Color(0xFFFF9800)
         in 500..599 -> Color(0xFFF44336)
@@ -772,14 +813,14 @@ fun ApiLogEntryRow(
     }
 
     // Clean endpoint display
-    val cleanUrl = remember(entry.url) {
+    val cleanUrl = remember(safeUrl) {
         try {
-            val urlObj = URL(entry.url)
-            val path = urlObj.path
+            val urlObj = URL(safeUrl)
+            val path = urlObj.path?.takeIf { it.isNotBlank() } ?: safeUrl
             val query = urlObj.query
             if (query != null) "$path?$query" else path
         } catch (e: Exception) {
-            entry.url
+            safeUrl
         }
     }
 
@@ -813,7 +854,7 @@ fun ApiLogEntryRow(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = entry.method.uppercase(),
+                        text = safeMethod.uppercase(),
                         color = methodColor,
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp
@@ -829,7 +870,7 @@ fun ApiLogEntryRow(
                         .padding(vertical = 3.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    val statusText = if (entry.status > 0) entry.status.toString() else "ERR"
+                    val statusText = if (safeStatus > 0) safeStatus.toString() else "ERR"
                     Text(
                         text = statusText,
                         color = statusColor,
@@ -857,21 +898,21 @@ fun ApiLogEntryRow(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = entry.timestamp,
+                        text = safeTimestamp,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "${entry.durationMs} ms",
+                        text = "${safeDuration} ms",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Bold
                     )
                 }
-                if (entry.error != null) {
+                if (safeError != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = entry.error,
+                        text = safeError,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                         maxLines = 1,
@@ -891,40 +932,51 @@ fun ApiLogDetailView(
     onCopyAll: (String) -> Unit
 ) {
     val ctx = LocalContext.current
-    val methodColor = when (entry.method.uppercase()) {
+    // Defensive: entry fields may be null at runtime if file was corrupted (Moshi unsafe reflection)
+    val safeMethod = try { (entry.method as? String).orEmpty().ifBlank { "UNKNOWN" } } catch (_: Exception) { "UNKNOWN" }
+    val safeStatus = try { entry.status as? Int ?: 0 } catch (_: Exception) { 0 }
+    val safeUrl = try { (entry.url as? String).orEmpty().ifBlank { "unknown" } } catch (_: Exception) { "unknown" }
+    val safeTimestamp = try { (entry.timestamp as? String).orEmpty().ifBlank { "unknown" } } catch (_: Exception) { "unknown" }
+    val safeDuration = try { entry.durationMs as? Long ?: 0L } catch (_: Exception) { 0L }
+    val safeAppState = try { (entry.appState as? String).orEmpty().ifBlank { "unknown" } } catch (_: Exception) { "unknown" }
+    val safeError = try { entry.error as? String } catch (_: Exception) { null }
+    val safeParsingResult = try { entry.parsingResult as? String } catch (_: Exception) { null }
+    val safeResponseJson = try { entry.responseJson as? String } catch (_: Exception) { null }
+
+    val methodColor = when (safeMethod.uppercase()) {
         "GET" -> Color(0xFF4CAF50)
         "POST" -> Color(0xFF2196F3)
         else -> Color(0xFF757575)
     }
 
-    val statusColor = when (entry.status) {
+    val statusColor = when (safeStatus) {
         in 200..299 -> Color(0xFF4CAF50)
         in 400..499 -> Color(0xFFFF9800)
         in 500..599 -> Color(0xFFF44336)
         else -> Color(0xFFF44336)
     }
 
-    val prettyJson = remember(entry.responseJson) {
-        formatJson(entry.responseJson)
+    val prettyJson = remember(safeResponseJson) {
+        formatJson(safeResponseJson)
     }
 
-    val helpMessage = remember(entry.status, entry.error) {
-        getTroubleshootingHelp(ctx, entry.status, entry.error)
+    val helpMessage = remember(safeStatus, safeError) {
+        getTroubleshootingHelp(ctx, safeStatus, safeError)
     }
 
-    val logSummaryText = remember(entry, prettyJson) {
+    val logSummaryText = remember(entry, prettyJson, safeMethod, safeStatus, safeUrl, safeTimestamp, safeDuration, safeAppState, safeError, safeParsingResult) {
         buildString {
-            appendLine("METHOD: ${entry.method}")
-            appendLine("STATUS: ${entry.status}")
-            appendLine("URL: ${entry.url}")
-            appendLine("TIMESTAMP: ${entry.timestamp}")
-            appendLine("DURATION: ${entry.durationMs} ms")
-            appendLine("APP STATE: ${entry.appState}")
-            if (entry.error != null) {
-                appendLine("ERROR: ${entry.error}")
+            appendLine("METHOD: $safeMethod")
+            appendLine("STATUS: $safeStatus")
+            appendLine("URL: $safeUrl")
+            appendLine("TIMESTAMP: $safeTimestamp")
+            appendLine("DURATION: $safeDuration ms")
+            appendLine("APP STATE: $safeAppState")
+            if (safeError != null) {
+                appendLine("ERROR: $safeError")
             }
-            if (entry.parsingResult != null) {
-                appendLine("PARSING METRICS: ${entry.parsingResult}")
+            if (safeParsingResult != null) {
+                appendLine("PARSING METRICS: $safeParsingResult")
             }
             appendLine("RESPONSE BODY:")
             appendLine(prettyJson)
@@ -964,7 +1016,7 @@ fun ApiLogDetailView(
                                     .background(methodColor.copy(alpha = 0.15f))
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
-                                Text(entry.method.uppercase(), color = methodColor, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                Text(safeMethod.uppercase(), color = methodColor, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Box(
@@ -974,7 +1026,7 @@ fun ApiLogDetailView(
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
                                 Text(
-                                    text = if (entry.status > 0) stringResource(R.string.api_log_status_format, entry.status) else stringResource(R.string.api_log_network_error),
+                                    text = if (safeStatus > 0) stringResource(R.string.api_log_status_format, safeStatus) else stringResource(R.string.api_log_network_error),
                                     color = statusColor,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 12.sp
@@ -982,7 +1034,7 @@ fun ApiLogDetailView(
                             }
                             Spacer(modifier = Modifier.weight(1f))
                             Text(
-                                text = "${entry.durationMs} ms",
+                                text = "${safeDuration} ms",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -994,7 +1046,7 @@ fun ApiLogDetailView(
                             Text(stringResource(R.string.api_log_label_request_url), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             SelectionContainer {
                                 Text(
-                                    text = entry.url,
+                                    text = safeUrl,
                                     style = MaterialTheme.typography.bodySmall,
                                     fontFamily = FontFamily.Monospace,
                                     modifier = Modifier.padding(top = 2.dp)
@@ -1008,11 +1060,11 @@ fun ApiLogDetailView(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(stringResource(R.string.api_log_label_timestamp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text(entry.timestamp, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 2.dp))
+                                Text(safeTimestamp, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 2.dp))
                             }
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(stringResource(R.string.api_log_label_app_state), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text(entry.appState, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 2.dp))
+                                Text(safeAppState, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 2.dp))
                             }
                         }
                     }
@@ -1020,7 +1072,7 @@ fun ApiLogDetailView(
             }
 
             // Error Message Card (if error present)
-            if (entry.error != null) {
+            if (safeError != null) {
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -1030,7 +1082,7 @@ fun ApiLogDetailView(
                             Text(stringResource(R.string.api_log_label_network_exception), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onErrorContainer, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
                             SelectionContainer {
-                                Text(entry.error, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
+                                Text(safeError ?: "", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
                             }
                         }
                     }
@@ -1074,7 +1126,7 @@ fun ApiLogDetailView(
             }
 
             // Parsing metrics if present
-            if (entry.parsingResult != null) {
+            if (safeParsingResult != null) {
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -1084,7 +1136,7 @@ fun ApiLogDetailView(
                             Text(stringResource(R.string.api_log_label_parsing_result), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(modifier = Modifier.height(4.dp))
                             SelectionContainer {
-                                Text(entry.parsingResult, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
+                                Text(safeParsingResult ?: "", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
                             }
                         }
                     }
@@ -1131,7 +1183,7 @@ fun ApiLogDetailView(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             OutlinedButton(
-                onClick = { onCopyUrl(entry.url) },
+                onClick = { onCopyUrl(safeUrl) },
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.weight(1f)
             ) {
@@ -1139,7 +1191,7 @@ fun ApiLogDetailView(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(stringResource(R.string.api_log_copy_url), fontSize = 11.sp)
             }
-            if (entry.responseJson != null) {
+            if (safeResponseJson != null) {
                 OutlinedButton(
                     onClick = { onCopyResponse(prettyJson) },
                     shape = RoundedCornerShape(8.dp),

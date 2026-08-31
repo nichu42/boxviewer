@@ -257,15 +257,17 @@ object ApiLogger {
         }
     }
 
-    suspend fun parseLogs(): Pair<Map<String, Any>?, List<ApiLogEntry>> {
+    suspend fun parseLogs(): Pair<Map<String, Any?>?, List<ApiLogEntry>> {
         return mutex.withLock {
             val context = appContext ?: return@withLock Pair(null, emptyList())
             val file = File(context.filesDir, FILE_NAME)
             if (!file.exists()) return@withLock Pair(null, emptyList())
 
-            updateOrEnsureHeader(file)
+            try {
+                updateOrEnsureHeader(file)
+            } catch (_: Exception) { /* header rewrite must never crash viewer */ }
 
-            val diagnostics = mutableMapOf<String, Any>()
+            val diagnostics = mutableMapOf<String, Any?>()
             val entries = mutableListOf<ApiLogEntry>()
 
             try {
@@ -274,9 +276,12 @@ object ApiLogger {
                     if (line.contains("\"type\":\"diagnostics\"") || line.contains("\"type\" : \"diagnostics\"")) {
                         try {
                             @Suppress("UNCHECKED_CAST")
-                            val map = moshi.adapter(Map::class.java).fromJson(line) as? Map<String, Any>
+                            val map = moshi.adapter(Map::class.java).fromJson(line) as? Map<String, Any?>
                             if (map != null) {
-                                diagnostics.putAll(map)
+                                // Filter out null keys if any and keep nullable values
+                                for ((k, v) in map) {
+                                    if (k != null) diagnostics[k] = v
+                                }
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -285,7 +290,22 @@ object ApiLogger {
                         try {
                             val entry = entryAdapter.fromJson(line)
                             if (entry != null) {
-                                entries.add(entry)
+                                // Validate required non-null fields — Moshi normally rejects nulls,
+                                // but a corrupted file or old version could have been written with nulls
+                                // via reflection / manual edit. Filter aggressively to avoid NPE in UI.
+                                try {
+                                    val hasValidTimestamp = (entry.timestamp as? String)?.isNotBlank() == true
+                                    val hasValidAppState = (entry.appState as? String)?.isNotBlank() == true
+                                    val hasValidMethod = (entry.method as? String)?.isNotBlank() == true
+                                    val hasValidUrl = (entry.url as? String)?.isNotBlank() == true
+                                    // status and durationMs are primitives — if they were null via reflection
+                                    // the Kotlin object would already have thrown, so just check presence
+                                    if (hasValidTimestamp && hasValidAppState && hasValidMethod && hasValidUrl) {
+                                        entries.add(entry)
+                                    }
+                                } catch (_: Exception) {
+                                    // Any NPE from getClass on null means corrupted entry — skip it
+                                }
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
