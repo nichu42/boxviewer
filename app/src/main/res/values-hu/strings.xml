@@ -617,11 +617,11 @@ Ha mind a PM2.5, mind a PM10 jelen van, automatikusan a legkedvezőtlenebb (maxi
     <string name="settings_text_scale_double">"200%% (Dupla)"</string>
     <string name="cd_contribute_translations">"Fordítások hozzájárulása"</string>
     <string name="translation_contrib_title">"Segíts a BoxViewer fordításában"</string>
-    <string name="translation_contrib_message">"Segíthetsz a BoxViewer fordításában, javítások beküldésében vagy új nyelvek hozzáadásában! Kattints alább a nyilvános POEditor fordítási portál megtekintéséhez, vagy olvasd el a GitHub CONTRIBUTING.md fájlját a részletekért."</string>
-    <string name="translation_contrib_button">"Segítség a fordításban (POEditor)"</string>
+    <string name="translation_contrib_message">"Segíthetsz a BoxViewer fordításában, javítások beküldésében vagy új nyelvek hozzáadásában! A részletekért olvasd el a GitHub CONTRIBUTING.md fájlját."</string>
+    <string name="translation_contrib_button">"Segítség a fordításban (GitHub)"</string>
     <string name="about_section_translation">"FORDÍTÁS ÉS LOKALIZÁCIÓ"</string>
-    <string name="about_translation_description">"Segíts a BoxViewer új nyelvekre történő lefordításában vagy a meglévő fordítások javításában! A POEditor-t használjuk a fordítói közösségünk közösségi kezelésére."</string>
-    <string name="about_link_translate">"Közreműködés a fordításban (POEditor)"</string>
+    <string name="about_translation_description">"Segíts a BoxViewer új nyelvekre történő lefordításában vagy a meglévő fordítások javításában! A fordításokat közvetlenül a GitHub-tárolónkban kezeljük."</string>
+    <string name="about_link_translate">"Közreműködés a fordításban (GitHub)"</string>
     <string name="language_czech">"Cseh"</string>
     <string name="language_french">"Francia"</string>
     <string name="language_hungarian">"Magyar"</string>

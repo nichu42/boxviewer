@@ -254,7 +254,7 @@ def build_support_html(support_md: str) -> str:
 
 
 def build_translation_html(translation_md: str) -> str:
-    return "<p>Help make BoxViewer accessible to everyone! We collaboratively translate the app using <strong>POEditor</strong>. You can submit translations, corrections, or suggest new languages:</p>"
+    return "<p>Help make BoxViewer accessible to everyone! Translations are managed directly in this repository. You can submit translations, corrections, or suggest new languages via a Pull Request — see CONTRIBUTING.md for the translation guidelines:</p>"
 
 
 def build_disclaimer_html(disclaimer_md: str) -> str:

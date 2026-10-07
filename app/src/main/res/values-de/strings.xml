@@ -618,11 +618,11 @@ Wenn sowohl PM2.5 als auch PM10 vorhanden sind, wird automatisch der ungünstigs
     <string name="settings_text_scale_double">"200%% (Doppelt)"</string>
     <string name="cd_contribute_translations">"Übersetzungen beitragen"</string>
     <string name="translation_contrib_title">"BoxViewer übersetzen helfen"</string>
-    <string name="translation_contrib_message">"Du kannst helfen, BoxViewer zu übersetzen, Korrekturen einzureichen oder neue Sprachen hinzuzufügen! Klicke unten, um das öffentliche POEditor-Übersetzungsportal zu besuchen, oder lies unsere GitHub CONTRIBUTING.md für Details."</string>
-    <string name="translation_contrib_button">"Beim Übersetzen helfen (POEditor)"</string>
+    <string name="translation_contrib_message">"Du kannst helfen, BoxViewer zu übersetzen, Korrekturen einzureichen oder neue Sprachen hinzuzufügen! Lies unsere GitHub CONTRIBUTING.md für Details."</string>
+    <string name="translation_contrib_button">"Beim Übersetzen helfen (GitHub)"</string>
     <string name="about_section_translation">"ÜBERSETZUNG &amp; LOKALISIERUNG"</string>
-    <string name="about_translation_description">"Helfe mit, BoxViewer in neue Sprachen zu übersetzen oder bestehende Übersetzungen zu korrigieren! Wir nutzen POEditor zur gemeinschaftlichen Verwaltung unserer Übersetzungs-Community."</string>
-    <string name="about_link_translate">"Mithelfen beim Übersetzen (POEditor)"</string>
+    <string name="about_translation_description">"Helfe mit, BoxViewer in neue Sprachen zu übersetzen oder bestehende Übersetzungen zu korrigieren! Wir verwalten Übersetzungen direkt in unserem GitHub-Repository."</string>
+    <string name="about_link_translate">"Mithelfen beim Übersetzen (GitHub)"</string>
     <string name="language_czech">"Tschechisch"</string>
     <string name="language_french">"Französisch"</string>
     <string name="language_hungarian">"Ungarisch"</string>

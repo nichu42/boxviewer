@@ -618,11 +618,11 @@ Jeśli obecne są zarówno PM2.5, jak i PM10, automatycznie zgłaszany jest najm
     <string name="settings_text_scale_double">"200%% (Podwójny)"</string>
     <string name="cd_contribute_translations">"Współtwórz tłumaczenia"</string>
     <string name="translation_contrib_title">"Pomóż przetłumaczyć BoxViewer"</string>
-    <string name="translation_contrib_message">"Możesz pomóc przetłumaczyć BoxViewer, przesłać poprawki lub dodać nowe języki! Kliknij poniżej, aby odwiedzić publiczny portal tłumaczeń POEditor lub przeczytaj nasz plik CONTRIBUTING.md na GitHubie, aby uzyskać szczegóły."</string>
-    <string name="translation_contrib_button">"Pomóż w tłumaczeniu (POEditor)"</string>
+    <string name="translation_contrib_message">"Możesz pomóc przetłumaczyć BoxViewer, przesłać poprawki lub dodać nowe języki! Szczegóły znajdziesz w naszym pliku CONTRIBUTING.md na GitHubie."</string>
+    <string name="translation_contrib_button">"Pomóż w tłumaczeniu (GitHub)"</string>
     <string name="about_section_translation">"TŁUMACZENIE I LOKALIZACJA"</string>
-    <string name="about_translation_description">"Pomóż przetłumaczyć BoxViewer na nowe języki lub poprawić istniejące tłumaczenia! Używamy POEditora do wspólnego zarządzania naszą społecznością tłumaczy."</string>
-    <string name="about_link_translate">"Pomóż w tłumaczeniu (POEditor)"</string>
+    <string name="about_translation_description">"Pomóż przetłumaczyć BoxViewer na nowe języki lub poprawić istniejące tłumaczenia! Tłumaczeniami zarządzamy bezpośrednio w naszym repozytorium GitHub."</string>
+    <string name="about_link_translate">"Pomóż w tłumaczeniu (GitHub)"</string>
     <string name="language_czech">"Czeski"</string>
     <string name="language_french">"Francuski"</string>
     <string name="language_hungarian">"Węgierski"</string>

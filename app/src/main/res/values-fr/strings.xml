@@ -618,11 +618,11 @@ Si PM2.5 et PM10 sont tous deux présents, la valeur d'indice la plus défavorab
     <string name="settings_text_scale_double">"200 %% (Double)"</string>
     <string name="cd_contribute_translations">"Contribuer aux traductions"</string>
     <string name="translation_contrib_title">"Aider à traduire BoxViewer"</string>
-    <string name="translation_contrib_message">"Vous pouvez aider à traduire BoxViewer, soumettre des corrections ou ajouter de nouvelles langues ! Cliquez ci-dessous pour visiter le portail de traduction public POEditor, ou lisez notre fichier CONTRIBUTING.md sur GitHub pour plus de détails."</string>
-    <string name="translation_contrib_button">"Aider à la traduction (POEditor)"</string>
+    <string name="translation_contrib_message">"Vous pouvez aider à traduire BoxViewer, soumettre des corrections ou ajouter de nouvelles langues ! Lisez notre fichier CONTRIBUTING.md sur GitHub pour plus de détails."</string>
+    <string name="translation_contrib_button">"Aider à la traduction (GitHub)"</string>
     <string name="about_section_translation">"TRADUCTION ET LOCALISATION"</string>
-    <string name="about_translation_description">"Aidez à traduire BoxViewer dans de nouvelles langues ou à corriger les traductions existantes ! Nous utilisons POEditor pour gérer notre communauté de traduction collaborative."</string>
-    <string name="about_link_translate">"Participer à la traduction (POEditor)"</string>
+    <string name="about_translation_description">"Aidez à traduire BoxViewer dans de nouvelles langues ou à corriger les traductions existantes ! Nous gérons les traductions directement dans notre dépôt GitHub."</string>
+    <string name="about_link_translate">"Participer à la traduction (GitHub)"</string>
     <string name="language_czech">"tchèque"</string>
     <string name="language_french">"français"</string>
     <string name="language_hungarian">"hongrois"</string>

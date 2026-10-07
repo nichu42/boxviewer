@@ -275,7 +275,7 @@ fun SettingsScreen(
                                                 onClick = {
                                                     showInfoDialog = false
                                                     try {
-                                                        uriHandler.openUri("https://poeditor.com/join/project/3BO0G8m3BZ")
+                                                        uriHandler.openUri("https://github.com/nichu42/boxviewer/blob/main/CONTRIBUTING.md#translations--localization")
                                                     } catch (e: Exception) {
                                                         e.printStackTrace()
                                                     }

@@ -383,7 +383,7 @@ fun AboutScreen(
                     Button(
                         onClick = {
                             try {
-                                uriHandler.openUri("https://poeditor.com/join/project/3BO0G8m3BZ")
+                                uriHandler.openUri("https://github.com/nichu42/boxviewer/blob/main/CONTRIBUTING.md#translations--localization")
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
@@ -393,7 +393,7 @@ fun AboutScreen(
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         ),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("link_poeditor")
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("link_translate")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Language,

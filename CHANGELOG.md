@@ -4,6 +4,9 @@ All notable changes to the BoxViewer project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Repository-Based Localization**: Switched translation management from POEditor to direct repository contributions via Pull Requests. Updated in-app translation dialogs (Settings and About), documentation (`README.md`, `CONTRIBUTING.md`), and website links to direct contributors to GitHub.
+
 ## [0.57] - 2026-08-31
 
 ### Changed

@@ -123,8 +123,8 @@ The debug variant uses a debug keystore and does not require any signing setup.
 app/
   src/main/java/de/nichu42/boxviewer/   # Kotlin source (single-module app)
   src/main/res/                          # Layouts, drawables, strings, themes
-  src/main/res/values/                   # English strings (default)
-  src/main/res/values-de/                # German translations
+  src/main/res/values/                   # English strings (canonical default)
+  src/main/res/values-<lang>/            # Translated strings (cs, de, es, fr, hu, it, nl, pl)
   src/test/                              # Local JVM unit tests (JUnit, Robolectric, Roborazzi)
 gradle/libs.versions.toml                # Version catalog — all dependency pins live here
 ```
@@ -146,27 +146,17 @@ If you want to add a real linter (ktlint is the most popular choice) as a separa
 
 ## Translations / Localization
 
-BoxViewer uses **POEditor** to collaboratively manage app translations. We welcome contributions for correcting existing strings or translating the app into new languages. 
+Translations are managed directly in this repository — there is no external translation platform. We welcome contributions for correcting existing strings, keeping translations in sync, or translating the app into new languages via Pull Request.
 
-### ✍️ How Translation Synchronization Works
-BoxViewer uses **POEditor** with GitHub integration and Google Gemini AI translation:
-1. **Adding New Strings (Code Changes):** Developers only add new string keys to the primary English file (`app/src/main/res/values/strings.xml`).
-2. **Automated Translation & Sync:** POEditor imports new English terms from GitHub, auto-translates them into all supported languages using Google Gemini, and automatically commits all language XML files (including English) back to the GitHub repository.
-3. **Editing Existing Strings:** Copy edits or corrections can be made directly in POEditor (for any language, including English). POEditor commits these changes back to GitHub, so contributors should run `git pull` locally to stay up-to-date.
-4. **Join the Translation Project**: Visit our public join portal on POEditor to contribute or refine translations:
-   👉 **[Translate BoxViewer on POEditor](https://poeditor.com/join/project/3BO0G8m3BZ)**.
+### 🛠️ Translation Guidelines
 
-*Alternatively, if you prefer editing XML resources directly, you can submit a Pull Request following the guidelines below:*
-
-### 🛠️ Manual Translation Guidelines (via XML)
-1. **Adding a new language:** copy `app/src/main/res/values/strings.xml` to `app/src/main/res/values-<lang>/strings.xml` (e.g., `values-fr/`, `values-es/`, `values-nl/`) and translate every string. The `<lang>` code follows Android's standard ISO 639-1 conventions. Do **not** add a new language by editing the existing `values-de/` directory.
-2. **Improving an existing translation:** edit the file directly in the appropriate `values-<lang>/` directory.
-3. **Do not translate keys, only values.** String keys (`R.string.dashboard_title`, etc.) are referenced from Kotlin code and must stay identical.
-4. **Preserve placeholders.** If a string contains `%1$s`, `%1$d`, or similar, keep the placeholder structure intact in the translation. The order of placeholders is meaningful in some languages — translate around the placeholders rather than reordering them.
-5. **Plural forms.** For strings with quantities, prefer Android's `<plurals>` element over hard-coded singular/plural variants. If you add a new plural string, reference the `getQuantityString` API.
-6. **Run the build** with your new translation directory in place to make sure nothing references a missing string key: `./gradlew assembleDebug`.
-
-If you are not a native speaker, mark the PR with `[i18n]` in the title and note your language proficiency in the description. Native-speaker review is the maintainer's responsibility.
+1. **Adding new strings (code changes):** Add new string keys to the canonical English file (`app/src/main/res/values/strings.xml`) and, where possible, provide matching translations in the other `values-<lang>/strings.xml` files in the same PR.
+2. **Improving an existing translation:** Edit strings directly in the appropriate `values-<lang>/strings.xml` directory (e.g., `values-de/`, `values-fr/`, etc.).
+3. **Adding a new language:** Copy `app/src/main/res/values/strings.xml` to `app/src/main/res/values-<lang>/strings.xml` and translate every string. The `<lang>` code follows Android's standard ISO 639-1 conventions. Always create a new `values-<lang>/` directory rather than editing an existing language.
+4. **Do not translate keys, only values:** String keys (`R.string.dashboard_title`, etc.) are referenced from Kotlin code and must stay identical.
+5. **Preserve placeholders:** If a string contains `%1$s`, `%2$d`, or similar, keep the placeholder structure and order intact in the translation.
+6. **Plural forms:** For strings with quantities, prefer Android's `<plurals>` element over hard-coded singular/plural variants. If you add a new plural string, reference the `getQuantityString` API.
+7. **Run the build:** Verify your changes by running `./gradlew assembleDebug` to make sure all string resources merge and compile cleanly without missing keys.
 
 ## Security Vulnerabilities
 

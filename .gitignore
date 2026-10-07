@@ -29,3 +29,5 @@ AGENTS.md
 site/dist/
 .zed/*
 .zed/
+__pycache__/
+*.pyc

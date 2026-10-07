@@ -624,11 +624,11 @@ If both PM2.5 and PM10 exist, it automatically reports the worst-case (maximum) 
     <string name="settings_text_scale_double">"200%% (Double)"</string>
     <string name="cd_contribute_translations">"Contribute translations"</string>
     <string name="translation_contrib_title">"Help Translate BoxViewer"</string>
-    <string name="translation_contrib_message">"You can help translate BoxViewer, submit corrections, or add new languages! Click below to visit the POEditor public translation portal, or see our GitHub CONTRIBUTING.md for details."</string>
-    <string name="translation_contrib_button">"Help Translate (POEditor)"</string>
+    <string name="translation_contrib_message">"You can help translate BoxViewer, submit corrections, or add new languages! See our GitHub CONTRIBUTING.md for details."</string>
+    <string name="translation_contrib_button">"Help Translate (GitHub)"</string>
     <string name="about_section_translation">"TRANSLATION &amp; LOCALIZATION"</string>
-    <string name="about_translation_description">"Help translate BoxViewer into new languages or correct existing translations! We use POEditor to collaboratively manage our localization community."</string>
-    <string name="about_link_translate">"Help Translate (POEditor)"</string>
+    <string name="about_translation_description">"Help translate BoxViewer into new languages or correct existing translations! We manage translations directly in our GitHub repository."</string>
+    <string name="about_link_translate">"Help Translate (GitHub)"</string>
     <string name="language_czech">"Czech"</string>
     <string name="language_french">"French"</string>
     <string name="language_hungarian">"Hungarian"</string>
