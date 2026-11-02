@@ -2,6 +2,7 @@ package de.nichu42.boxviewer
 
 import android.app.Application
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import de.nichu42.boxviewer.data.db.SavedBoxEntity
@@ -150,11 +151,51 @@ class AppScreenshotsTest {
 
   private fun snapshotPath(name: String): String = "src/test/snapshots/$name.png"
 
-  private fun captureSnapshot(name: String, waitForLoading: Boolean = false) {
-    if (waitForLoading) {
+  /**
+   * Waits for seeded content to actually be rendered.
+   *
+   * Do NOT use [ComposeContentTestRule.waitUntil] for this. Robolectric runs the main
+   * looper in PAUSED mode, and Room delivers its query results by posting back to that
+   * looper. `waitUntil` advances the Compose clock and sleeps, but never drains the
+   * Android looper, so a `StateFlow` fed by a Room flow can sit unpopulated for the whole
+   * timeout while the value is queued. `waitForIdle()` does drain it, so poll with that.
+   */
+  private fun awaitRendered(
+      description: String,
+      timeoutMs: Long = 10_000L,
+      condition: () -> Boolean
+  ) {
+    val deadline = System.currentTimeMillis() + timeoutMs
+    while (true) {
+      composeTestRule.waitForIdle()
+      if (condition()) return
+      if (System.currentTimeMillis() > deadline) {
+        throw AssertionError("Timed out after ${timeoutMs}ms waiting for $description")
+      }
+      Thread.sleep(20)
+    }
+  }
+
+  private fun captureSnapshot(name: String, waitForData: Boolean = false) {
+    if (waitForData) {
+      // savedBoxes and cachedSensors are both collected with an empty initial value, so
+      // every screen first renders without its data. Capturing that intermediate state
+      // made unrelated dependency bumps fail on whichever screenshot lost the race.
+      awaitRendered("seeded senseBox card") {
+        composeTestRule
+            .onAllNodesWithText(SEEDED_BOX_NAME)
+            .fetchSemanticsNodes(atLeastOneRootRequired = false)
+            .isNotEmpty()
+      }
+      awaitRendered("seeded sensor rows") {
+        composeTestRule
+            .onAllNodesWithText(SEEDED_SENSOR_TITLE)
+            .fetchSemanticsNodes(atLeastOneRootRequired = false)
+            .isNotEmpty()
+      }
       // Screens that refresh on launch must finish their (cache-path) fetch before
       // capturing, otherwise the pull-to-refresh spinner bakes into the reference.
-      composeTestRule.waitUntil(10_000L) { !viewModel.isLoading.value }
+      awaitRendered("launch refresh to finish") { !viewModel.isLoading.value }
     }
     composeTestRule.waitForIdle()
     composeTestRule.onRoot().captureRoboImage(snapshotPath(name))
@@ -171,7 +212,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("dashboard_phone", waitForLoading = true)
+    captureSnapshot("dashboard_phone", waitForData = true)
   }
 
   @Test
@@ -186,7 +227,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_phone", waitForLoading = true)
+    captureSnapshot("detail_phone", waitForData = true)
   }
 
   @Test
@@ -201,7 +242,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("widget_config_phone")
+    captureSnapshot("widget_config_phone", waitForData = true)
   }
 
   @Test
@@ -216,7 +257,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("dashboard_tablet7", waitForLoading = true)
+    captureSnapshot("dashboard_tablet7", waitForData = true)
   }
 
   @Test
@@ -232,7 +273,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_tablet7", waitForLoading = true)
+    captureSnapshot("detail_tablet7", waitForData = true)
   }
 
   @Test
@@ -247,7 +288,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("dashboard_tablet10", waitForLoading = true)
+    captureSnapshot("dashboard_tablet10", waitForData = true)
   }
 
   @Test
@@ -263,11 +304,17 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_tablet10", waitForLoading = true)
+    captureSnapshot("detail_tablet10", waitForData = true)
   }
 
   private companion object {
     /** 2026-06-10T12:00:00Z — fixed so "Synced:" labels render identically on every run. */
     const val FIXED_SEED_TIME_MS = 1781092800000L
+
+    /** Name of the seeded senseBox card; proves savedBoxes reached the composition. */
+    const val SEEDED_BOX_NAME = "Berlin Tiergarten Station"
+
+    /** Title of the first seeded sensor; proves the cache rows reached the composition. */
+    const val SEEDED_SENSOR_TITLE = "Temperature"
   }
 }
