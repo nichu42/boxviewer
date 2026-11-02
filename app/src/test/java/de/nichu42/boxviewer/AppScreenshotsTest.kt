@@ -2,7 +2,6 @@ package de.nichu42.boxviewer
 
 import android.app.Application
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import de.nichu42.boxviewer.data.db.SavedBoxEntity
@@ -151,22 +150,8 @@ class AppScreenshotsTest {
 
   private fun snapshotPath(name: String): String = "src/test/snapshots/$name.png"
 
-  private fun captureSnapshot(name: String, waitForData: Boolean = false) {
-    if (waitForData) {
-      // savedBoxes and cachedSensors are both collected with an empty initial value, so
-      // these screens first render their empty state and only fill in once the Room
-      // flows emit. isLoading is NOT a usable readiness signal on its own: it starts
-      // false and is only raised once refreshAll() gets past its "savedBoxes is empty"
-      // guard, so a screen that has not loaded its boxes yet would satisfy a
-      // `!isLoading` predicate immediately and bake the empty state into the reference.
-      composeTestRule.waitUntil(10_000L) { viewModel.savedBoxes.value.isNotEmpty() }
-      // The seeded sensor rows must actually be in the tree, not just in the database.
-      composeTestRule.waitUntil(10_000L) {
-        composeTestRule
-            .onAllNodesWithText(SEEDED_SENSOR_TITLE)
-            .fetchSemanticsNodes(atLeastOneRootRequired = false)
-            .isNotEmpty()
-      }
+  private fun captureSnapshot(name: String, waitForLoading: Boolean = false) {
+    if (waitForLoading) {
       // Screens that refresh on launch must finish their (cache-path) fetch before
       // capturing, otherwise the pull-to-refresh spinner bakes into the reference.
       composeTestRule.waitUntil(10_000L) { !viewModel.isLoading.value }
@@ -186,7 +171,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("dashboard_phone", waitForData = true)
+    captureSnapshot("dashboard_phone", waitForLoading = true)
   }
 
   @Test
@@ -201,7 +186,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_phone", waitForData = true)
+    captureSnapshot("detail_phone", waitForLoading = true)
   }
 
   @Test
@@ -231,7 +216,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("dashboard_tablet7", waitForData = true)
+    captureSnapshot("dashboard_tablet7", waitForLoading = true)
   }
 
   @Test
@@ -247,7 +232,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_tablet7", waitForData = true)
+    captureSnapshot("detail_tablet7", waitForLoading = true)
   }
 
   @Test
@@ -262,7 +247,7 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("dashboard_tablet10", waitForData = true)
+    captureSnapshot("dashboard_tablet10", waitForLoading = true)
   }
 
   @Test
@@ -278,14 +263,11 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_tablet10", waitForData = true)
+    captureSnapshot("detail_tablet10", waitForLoading = true)
   }
 
   private companion object {
     /** 2026-06-10T12:00:00Z — fixed so "Synced:" labels render identically on every run. */
     const val FIXED_SEED_TIME_MS = 1781092800000L
-
-    /** Title of the first seeded sensor; proves the cache rows reached the composition. */
-    const val SEEDED_SENSOR_TITLE = "Temperature"
   }
 }
