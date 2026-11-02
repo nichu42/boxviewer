@@ -11,8 +11,11 @@ updates:
     labels:
       - "android"
     commit-message:
-      prefix: "chore(deps)"
-      prefix-development: "chore(deps-dev)"
+      # `prefix` is the conventional-commit *type*; the parenthesised scope comes from
+      # `include: "scope"`. Putting the scope in the prefix too produced
+      # "chore(deps)(deps): ...".
+      prefix: "chore"
+      prefix-development: "chore"
       include: "scope"
     groups:
       kotlin-toolchain:
