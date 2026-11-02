@@ -176,7 +176,11 @@ class AppScreenshotsTest {
     }
   }
 
-  private fun captureSnapshot(name: String, waitForData: Boolean = false) {
+  private fun captureSnapshot(
+      name: String,
+      waitForData: Boolean = false,
+      awaitTexts: List<String> = emptyList()
+  ) {
     if (waitForData) {
       // savedBoxes and cachedSensors are both collected with an empty initial value, so
       // every screen first renders without its data. Capturing that intermediate state
@@ -196,6 +200,15 @@ class AppScreenshotsTest {
       // Screens that refresh on launch must finish their (cache-path) fetch before
       // capturing, otherwise the pull-to-refresh spinner bakes into the reference.
       awaitRendered("launch refresh to finish") { !viewModel.isLoading.value }
+    }
+    // Extra screens that render a second, independently-loaded source.
+    awaitTexts.forEach { expected ->
+      awaitRendered("\"$expected\" to be rendered") {
+        composeTestRule
+            .onAllNodesWithText(expected)
+            .fetchSemanticsNodes(atLeastOneRootRequired = false)
+            .isNotEmpty()
+      }
     }
     composeTestRule.waitForIdle()
     composeTestRule.onRoot().captureRoboImage(snapshotPath(name))
@@ -227,7 +240,10 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_phone", waitForData = true)
+    captureSnapshot(
+        "detail_phone",
+        waitForData = true,
+        awaitTexts = listOf(activeSensorsHeader(SEEDED_ACTIVE_SENSOR_COUNT)))
   }
 
   @Test
@@ -242,7 +258,10 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("widget_config_phone", waitForData = true)
+    captureSnapshot(
+        "widget_config_phone",
+        waitForData = true,
+        awaitTexts = listOf(SEEDED_AQI_TITLE))
   }
 
   @Test
@@ -273,7 +292,10 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_tablet7", waitForData = true)
+    captureSnapshot(
+        "detail_tablet7",
+        waitForData = true,
+        awaitTexts = listOf(activeSensorsHeader(SEEDED_ACTIVE_SENSOR_COUNT)))
   }
 
   @Test
@@ -304,8 +326,14 @@ class AppScreenshotsTest {
         )
       }
     }
-    captureSnapshot("detail_tablet10", waitForData = true)
+    captureSnapshot(
+        "detail_tablet10",
+        waitForData = true,
+        awaitTexts = listOf(activeSensorsHeader(SEEDED_ACTIVE_SENSOR_COUNT)))
   }
+
+  private fun activeSensorsHeader(count: Int): String =
+      app.getString(R.string.box_detail_active_sensors_format, count)
 
   private companion object {
     /** 2026-06-10T12:00:00Z — fixed so "Synced:" labels render identically on every run. */
@@ -316,5 +344,15 @@ class AppScreenshotsTest {
 
     /** Title of the first seeded sensor; proves the cache rows reached the composition. */
     const val SEEDED_SENSOR_TITLE = "Temperature"
+
+    /** Title of the locally synthesized AQI sensor, which arrives with the cache flow. */
+    const val SEEDED_AQI_TITLE = "AQI (Instant)"
+
+    /**
+     * Five seeded hardware sensors plus the synthesized AQI sensor. The detail header
+     * counts `box.sensors` plus the AQI sensor separately, so it reads (5) until the
+     * cache flow lands — `SEEDED_SENSOR_TITLE` alone does not prove the list is complete.
+     */
+    const val SEEDED_ACTIVE_SENSOR_COUNT = 6
   }
 }
