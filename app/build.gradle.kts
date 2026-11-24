@@ -9,6 +9,7 @@ plugins {
 android {
   namespace = "de.nichu42.boxviewer"
   compileSdk = 37
+  compileSdkMinor = 2
 
   defaultConfig {
     applicationId = "de.nichu42.boxviewer"
