@@ -4,8 +4,11 @@ All notable changes to the BoxViewer project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.58] - 2026-11-24
+
 ### Changed
 - **Repository-Based Localization**: Switched translation management from POEditor to direct repository contributions via Pull Requests. Updated in-app translation dialogs (Settings and About), documentation (`README.md`, `CONTRIBUTING.md`), and website links to direct contributors to GitHub.
+- **Dependency Updates**: Updated the Compose runtime from BOM 2026.09.00 to 2026.11.01 (Compose 1.13, with graphics and text performance improvements) and Robolectric from 4.17 to 4.18.1. Updated the build toolchain to AGP 9.5.2, Gradle 9.9.2, KSP 2.3.14, and compileSdk 37.2.
 
 ## [0.57] - 2026-08-31
 
