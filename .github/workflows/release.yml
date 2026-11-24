@@ -75,3 +75,6 @@ jobs:
           releaseFiles: app/build/outputs/bundle/release/app-release.aab
           tracks: beta
           status: completed
+          # Managed Publishing rejects auto-sending for review; commit the edit
+          # and send it from the Play Console instead.
+          changesNotSentForReview: true
